@@ -36,23 +36,23 @@ export async function POST(request: Request) {
     
     // Determine which API to use based on the model parameter
     let generateImagesFunction;
+    let fileExtension = '.png'; // Default for Ideogram
     
     switch (model) {
       case 'flux-schnell':
-        console.log('Using Flux Schnell model with Leonardo AI');
-        generateImagesFunction = (prompts: string[], folderId: string) => 
-          generateImagesWithFluxSchnell(prompts, folderId, styleUUID);
-        break;
       case 'flux-dev':
-        console.log('Using Flux Dev model with Leonardo AI');
-        generateImagesFunction = (prompts: string[], folderId: string) => 
-          generateImagesWithFluxDev(prompts, folderId, styleUUID);
+        console.log(`Using ${model} model with Leonardo AI`);
+        fileExtension = '.jpg'; // Leonardo AI returns JPG images
+        generateImagesFunction = model === 'flux-schnell' 
+          ? (prompts: string[], folderId: string) => generateImagesWithFluxSchnell(prompts, folderId, styleUUID)
+          : (prompts: string[], folderId: string) => generateImagesWithFluxDev(prompts, folderId, styleUUID);
         break;
       case 'ideogram':
       default:
         console.log('Using Ideogram model');
+        fileExtension = '.png'; // Ideogram returns PNG images
         generateImagesFunction = (prompts: string[], folderId: string) => 
-          generateImagesWithIdeogram(prompts, folderId, publicDir);
+          generateImagesWithIdeogram(prompts, folderId, publicDir, fileExtension);
         break;
     }
     
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 /**
  * Generate images using the Ideogram API
  */
-async function generateImagesWithIdeogram(prompts: string[], folderId: string, publicDir: string) {
+async function generateImagesWithIdeogram(prompts: string[], folderId: string, publicDir: string, fileExtension: string = '.png') {
   // Get the Ideogram API key from environment variables
   const apiKey = process.env.IDEOGRAM_API_KEY || '';
   if (!apiKey) {
@@ -154,7 +154,7 @@ async function generateImagesWithIdeogram(prompts: string[], folderId: string, p
       
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
       
-      const filename = `prompt-${index}.png`;
+      const filename = `prompt-${index}${fileExtension}`;
       const outputPath = path.join(publicDir, filename);
       
       try {

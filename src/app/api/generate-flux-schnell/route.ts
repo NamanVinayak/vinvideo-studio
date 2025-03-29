@@ -81,6 +81,15 @@ async function generateFluxSchnellImage(prompt: string, outputPath: string, styl
     
     // Save the image to disk
     const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+    
+    // Get the correct extension based on content type
+    // Leonardo AI Flux models return JPG images
+    const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    const extension = contentType.includes('jpeg') || contentType.includes('jpg') ? '.jpg' : '.png';
+    
+    // Update the outputPath with the correct extension
+    outputPath = outputPath.replace(/\.(png|jpg|jpeg)$/i, extension);
+    
     await fs.writeFile(outputPath, imageBuffer);
     
     // Return the URL to the saved image (relative to the app)
@@ -107,17 +116,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
     }
     
-    // Define the output path for the image
-    const fileName = `prompt-${index}.png`;
+    // Define the output path for the image - use jpg for Leonardo API
+    const fileName = `prompt-${index}.jpg`;
     const outputPath = path.join(process.cwd(), 'public', folderId, fileName);
     
     // Generate the image with the provided styleUUID
-    await generateFluxSchnellImage(prompt, outputPath, styleUUID);
+    const imagePath = await generateFluxSchnellImage(prompt, outputPath, styleUUID);
     
     // Return success response
     return NextResponse.json({
       success: true,
-      imageUrl: `/${folderId}/${fileName}`,
+      imageUrl: imagePath,
       prompt
     });
   } catch (error: unknown) {

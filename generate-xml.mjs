@@ -270,6 +270,27 @@ function extractNumericFromFilename(filename) {
 }
 
 /**
+ * Detects if an image file comes from the Leonardo API based on naming convention
+ * or checks for actual file type when possible
+ * @param {string} filePath - Path to the image file
+ * @returns {boolean} - True if likely from Leonardo API (jpg), false otherwise
+ */
+function detectLeonardoImage(filePath) {
+  // Quick check based on file extension
+  if (filePath.toLowerCase().endsWith('.jpg') || filePath.toLowerCase().endsWith('.jpeg')) {
+    return true;
+  }
+  
+  // If extension doesn't match but name suggests it's a Leonardo image, return true
+  // This could be modified to also check actual file content if needed
+  if (filePath.includes('leonardo') || filePath.includes('flux')) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Creates an FCPXML file from images in a directory, matching the "perfect" example structure.
  * Uses durations from a chunkedScript markdown table if provided.
  * Sorts the images in ascending numeric order by filename (prompt-1, prompt-2, prompt-3, ...).
@@ -302,7 +323,7 @@ async function createXMLFromImageDirectory(
     // Read all files in the directory
     const files = await fs.promises.readdir(absoluteImageDir);
 
-    // Filter for image files
+    // Filter for image files - support both PNG and JPG formats
     const imageFiles = files.filter((file) => /\.(jpg|jpeg|png|gif|bmp)$/i.test(file));
 
     // Sort them by the numeric portion of the filename
@@ -311,6 +332,19 @@ async function createXMLFromImageDirectory(
       const bNum = extractNumericFromFilename(b);
       return aNum - bNum;
     });
+
+    // Print image formats for debugging
+    imageFiles.forEach(file => {
+      console.log(`Found image file: ${file}, extension: ${path.extname(file).toLowerCase()}`);
+    });
+
+    // Check if we have both jpg and png files in the same folder
+    const hasJpgFiles = imageFiles.some(file => ['.jpg', '.jpeg'].includes(path.extname(file).toLowerCase()));
+    const hasPngFiles = imageFiles.some(file => path.extname(file).toLowerCase() === '.png');
+    
+    if (hasJpgFiles && hasPngFiles) {
+      console.log('Warning: Mixed file types detected (both JPG and PNG). This may cause issues in DaVinci Resolve.');
+    }
 
     // Parse durations from chunked script if provided
     let durations = [];
