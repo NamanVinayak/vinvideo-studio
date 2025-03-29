@@ -757,7 +757,21 @@ export default function Home() {
               <div className={styles.imagesGrid}>
                 {imageStatus.output.map((image: ImageAsset) => (
                   <div key={image.index} className={styles.imageCard}>
-                    <img src={image.imageUrl} alt={`Generated image ${image.index}`} />
+                    <img 
+                      src={image.imageUrl} 
+                      alt={`Generated image ${image.index}`}
+                      onError={(e) => {
+                        const imgElement = e.target as HTMLImageElement;
+                        const currentSrc = imgElement.src;
+                        
+                        // If image fails to load, try alternative extension
+                        if (currentSrc.endsWith('.png')) {
+                          imgElement.src = currentSrc.replace('.png', '.jpg');
+                        } else if (currentSrc.endsWith('.jpg')) {
+                          imgElement.src = currentSrc.replace('.jpg', '.png');
+                        }
+                      }} 
+                    />
                     <p>{image.prompt}</p>
                   </div>
                 ))}
