@@ -270,27 +270,6 @@ function extractNumericFromFilename(filename) {
 }
 
 /**
- * Detects if an image file comes from the Leonardo API based on naming convention
- * or checks for actual file type when possible
- * @param {string} filePath - Path to the image file
- * @returns {boolean} - True if likely from Leonardo API (jpg), false otherwise
- */
-function detectLeonardoImage(filePath) {
-  // Quick check based on file extension
-  if (filePath.toLowerCase().endsWith('.jpg') || filePath.toLowerCase().endsWith('.jpeg')) {
-    return true;
-  }
-  
-  // If extension doesn't match but name suggests it's a Leonardo image, return true
-  // This could be modified to also check actual file content if needed
-  if (filePath.includes('leonardo') || filePath.includes('flux')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
  * Creates an FCPXML file from images in a directory, matching the "perfect" example structure.
  * Uses durations from a chunkedScript markdown table if provided.
  * Sorts the images in ascending numeric order by filename (prompt-1, prompt-2, prompt-3, ...).
