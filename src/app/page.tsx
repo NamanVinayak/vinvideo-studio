@@ -42,6 +42,8 @@ export default function Home() {
   const [imageModel, setImageModel] = useState<ImageModel>("ideogram");
   // Style UUID selection for Flux models
   const [styleUUID, setStyleUUID] = useState<string>("");
+  // Aspect ratio selection
+  const [aspectRatio, setAspectRatio] = useState<"9:16"|"16:9">("16:9");
   
   // Available style options for Flux models
   const styleOptions = [
@@ -311,7 +313,8 @@ export default function Home() {
           prompts,
           folderId: projectFolderId,
           model: imageModel,
-          styleUUID: styleUUID // Pass the selected styleUUID
+          styleUUID: styleUUID, // Pass the selected styleUUID
+          aspectRatio: aspectRatio // Pass the selected aspect ratio
         }),
       });
       
@@ -547,6 +550,35 @@ export default function Home() {
             <option value="flux-schnell">Flux Schnell</option>
             <option value="flux-dev">Flux Dev</option>
           </select>
+        </div>
+        
+        {/* Aspect Ratio Selection */}
+        <div className={styles.aspectRatioSelection}>
+          <label className={styles.aspectRatioLabel}>Select Aspect Ratio:</label>
+          <div className={styles.radioGroup}>
+            <div className={styles.radioOption}>
+              <input
+                type="radio"
+                id="aspect-16-9"
+                name="aspectRatio"
+                value="16:9"
+                checked={aspectRatio === "16:9"}
+                onChange={() => setAspectRatio("16:9")}
+              />
+              <label htmlFor="aspect-16-9">Landscape (16:9)</label>
+            </div>
+            <div className={styles.radioOption}>
+              <input
+                type="radio"
+                id="aspect-9-16"
+                name="aspectRatio"
+                value="9:16"
+                checked={aspectRatio === "9:16"}
+                onChange={() => setAspectRatio("9:16")}
+              />
+              <label htmlFor="aspect-9-16">Portrait (9:16)</label>
+            </div>
+          </div>
         </div>
         
         {/* Style Selection Dropdown */}

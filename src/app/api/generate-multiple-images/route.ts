@@ -5,7 +5,7 @@ import path from 'path';
 export async function POST(request: Request) {
   try {
     // Extract prompts array, model type, and styleUUID from request
-    const { prompts, folderId, model = 'ideogram', styleUUID = '' } = await request.json();
+    const { prompts, folderId, model = 'ideogram', styleUUID = '', aspectRatio = '16:9' } = await request.json();
     
     if (!prompts || !Array.isArray(prompts) || prompts.length === 0) {
       return NextResponse.json({ error: 'Valid prompts array is required' }, { status: 400 });
@@ -44,15 +44,15 @@ export async function POST(request: Request) {
         console.log(`Using ${model} model with Leonardo AI`);
         fileExtension = '.jpg'; // Leonardo AI returns JPG images
         generateImagesFunction = model === 'flux-schnell' 
-          ? (prompts: string[], folderId: string) => generateImagesWithFluxSchnell(prompts, folderId, styleUUID)
-          : (prompts: string[], folderId: string) => generateImagesWithFluxDev(prompts, folderId, styleUUID);
+          ? (prompts: string[], folderId: string) => generateImagesWithFluxSchnell(prompts, folderId, styleUUID, aspectRatio)
+          : (prompts: string[], folderId: string) => generateImagesWithFluxDev(prompts, folderId, styleUUID, aspectRatio);
         break;
       case 'ideogram':
       default:
         console.log('Using Ideogram model');
         fileExtension = '.png'; // Ideogram returns PNG images
         generateImagesFunction = (prompts: string[], folderId: string) => 
-          generateImagesWithIdeogram(prompts, folderId, publicDir, fileExtension);
+          generateImagesWithIdeogram(prompts, folderId, publicDir, fileExtension, aspectRatio);
         break;
     }
     
@@ -78,7 +78,13 @@ export async function POST(request: Request) {
 /**
  * Generate images using the Ideogram API
  */
-async function generateImagesWithIdeogram(prompts: string[], folderId: string, publicDir: string, fileExtension: string = '.png') {
+async function generateImagesWithIdeogram(
+  prompts: string[], 
+  folderId: string, 
+  publicDir: string, 
+  fileExtension: string = '.png',
+  aspectRatio: string = '16:9'
+) {
   // Get the Ideogram API key from environment variables
   const apiKey = process.env.IDEOGRAM_API_KEY || '';
   if (!apiKey) {
@@ -88,8 +94,11 @@ async function generateImagesWithIdeogram(prompts: string[], folderId: string, p
   const results = [];
   let index = 1;
   
+  // Convert aspectRatio to Ideogram's expected format
+  const ideogramAspectRatio = aspectRatio === '9:16' ? 'ASPECT_9_16' : 'ASPECT_16_9';
+  
   for (const prompt of prompts) {
-    console.log(`Generating image ${index} with Ideogram for prompt: "${prompt}"`);
+    console.log(`Generating image ${index} with Ideogram for prompt: "${prompt}" with aspect ratio: ${ideogramAspectRatio}`);
     
     try {
       // Make API request to Ideogram
@@ -103,7 +112,7 @@ async function generateImagesWithIdeogram(prompts: string[], folderId: string, p
         body: JSON.stringify({
           image_request: {
             prompt: prompt,
-            aspect_ratio: "ASPECT_9_16", // Vertical aspect ratio (9:16)
+            aspect_ratio: ideogramAspectRatio, // Use the selected aspect ratio
             model: "V_2A_TURBO", // Using the V_2A model as specified
             magic_prompt_option: "AUTO",
             style_type: "REALISTIC"
@@ -196,12 +205,17 @@ async function generateImagesWithIdeogram(prompts: string[], folderId: string, p
 /**
  * Generate images using the Flux Schnell model via Leonardo AI
  */
-async function generateImagesWithFluxSchnell(prompts: string[], folderId: string, styleUUID: string = '') {
+async function generateImagesWithFluxSchnell(
+  prompts: string[], 
+  folderId: string, 
+  styleUUID: string = '',
+  aspectRatio: string = '16:9'
+) {
   const results = [];
   let index = 1;
   
   for (const prompt of prompts) {
-    console.log(`Generating image ${index} with Flux Schnell for prompt: "${prompt}"`);
+    console.log(`Generating image ${index} with Flux Schnell for prompt: "${prompt}" with aspect ratio: ${aspectRatio}`);
     
     try {
       // Call our API route for Flux Schnell
@@ -214,7 +228,8 @@ async function generateImagesWithFluxSchnell(prompts: string[], folderId: string
           prompt,
           folderId,
           index,
-          styleUUID
+          styleUUID,
+          aspectRatio
         })
       });
       
@@ -254,12 +269,17 @@ async function generateImagesWithFluxSchnell(prompts: string[], folderId: string
 /**
  * Generate images using the Flux Dev model via Leonardo AI
  */
-async function generateImagesWithFluxDev(prompts: string[], folderId: string, styleUUID: string = '') {
+async function generateImagesWithFluxDev(
+  prompts: string[], 
+  folderId: string, 
+  styleUUID: string = '',
+  aspectRatio: string = '16:9'
+) {
   const results = [];
   let index = 1;
   
   for (const prompt of prompts) {
-    console.log(`Generating image ${index} with Flux Dev for prompt: "${prompt}"`);
+    console.log(`Generating image ${index} with Flux Dev for prompt: "${prompt}" with aspect ratio: ${aspectRatio}`);
     
     try {
       // Call our API route for Flux Dev
@@ -272,7 +292,8 @@ async function generateImagesWithFluxDev(prompts: string[], folderId: string, st
           prompt,
           folderId,
           index,
-          styleUUID
+          styleUUID,
+          aspectRatio
         })
       });
       

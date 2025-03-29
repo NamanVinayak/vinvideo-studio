@@ -11,9 +11,15 @@ const FLUX_SCHNELL_MODEL_ID = '1dd50843-d653-4516-a8e3-f0238ee453ff';
  * @param prompt - The text prompt for image generation
  * @param outputPath - Where to save the image
  * @param styleUUID - Optional style UUID to use for generation
+ * @param aspectRatio - Optional aspect ratio (16:9 or 9:16)
  * @returns Promise with the image URL
  */
-async function generateFluxSchnellImage(prompt: string, outputPath: string, styleUUID?: string): Promise<string> {
+async function generateFluxSchnellImage(
+  prompt: string, 
+  outputPath: string, 
+  styleUUID?: string,
+  aspectRatio: string = '16:9'
+): Promise<string> {
   try {
     // Initialize API key from environment
     leonardoai.auth(process.env.LEONARDO_API_KEY || '');
@@ -21,13 +27,25 @@ async function generateFluxSchnellImage(prompt: string, outputPath: string, styl
     // Use provided styleUUID or default to Dynamic
     const actualStyleUUID = styleUUID || '111dc692-d470-4eec-b791-3475abac4c46';
     
+    // Set dimensions based on aspect ratio
+    let width = 512;
+    let height = 512;
+    
+    if (aspectRatio === '16:9') {
+      width = 912;
+      height = 512;
+    } else if (aspectRatio === '9:16') {
+      width = 512;
+      height = 912;
+    }
+    
     // Create the generation
     const { data } = await leonardoai.createGeneration({
       modelId: FLUX_SCHNELL_MODEL_ID,
       prompt,
       contrast: 3.5, // Medium contrast
-      width: 512,
-      height: 512,
+      width: width,
+      height: height,
       num_images: 1,
       styleUUID: actualStyleUUID,
       enhancePrompt: false,
@@ -106,7 +124,7 @@ async function generateFluxSchnellImage(prompt: string, outputPath: string, styl
 export async function POST(request: Request) {
   try {
     // Parse the request body
-    const { prompt, folderId, index = 1, styleUUID } = await request.json();
+    const { prompt, folderId, index = 1, styleUUID, aspectRatio = '16:9' } = await request.json();
     
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
@@ -120,8 +138,8 @@ export async function POST(request: Request) {
     const fileName = `prompt-${index}.jpg`;
     const outputPath = path.join(process.cwd(), 'public', folderId, fileName);
     
-    // Generate the image with the provided styleUUID
-    const imagePath = await generateFluxSchnellImage(prompt, outputPath, styleUUID);
+    // Generate the image with the provided styleUUID and aspectRatio
+    const imagePath = await generateFluxSchnellImage(prompt, outputPath, styleUUID, aspectRatio);
     
     // Return success response
     return NextResponse.json({
