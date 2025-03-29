@@ -1,0 +1,131 @@
+import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
+import leonardoai from '@/utils/leonardoai';
+
+// Flux Dev model ID
+const FLUX_DEV_MODEL_ID = 'b2614463-296c-462a-9586-aafdb8f00e36';
+
+/**
+ * Generates an image using the Flux Dev model from Leonardo AI
+ * @param prompt - The text prompt for image generation
+ * @param outputPath - Where to save the image
+ * @param styleUUID - Optional style UUID to use for generation
+ * @returns Promise with the image URL
+ */
+async function generateFluxDevImage(prompt: string, outputPath: string, styleUUID?: string): Promise<string> {
+  try {
+    // Initialize API key from environment
+    leonardoai.auth(process.env.LEONARDO_API_KEY || '');
+    
+    // Use provided styleUUID or default to Illustration
+    const actualStyleUUID = styleUUID || '645e4195-f63d-4715-a3f2-3fb1e6eb8c70';
+    
+    // Create the generation
+    const { data } = await leonardoai.createGeneration({
+      modelId: FLUX_DEV_MODEL_ID,
+      prompt,
+      contrast: 4, // High contrast for better details
+      width: 512,
+      height: 512,
+      num_images: 1,
+      styleUUID: actualStyleUUID,
+      enhancePrompt: false,
+      negative_prompt: "nsfw, nude, bad quality, blurry"
+    });
+    
+    // Poll for the result (Leonardo AI is asynchronous)
+    console.log(`Generation created with ID: ${data.generationId}`);
+    const generationId = data.generationId;
+    let result;
+    let attempts = 0;
+    const maxAttempts = 30; // 30 * 2 seconds = 60 seconds maximum wait time
+    
+    while (attempts < maxAttempts) {
+      attempts++;
+      
+      // Wait for 2 seconds between polls
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Check generation status
+      result = await leonardoai.getGenerationById(generationId);
+      
+      // If completed, break out of the loop
+      if (result.generations_by_pk.status === 'COMPLETE' && 
+          result.generations_by_pk.generated_images.length > 0) {
+        break;
+      }
+      
+      // If failed, throw an error
+      if (result.generations_by_pk.status === 'FAILED') {
+        throw new Error('Image generation failed');
+      }
+    }
+    
+    if (!result || !result.generations_by_pk.generated_images.length) {
+      throw new Error('Timeout waiting for image generation or no images were generated');
+    }
+    
+    // Get the URL of the first generated image
+    const imageUrl = result.generations_by_pk.generated_images[0].url;
+    
+    // Fetch the image
+    const imageResponse = await fetch(imageUrl);
+    if (!imageResponse.ok) {
+      throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
+    }
+    
+    // Create the directory if it doesn't exist
+    const dir = path.dirname(outputPath);
+    await fs.mkdir(dir, { recursive: true });
+    
+    // Save the image to disk
+    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+    await fs.writeFile(outputPath, imageBuffer);
+    
+    // Return the local path to the saved image (relative to public)
+    return outputPath.replace(/^public/, '');
+  } catch (error) {
+    console.error('Error generating image with Flux Dev:', error);
+    throw error;
+  }
+}
+
+/**
+ * API route handler for Flux Dev image generation
+ */
+export async function POST(request: Request) {
+  try {
+    // Parse the request body
+    const { prompt, folderId, index = 1, styleUUID } = await request.json();
+    
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+    }
+    
+    if (!folderId) {
+      return NextResponse.json({ error: 'Folder ID is required' }, { status: 400 });
+    }
+    
+    // Define the output path for the image
+    const fileName = `prompt-${index}.png`;
+    const outputPath = path.join(process.cwd(), 'public', folderId, fileName);
+    
+    // Generate the image with the provided styleUUID
+    await generateFluxDevImage(prompt, outputPath, styleUUID);
+    
+    // Return success response with the URL to the saved image
+    return NextResponse.json({
+      success: true,
+      imageUrl: `/${folderId}/${fileName}`,
+      prompt
+    });
+  } catch (error: unknown) {
+    console.error('Error in Flux Dev image generation endpoint:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ 
+      error: errorMessage,
+      success: false 
+    }, { status: 500 });
+  }
+} 
