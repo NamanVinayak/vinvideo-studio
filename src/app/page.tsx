@@ -260,7 +260,8 @@ export default function Home() {
         },
         body: JSON.stringify({ 
           script: formattedScript,
-          folderId: projectFolderId
+          folderId: projectFolderId,
+          styleUUID: styleUUID // Pass the selected styleUUID for style-specific prompts
         }),
       });
       
