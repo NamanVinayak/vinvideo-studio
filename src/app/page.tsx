@@ -108,6 +108,10 @@ export default function Home() {
     error: null, 
     output: null 
   });
+  
+  // Timer states
+  const [processingTime, setProcessingTime] = useState<number | null>(null);
+  const [processingStartTime, setProcessingStartTime] = useState<number | null>(null);
 
   // Parse the chunked script into segments
   const parseChunkedScript = (chunkedScript: string): Segment[] => {
@@ -446,6 +450,19 @@ export default function Home() {
     // setShowScriptGenerator(false);
   };
 
+  // Format processing time in a human-readable format
+  const formatProcessingTime = (timeInMs: number): string => {
+    if (timeInMs < 1000) {
+      return `${timeInMs}ms`;
+    } else if (timeInMs < 60000) {
+      return `${(timeInMs / 1000).toFixed(2)}s`;
+    } else {
+      const minutes = Math.floor(timeInMs / 60000);
+      const seconds = ((timeInMs % 60000) / 1000).toFixed(0);
+      return `${minutes}m ${seconds}s`;
+    }
+  };
+
   // Main process handler
   const handleProcess = async () => {
     if (!script.trim()) return;
@@ -453,6 +470,11 @@ export default function Home() {
     setProcessing(true);
     setDownloadReady(false);
     setError("");
+    setProcessingTime(null);
+    
+    // Start the processing timer
+    const startTime = Date.now();
+    setProcessingStartTime(startTime);
     
     // Reset all statuses
     setFormatStatus({ loading: false, completed: false, error: null, output: null });
@@ -485,9 +507,22 @@ export default function Home() {
         await createXML(projectFolderId);
         setDownloadReady(true);
       }
+      
+      // Calculate and set the total processing time
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      setProcessingTime(totalTime);
+      
     } catch (error: unknown) {
       console.error("Error in process workflow:", error);
       setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      
+      // Set processing time even if there was an error
+      if (processingStartTime) {
+        const endTime = Date.now();
+        const totalTime = endTime - processingStartTime;
+        setProcessingTime(totalTime);
+      }
     } finally {
       setProcessing(false);
     }
@@ -709,6 +744,19 @@ export default function Home() {
               {xmlStatus.error && <div className={styles.errorMessage}>{xmlStatus.error}</div>}
             </li>
           </ol>
+          
+          {processingTime !== null && (
+            <div style={{
+              marginTop: '15px',
+              padding: '10px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '5px',
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              Total processing time: {formatProcessingTime(processingTime)}
+            </div>
+          )}
         </div>
         
         {error && (
@@ -788,26 +836,82 @@ export default function Home() {
             <div className={styles.outputSection}>
               <h3>Generated Images</h3>
               <div className={styles.imagesGrid}>
-                {imageStatus.output.map((image: ImageAsset) => (
-                  <div key={image.index} className={styles.imageCard}>
-                    <img 
-                      src={image.imageUrl} 
-                      alt={`Generated image ${image.index}`}
-                      onError={(e) => {
-                        const imgElement = e.target as HTMLImageElement;
-                        const currentSrc = imgElement.src;
-                        
-                        // If image fails to load, try alternative extension
-                        if (currentSrc.endsWith('.png')) {
-                          imgElement.src = currentSrc.replace('.png', '.jpg');
-                        } else if (currentSrc.endsWith('.jpg')) {
-                          imgElement.src = currentSrc.replace('.jpg', '.png');
-                        }
-                      }} 
-                    />
-                    <p>{image.prompt}</p>
-                  </div>
-                ))}
+                {imageStatus.output.map((image: ImageAsset) => {
+                  // Process the image URL to ensure it has the correct extension
+                  let imageUrl = image.imageUrl;
+                  
+                  // Debug the raw image URL
+                  console.log(`Raw image URL from API: "${imageUrl}"`);
+                  
+                  // Ensure the URL has a file extension - if none, add .jpg as default
+                  if (!imageUrl.match(/\.(jpg|jpeg|png)$/i)) {
+                    const oldUrl = imageUrl;
+                    imageUrl = `${imageUrl}.jpg`;
+                    console.log(`Added .jpg extension: "${oldUrl}" → "${imageUrl}"`);
+                  }
+                  
+                  // Make sure the path starts with a slash for proper loading
+                  if (!imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+                    const oldUrl = imageUrl;
+                    imageUrl = `/${imageUrl}`;
+                    console.log(`Added leading slash: "${oldUrl}" → "${imageUrl}"`);
+                  }
+                  
+                  // Final image URL to be used
+                  console.log(`Final image URL: "${imageUrl}"`);
+                  
+                  return (
+                    <div key={image.index} className={styles.imageCard}>
+                      <img 
+                        src={imageUrl} 
+                        alt={`Generated image ${image.index}`}
+                        style={{ maxWidth: '100%', height: 'auto' }}
+                        onLoad={() => {
+                          console.log(`Image successfully loaded: ${imageUrl}`);
+                        }}
+                        onError={(e) => {
+                          const imgElement = e.target as HTMLImageElement;
+                          const currentSrc = imgElement.src;
+                          console.error(`Image load error for: "${currentSrc}"`);
+                          
+                          // Check if we've already attempted to switch extensions
+                          if (!imgElement.dataset.triedAlternative) {
+                            imgElement.dataset.triedAlternative = 'true';
+                            
+                            // Try alternative extension
+                            let newSrc = '';
+                            if (currentSrc.match(/\.png$/i)) {
+                              newSrc = currentSrc.replace(/\.png$/i, '.jpg');
+                              console.log(`Trying JPEG instead: "${newSrc}"`);
+                              imgElement.src = newSrc;
+                            } else if (currentSrc.match(/\.(jpg|jpeg)$/i)) {
+                              newSrc = currentSrc.replace(/\.(jpg|jpeg)$/i, '.png');
+                              console.log(`Trying PNG instead: "${newSrc}"`);
+                              imgElement.src = newSrc;
+                            }
+                          } else {
+                            // If we've already tried both extensions, try a direct fetch to debug
+                            console.log('Both extensions failed, checking if file exists via fetch...');
+                            fetch(currentSrc, { method: 'HEAD' })
+                              .then(response => {
+                                console.log(`Fetch response for ${currentSrc}: ${response.status} ${response.statusText}`);
+                              })
+                              .catch(err => {
+                                console.error(`Fetch error for ${currentSrc}: ${err}`);
+                              })
+                              .finally(() => {
+                                // Show placeholder regardless of fetch result
+                                imgElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22100%22%20height%3D%22100%22%3E%3Crect%20fill%3D%22%23ddd%22%20width%3D%22100%22%20height%3D%22100%22%2F%3E%3Ctext%20fill%3D%22%23888%22%20font-family%3D%22sans-serif%22%20font-size%3D%2212%22%20x%3D%2210%22%20y%3D%2250%22%3EImage%20not%20found%3C%2Ftext%3E%3C%2Fsvg%3E';
+                                imgElement.alt = 'Image could not be loaded';
+                              });
+                          }
+                        }} 
+                      />
+                      <p>{image.prompt}</p>
+                      <small className={styles.debugInfo}>URL: {imageUrl}</small>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -103,15 +103,41 @@ async function generateFluxDevImage(
     // Get the correct extension based on content type
     // Leonardo AI Flux models return JPG images
     const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    console.log(`Image content type from Leonardo: ${contentType}`);
+    
+    // Determine file extension from content type
     const extension = contentType.includes('jpeg') || contentType.includes('jpg') ? '.jpg' : '.png';
+    console.log(`Using file extension: ${extension}`);
     
     // Update the outputPath with the correct extension
+    const originalPath = outputPath;
     outputPath = outputPath.replace(/\.(png|jpg|jpeg)$/i, extension);
+    console.log(`Updated output path from ${originalPath} to ${outputPath}`);
     
+    // Write the image data to disk
     await fs.writeFile(outputPath, imageBuffer);
+    console.log(`Image saved to disk at: ${outputPath}`);
+    
+    // Verify the file exists after writing
+    try {
+      const fileStats = await fs.stat(outputPath);
+      console.log(`File successfully created with size: ${fileStats.size} bytes`);
+    } catch (err) {
+      console.error(`Error verifying file existence: ${err}`);
+    }
+
+    // Add a small delay to ensure file system operations are complete
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // Return the local path to the saved image (relative to public)
-    return outputPath.replace(/^public/, '');
+    // Extract just the relative path regardless of the full path structure
+    // First, get just the filename and folder from the outputPath
+    const folderName = path.basename(path.dirname(outputPath));
+    const fileName = path.basename(outputPath);
+    const imagePath = `/${folderName}/${fileName}`;
+    
+    console.log(`Final image path to return: ${imagePath}`);
+    return imagePath;
   } catch (error) {
     console.error('Error generating image with Flux Dev:', error);
     throw error;
@@ -137,9 +163,11 @@ export async function POST(request: Request) {
     // Define the output path for the image - use jpg for Leonardo API
     const fileName = `prompt-${index}.jpg`;
     const outputPath = path.join(process.cwd(), 'public', folderId, fileName);
+    console.log(`Starting image generation for ${fileName}, output path: ${outputPath}`);
     
     // Generate the image with the provided styleUUID and aspectRatio
     const imagePath = await generateFluxDevImage(prompt, outputPath, styleUUID, aspectRatio);
+    console.log(`Successfully generated image, returned path: ${imagePath}`);
     
     // Return success response with the URL to the saved image
     return NextResponse.json({

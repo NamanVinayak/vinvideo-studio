@@ -28,6 +28,14 @@ export async function POST(request: Request) {
       try {
         await fs.mkdir(publicDir, { recursive: true });
         console.log(`Created directory: ${publicDir}`);
+        
+        // Set directory permissions to ensure it's readable
+        try {
+          await fs.chmod(publicDir, 0o755);
+          console.log(`Set directory permissions to 0755 for ${publicDir}`);
+        } catch (chmodError) {
+          console.error('Error setting directory permissions:', chmodError);
+        }
       } catch (mkdirError) {
         console.error('Error creating directory:', mkdirError);
         return NextResponse.json({ error: 'Invalid or inaccessible folder ID' }, { status: 400 });
@@ -37,6 +45,9 @@ export async function POST(request: Request) {
     // Determine which API to use based on the model parameter
     let generateImagesFunction;
     let fileExtension = '.png'; // Default for Ideogram
+    
+    // Log the model choice for debugging
+    console.log(`Image generation model: ${model}, aspect ratio: ${aspectRatio}, style: ${styleUUID || 'none'}`);
     
     switch (model) {
       case 'flux-schnell':
@@ -58,6 +69,22 @@ export async function POST(request: Request) {
     
     // Generate images for all prompts using the selected model
     const results = await generateImagesFunction(prompts, folderId);
+    
+    // Log the results for debugging
+    console.log(`Generated ${results.length} images with ${results.filter(r => r.success).length} successes`);
+    results.forEach((result, i) => {
+      if (result.success) {
+        console.log(`Result ${i+1}: ${result.imageUrl}`);
+        
+        // Verify that the file actually exists on disk
+        const filePath = path.join(process.cwd(), 'public', result.imageUrl.replace(/^\//, ''));
+        fs.access(filePath)
+          .then(() => console.log(`✅ File exists: ${filePath}`))
+          .catch(err => console.error(`❌ File does not exist: ${filePath}`, err));
+      } else {
+        console.log(`Result ${i+1} failed: ${result.error}`);
+      }
+    });
     
     return NextResponse.json({
       success: true,
@@ -170,11 +197,23 @@ async function generateImagesWithIdeogram(
         await fs.writeFile(outputPath, imageBuffer);
         console.log(`Image ${index} saved to ${outputPath}`);
         
+        // Verify the file exists after writing
+        try {
+          const fileStats = await fs.stat(outputPath);
+          console.log(`File successfully created with size: ${fileStats.size} bytes`);
+        } catch (err) {
+          console.error(`Error verifying file existence: ${err}`);
+        }
+        
+        // Ensure URL starts with a slash and includes the full path
+        const imagePathUrl = `/${folderId}/${filename}`;
+        console.log(`Image URL path: ${imagePathUrl}`);
+        
         results.push({
           index,
           prompt,
           success: true,
-          imageUrl: `/${folderId}/${filename}`,
+          imageUrl: imagePathUrl,
           sourceUrl: imageUrl
         });
       } catch (saveError) {
@@ -247,6 +286,9 @@ async function generateImagesWithFluxSchnell(
           success: true,
           imageUrl: data.imageUrl
         });
+        
+        // Log the successful image URL for debugging
+        console.log(`Successful Flux Schnell image generation. URL: ${data.imageUrl}`);
       } else {
         throw new Error(data.error || 'Unknown error');
       }
@@ -311,6 +353,9 @@ async function generateImagesWithFluxDev(
           success: true,
           imageUrl: data.imageUrl
         });
+        
+        // Log the successful image URL for debugging
+        console.log(`Successful Flux Dev image generation. URL: ${data.imageUrl}`);
       } else {
         throw new Error(data.error || 'Unknown error');
       }
