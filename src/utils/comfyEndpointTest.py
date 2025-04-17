@@ -10,7 +10,7 @@ load_dotenv('.env.local')
 api_key = os.getenv('RUNPOD_API_KEY')
 
 # RunPod endpoint ID
-endpoint_id = "sj75f1kboamkmx"
+endpoint_id = "5lq23g82tx2u2k"
 
 # Define API URLs
 health_url = f"https://api.runpod.ai/v2/{endpoint_id}/health"
@@ -147,7 +147,7 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
       },
       "30": {
         "inputs": {
-          "ckpt_name": "FLUX1/flux1-dev-fp8.safetensors"
+          "ckpt_name": "flux1-dev-fp8.safetensors"
         },
         "class_type": "CheckpointLoaderSimple",
         "_meta": {
@@ -263,11 +263,9 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                     if isinstance(output, dict) and 'message' in output:
                         print("Found base64-encoded data in response")
                         
-                        # Determine if it's a video or image based on content
-                        if "video" in str(output).lower() or "mp4" in str(output).lower():
-                            save_video(output['message'], "generated_video.mp4")
-                        else:
-                            save_base64_image(output['message'], "generated_image.png")
+                        # Since we're running a FLUX image generation workflow, 
+                        # we should always save the output as an image
+                        save_base64_image(output['message'], "generated_image.png")
                         
                         return output
                     
