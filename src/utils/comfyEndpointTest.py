@@ -157,7 +157,8 @@ def save_video(video_data, filename="generated_video.mp4"):
         return False
 
 def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a maid outfit with a long black gold leaf pattern dress and a white apron mouth open placing a fancy black forest cake with candles on top of a dinner table of an old dark Victorian mansion lit by candlelight with a bright window to the foggy forest and very expensive stuff everywhere there are paintings on the walls", 
-                  negative_prompt=""):
+                  negative_prompt="",
+                  output_filename="generated_image.png"):
     """
     Generate content using the FLUX workflow format for RunPod
     """
@@ -325,7 +326,7 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                         # Check for base64-encoded image in "message" field
                         if isinstance(output, dict) and 'message' in output:
                             print("Found base64-encoded data in response 'message' field")
-                            save_base64_image(output['message'], "generated_image.png")
+                            save_base64_image(output['message'], output_filename)
                             return output
                         
                         # Check for images array
@@ -335,17 +336,17 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                                 if isinstance(img_data, str) and (img_data.startswith('http') or img_data.startswith('https')):
                                     # It's a URL, download it
                                     print(f"Image {i} is a URL")
-                                    save_image(img_data, f"generated_image_{i}.png")
+                                    save_image(img_data, output_filename)
                                 else:
                                     # Assume it's base64 data
                                     print(f"Image {i} appears to be base64 data")
-                                    save_base64_image(img_data, f"generated_image_{i}.png")
+                                    save_base64_image(img_data, output_filename)
                             return output
                         
                         # Check for 'image' field
                         if isinstance(output, dict) and 'image' in output:
                             print("Found 'image' field in output")
-                            save_base64_image(output['image'], "generated_image.png")
+                            save_base64_image(output['image'], output_filename)
                             return output
                         
                         # Check for node output fields used by ComfyUI
@@ -361,17 +362,17 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                                 if isinstance(save_data, list) and len(save_data) > 0:
                                     for i, img_data in enumerate(save_data):
                                         if isinstance(img_data, str):
-                                            save_base64_image(img_data, f"generated_image_{i}.png")
+                                            save_base64_image(img_data, output_filename)
                                         elif isinstance(img_data, dict) and 'filename' in img_data:
                                             print(f"SaveImage returned filename: {img_data['filename']}")
                                             # If there's actual image data
                                             if 'data' in img_data:
-                                                save_base64_image(img_data['data'], f"{img_data['filename']}")
+                                                save_base64_image(img_data['data'], output_filename)
                                         elif isinstance(img_data, list):
                                             for j, inner_img in enumerate(img_data):
-                                                save_base64_image(inner_img, f"generated_image_{i}_{j}.png")
+                                                save_base64_image(inner_img, output_filename)
                                 else:
-                                    save_base64_image(save_data, "generated_image.png")
+                                    save_base64_image(save_data, output_filename)
                                 return output
                                 
                             # VAEDecode node usually has output in node 8
@@ -381,15 +382,15 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                                 
                                 if isinstance(vae_data, list) and len(vae_data) > 0:
                                     for i, img_data in enumerate(vae_data):
-                                        save_base64_image(img_data, f"generated_image_{i}.png")
+                                        save_base64_image(img_data, output_filename)
                                 else:
-                                    save_base64_image(vae_data, "generated_image.png")
+                                    save_base64_image(vae_data, output_filename)
                                 return output
                                 
                         # If we have a simple string, try to decode it as image
                         if isinstance(output, str):
                             print("Output is a direct string, trying to decode as image")
-                            save_base64_image(output, "generated_image.png")
+                            save_base64_image(output, output_filename)
                             return output
                             
                         # If output is a dictionary with a single value, try that value
@@ -398,10 +399,10 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
                             value = output[key]
                             print(f"Output is a dictionary with a single key '{key}', trying its value")
                             if isinstance(value, str):
-                                save_base64_image(value, "generated_image.png")
+                                save_base64_image(value, output_filename)
                             elif isinstance(value, list) and len(value) > 0:
                                 for i, item in enumerate(value):
-                                    save_base64_image(item, f"generated_image_{i}.png")
+                                    save_base64_image(item, output_filename)
                             return output
                             
                         # As a last resort, try saving the entire output
@@ -435,6 +436,27 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
         print(f"Failed to submit job: {response.text}")
         return None
 
+def load_prompts_from_file(filename="message.txt"):
+    """Load prompts from the message.txt file"""
+    try:
+        # Use hardcoded path to message.txt in the src/utils directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        message_path = os.path.join(script_dir, "message.txt")
+        print(f"Looking for message.txt at: {message_path}")
+        
+        with open(message_path, 'r') as file:
+            data = json.load(file)
+            return data
+    except FileNotFoundError:
+        print(f"Error: File {message_path} not found")
+        return []
+    except json.JSONDecodeError:
+        print(f"Error: File {message_path} contains invalid JSON")
+        return []
+    except Exception as e:
+        print(f"Error loading prompts from file: {e}")
+        return []
+
 def main():
     # First check if the endpoint is healthy
     print("Checking endpoint health...")
@@ -446,26 +468,56 @@ def main():
     abs_output_dir = os.path.abspath(OUTPUT_DIR)
     print(f"Images will be saved to: {abs_output_dir}")
     
-    # User input for prompts
-    use_default = input("Use default workflow? (y/n): ").lower() == 'y'
+    # Load prompts from file
+    prompts_data = load_prompts_from_file()
     
-    if not use_default:
-        prompt = input("Enter your prompt: ")
-        negative_prompt = input("Enter negative prompt (or press Enter for default): ")
-        # Generate the content with custom prompts
-        result = generate_image(prompt, negative_prompt)
-    else:
-        print("Using default settings.")
-        # Generate the content with default prompts
-        result = generate_image()
+    if not prompts_data:
+        print("No prompts found in message.txt file or file couldn't be loaded.")
+        use_default = input("Use default workflow instead? (y/n): ").lower() == 'y'
+        
+        if use_default:
+            print("Using default settings.")
+            # Generate the content with default prompts
+            result = generate_image()
+            
+            if result:
+                print("Content generation successful!")
+                print(f"Check {abs_output_dir} for your generated images")
+            else:
+                print("Content generation failed.")
+        return
     
-    print("\nGenerating content with FLUX workflow...")
+    # Process each prompt
+    print(f"Found {len(prompts_data)} prompts to process")
     
-    if result:
-        print("Content generation successful!")
-        print(f"Check {abs_output_dir} for your generated images")
-    else:
-        print("Content generation failed.")
+    for item in prompts_data:
+        beat_number = item.get('beat_no')
+        positive_prompt = item.get('positive_prompt')
+        
+        if not positive_prompt:
+            print(f"Skipping beat {beat_number}: No positive prompt found")
+            continue
+        
+        print(f"\nProcessing beat {beat_number}...")
+        print(f"Positive prompt: {positive_prompt[:100]}...")
+        
+        # Generate image with this prompt
+        output_filename = f"beat{beat_number}.png"
+        print(f"Generating image: {output_filename}")
+        
+        result = generate_image(
+            prompt=positive_prompt, 
+            negative_prompt="", 
+            output_filename=output_filename
+        )
+        
+        if result:
+            print(f"Successfully generated image for beat {beat_number}")
+        else:
+            print(f"Failed to generate image for beat {beat_number}")
+    
+    print("\nAll prompts processed!")
+    print(f"Check {abs_output_dir} for your generated images")
 
 if __name__ == "__main__":
     main()
