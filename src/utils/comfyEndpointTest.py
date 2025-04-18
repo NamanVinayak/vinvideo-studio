@@ -17,6 +17,10 @@ health_url = f"https://api.runpod.ai/v2/{endpoint_id}/health"
 run_url = f"https://api.runpod.ai/v2/{endpoint_id}/run"
 status_url = f"https://api.runpod.ai/v2/{endpoint_id}/status/"
 
+# Define path for output files
+# You can set this to an absolute path to ensure files are saved in a known location
+OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'public')
+
 def check_endpoint_health():
     """Check if the RunPod endpoint is healthy."""
     headers = {"Authorization": f"Bearer {api_key}"}
@@ -34,8 +38,11 @@ def save_image(url, filename="generated_image.png"):
     try:
         response = requests.get(url)
         if response.status_code == 200:
+            # Ensure public directory exists
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+            
             # Save to the public folder
-            public_path = os.path.join("public", filename)
+            public_path = os.path.join(OUTPUT_DIR, filename)
             with open(public_path, "wb") as f:
                 f.write(response.content)
             print(f"Image saved as {public_path}")
@@ -50,16 +57,77 @@ def save_image(url, filename="generated_image.png"):
 def save_base64_image(base64_string, filename="generated_image.png"):
     """Save a base64-encoded image to a local file"""
     try:
+        # Ensure public directory exists
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        
         # Save to the public folder
-        public_path = os.path.join("public", filename)
+        public_path = os.path.join(OUTPUT_DIR, filename)
         
-        # Decode the base64 string and save as image
-        image_data = base64.b64decode(base64_string)
-        with open(public_path, "wb") as f:
-            f.write(image_data)
-        
-        print(f"Base64 image saved as {public_path}")
-        return True
+        # Handle different base64 formats
+        # If the string starts with data URI scheme like "data:image/png;base64,"
+        if isinstance(base64_string, str) and base64_string.startswith('data:'):
+            # Extract the actual base64 data after the comma
+            base64_data = base64_string.split(',', 1)[1]
+        else:
+            base64_data = base64_string
+            
+        # Make sure we're working with a string
+        if not isinstance(base64_data, str):
+            base64_data = str(base64_data)
+            
+        # Remove any whitespace that might be in the string
+        base64_data = base64_data.strip()
+            
+        try:
+            # Decode the base64 string and save as image
+            image_data = base64.b64decode(base64_data)
+            
+            # Check the file signature (magic bytes) to determine the correct file extension
+            # This helps ensure we save with the correct format
+            if image_data.startswith(b'\xFF\xD8\xFF'):  # JPEG signature
+                if not filename.lower().endswith(('.jpg', '.jpeg')):
+                    filename = os.path.splitext(filename)[0] + '.jpg'
+                    public_path = os.path.join(OUTPUT_DIR, filename)
+                print("Detected JPEG image format")
+            elif image_data.startswith(b'\x89PNG\r\n\x1A\n'):  # PNG signature
+                if not filename.lower().endswith('.png'):
+                    filename = os.path.splitext(filename)[0] + '.png'
+                    public_path = os.path.join(OUTPUT_DIR, filename)
+                print("Detected PNG image format")
+            elif image_data.startswith(b'GIF87a') or image_data.startswith(b'GIF89a'):  # GIF signature
+                if not filename.lower().endswith('.gif'):
+                    filename = os.path.splitext(filename)[0] + '.gif'
+                    public_path = os.path.join(OUTPUT_DIR, filename)
+                print("Detected GIF image format")
+            elif image_data.startswith(b'RIFF') and image_data[8:12] == b'WEBP':  # WEBP signature
+                if not filename.lower().endswith('.webp'):
+                    filename = os.path.splitext(filename)[0] + '.webp'
+                    public_path = os.path.join(OUTPUT_DIR, filename)
+                print("Detected WEBP image format")
+            
+            # Write the data to file
+            with open(public_path, "wb") as f:
+                f.write(image_data)
+            
+            # Print the absolute path for easier debugging
+            abs_path = os.path.abspath(public_path)
+            print(f"Base64 image saved as {public_path}")
+            print(f"Absolute path: {abs_path}")
+            return True
+        except Exception as decode_error:
+            print(f"Error decoding base64 data: {decode_error}")
+            
+            # As a fallback, try to save the raw data
+            print("Attempting to save raw data...")
+            if isinstance(base64_string, str):
+                with open(public_path, "w") as f:
+                    f.write(base64_string)
+            else:
+                with open(public_path, "wb") as f:
+                    f.write(base64_string)
+            
+            print(f"Raw data saved to {public_path}")
+            return True
     except Exception as e:
         print(f"Error saving base64 image: {e}")
         return False
@@ -67,8 +135,11 @@ def save_base64_image(base64_string, filename="generated_image.png"):
 def save_video(video_data, filename="generated_video.mp4"):
     """Save video data to a local file"""
     try:
+        # Ensure public directory exists
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        
         # Save to the public folder
-        public_path = os.path.join("public", filename)
+        public_path = os.path.join(OUTPUT_DIR, filename)
         
         # Write the data to file
         with open(public_path, "wb") as f:
@@ -257,36 +328,113 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
             if status == "COMPLETED":
                 output = status_data.get("output")
                 print(f"Job completed successfully!")
+                print(f"Output type: {type(output)}")
+                print(f"Full response structure: {json.dumps(status_data, indent=2)}")
                 
-                if output:
-                    # Check for base64-encoded image in "message" field
-                    if isinstance(output, dict) and 'message' in output:
-                        print("Found base64-encoded data in response")
+                # Try to find image data in the response, no matter where it is
+                try:
+                    if output:
+                        print(f"Output keys: {output.keys() if isinstance(output, dict) else 'Not a dictionary'}")
                         
-                        # Since we're running a FLUX image generation workflow, 
-                        # we should always save the output as an image
-                        save_base64_image(output['message'], "generated_image.png")
-                        
-                        return output
-                    
-                    # Try to save videos or images from the output (URL format)
-                    if isinstance(output, dict):
-                        if 'videos' in output and isinstance(output['videos'], list) and output['videos']:
-                            for i, video_url in enumerate(output['videos']):
-                                video_response = requests.get(video_url)
-                                save_path = os.path.join("public", f"generated_video_{i}.mp4")
-                                with open(save_path, "wb") as f:
-                                    f.write(video_response.content)
-                                print(f"Video saved as {save_path}")
+                        # Check for base64-encoded image in "message" field
+                        if isinstance(output, dict) and 'message' in output:
+                            print("Found base64-encoded data in response 'message' field")
+                            save_base64_image(output['message'], "generated_image.png")
                             return output
                         
-                        if 'images' in output and isinstance(output['images'], list) and output['images']:
-                            for i, image_url in enumerate(output['images']):
-                                save_image(image_url, f"generated_image_{i}.png")
+                        # Check for images array
+                        if isinstance(output, dict) and 'images' in output and isinstance(output['images'], list) and output['images']:
+                            print(f"Found images array with {len(output['images'])} items")
+                            for i, img_data in enumerate(output['images']):
+                                if isinstance(img_data, str) and (img_data.startswith('http') or img_data.startswith('https')):
+                                    # It's a URL, download it
+                                    print(f"Image {i} is a URL")
+                                    save_image(img_data, f"generated_image_{i}.png")
+                                else:
+                                    # Assume it's base64 data
+                                    print(f"Image {i} appears to be base64 data")
+                                    save_base64_image(img_data, f"generated_image_{i}.png")
                             return output
                         
-                        print("No 'images' or 'videos' field found in output. Complete output:")
+                        # Check for 'image' field
+                        if isinstance(output, dict) and 'image' in output:
+                            print("Found 'image' field in output")
+                            save_base64_image(output['image'], "generated_image.png")
+                            return output
+                        
+                        # Check for node output fields used by ComfyUI
+                        if isinstance(output, dict) and 'node_outputs' in output:
+                            node_outputs = output['node_outputs']
+                            print(f"Found node_outputs: {node_outputs.keys() if isinstance(node_outputs, dict) else 'Not a dictionary'}")
+                            
+                            # SaveImage node usually has output in node 9
+                            if isinstance(node_outputs, dict) and '9' in node_outputs:
+                                print("Found output from SaveImage node (9)")
+                                save_data = node_outputs['9']
+                                
+                                if isinstance(save_data, list) and len(save_data) > 0:
+                                    for i, img_data in enumerate(save_data):
+                                        if isinstance(img_data, str):
+                                            save_base64_image(img_data, f"generated_image_{i}.png")
+                                        elif isinstance(img_data, dict) and 'filename' in img_data:
+                                            print(f"SaveImage returned filename: {img_data['filename']}")
+                                            # If there's actual image data
+                                            if 'data' in img_data:
+                                                save_base64_image(img_data['data'], f"{img_data['filename']}")
+                                        elif isinstance(img_data, list):
+                                            for j, inner_img in enumerate(img_data):
+                                                save_base64_image(inner_img, f"generated_image_{i}_{j}.png")
+                                else:
+                                    save_base64_image(save_data, "generated_image.png")
+                                return output
+                                
+                            # VAEDecode node usually has output in node 8
+                            if isinstance(node_outputs, dict) and '8' in node_outputs:
+                                print("Found output from VAEDecode node (8)")
+                                vae_data = node_outputs['8']
+                                
+                                if isinstance(vae_data, list) and len(vae_data) > 0:
+                                    for i, img_data in enumerate(vae_data):
+                                        save_base64_image(img_data, f"generated_image_{i}.png")
+                                else:
+                                    save_base64_image(vae_data, "generated_image.png")
+                                return output
+                                
+                        # If we have a simple string, try to decode it as image
+                        if isinstance(output, str):
+                            print("Output is a direct string, trying to decode as image")
+                            save_base64_image(output, "generated_image.png")
+                            return output
+                            
+                        # If output is a dictionary with a single value, try that value
+                        if isinstance(output, dict) and len(output) == 1:
+                            key = list(output.keys())[0]
+                            value = output[key]
+                            print(f"Output is a dictionary with a single key '{key}', trying its value")
+                            if isinstance(value, str):
+                                save_base64_image(value, "generated_image.png")
+                            elif isinstance(value, list) and len(value) > 0:
+                                for i, item in enumerate(value):
+                                    save_base64_image(item, f"generated_image_{i}.png")
+                            return output
+                            
+                        # As a last resort, try saving the entire output
+                        print("No standard image format found, saving entire output as file")
+                        with open(os.path.join(OUTPUT_DIR, "output.json"), "w") as f:
+                            json.dump(output, f, indent=2)
+                        
+                        print("No standard image fields found in output. Output saved to output.json")
                         print(json.dumps(output, indent=2))
+                        
+                except Exception as processing_error:
+                    print(f"Error processing output: {processing_error}")
+                    # Save the raw output for debugging
+                    try:
+                        with open(os.path.join(OUTPUT_DIR, "raw_output.json"), "w") as f:
+                            json.dump(status_data, f, indent=2)
+                        print(f"Raw output saved to {os.path.join(OUTPUT_DIR, 'raw_output.json')}")
+                    except:
+                        pass
                 
                 return output
             
@@ -308,6 +456,10 @@ def main():
         print("Endpoint health check failed. Please check your endpoint ID and API key.")
         return
     
+    # Show output directory information
+    abs_output_dir = os.path.abspath(OUTPUT_DIR)
+    print(f"Images will be saved to: {abs_output_dir}")
+    
     # User input for prompts
     use_default = input("Use default workflow? (y/n): ").lower() == 'y'
     
@@ -325,6 +477,7 @@ def main():
     
     if result:
         print("Content generation successful!")
+        print(f"Check {abs_output_dir} for your generated images")
     else:
         print("Content generation failed.")
 
