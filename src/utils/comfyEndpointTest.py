@@ -179,7 +179,7 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
       "8": {
         "inputs": {
           "samples": [
-            "37",
+            "31",
             0
           ],
           "vae": [
@@ -279,20 +279,6 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
         "class_type": "FluxGuidance",
         "_meta": {
           "title": "FluxGuidance"
-        }
-      },
-      "37": {
-        "inputs": {
-          "upscale_method": "nearest-exact",
-          "scale_by": 1.5,
-          "samples": [
-            "31",
-            0
-          ]
-        },
-        "class_type": "LatentUpscaleBy",
-        "_meta": {
-          "title": "Upscale Latent By"
         }
       }
     }
