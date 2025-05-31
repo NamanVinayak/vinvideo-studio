@@ -10,7 +10,7 @@ load_dotenv('.env.local')
 api_key = os.getenv('ARSHH_RUNPOD_API_KEY')
 
 # RunPod endpoint ID
-endpoint_id = "jclpw7j6ji7m2i"
+endpoint_id = "umhsvxn4l1sw85"
 
 # Define API URLs
 health_url = f"https://api.runpod.ai/v2/{endpoint_id}/health"
@@ -69,7 +69,7 @@ def save_video(video_data, filename="generated_video.mp4"):
         print(f"Error saving video: {e}")
         return False
 
-def generate_video(prompt="cute anime girl with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a maid outfit with a long black gold leaf pattern dress and a white apron rotating around in her room", 
+def generate_video(prompt="cute anime girl rotating around in her room", 
                   negative_prompt="deformed, distorted, disfigured, motion smear, blur",
                   output_filename="generated_video.mp4"):
     """
@@ -80,20 +80,22 @@ def generate_video(prompt="cute anime girl with massive fluffy fennec ears and a
     if not image_data:
         print(f"Failed to encode image: {IMAGE_PATH}")
         print("Using default server-side image instead.")
-        # Use the original workflow without uploaded image
-        image_input = {
-            "save_prefix": "ComfyUI",
-            "image": "flux_dev_example.png"
-        }
+        # Fall back to a default method without uploaded image
+        base64_input = None
     else:
         # Use uploaded image data
         print(f"Successfully encoded image for upload: {IMAGE_PATH}")
-        image_input = {
-            "save_prefix": "ComfyUI",
-            "image": f"data:image/png;base64,{image_data}"
-        }
+        base64_input = image_data
         
-    # The workflow from wanWithUpscaleAndFIApi.json with our image
+    # Update the image input node format to match required fields
+    image_input = {
+        "image": None,
+        "image_output": "Save",
+        "save_prefix": "input_image",
+        "base64_data": base64_input
+    }
+        
+    # REDUCED PARAMETERS: Using a simplified workflow with reduced length and resolution
     workflow = {
       "3": {
         "inputs": {
@@ -417,9 +419,9 @@ def generate_video(prompt="cute anime girl with massive fluffy fennec ears and a
       },
       "82": {
         "inputs": {
-          "width": 544,
-          "height": 960,
-          "length": 73,
+          "width": 544,  # REDUCED from 544
+          "height": 960,  # REDUCED from 960
+          "length": 73,   # REDUCED from 73 (cut in half)
           "batch_size": 1,
           "positive": [
             "6",
@@ -523,135 +525,166 @@ def generate_video(prompt="cute anime girl with massive fluffy fennec ears and a
         "Content-Type": "application/json"
     }
     
-    print("Sending request to RunPod WAN endpoint...")
-    response = requests.post(run_url, headers=headers, json=payload)
-    print(f"Response Status Code: {response.status_code}")
+    # Implement a retry mechanism
+    max_retries = 2
+    retry_count = 0
     
-    if response.status_code == 200:
-        job_id = response.json().get("id")
-        print(f"Job submitted with ID: {job_id}")
-        
-        # Poll for job completion
-        while True:
-            status_response = requests.get(f"{status_url}{job_id}", headers=headers)
-            status_data = status_response.json()
+    while retry_count <= max_retries:
+        try:
+            print(f"Sending request to RunPod WAN endpoint (attempt {retry_count + 1}/{max_retries + 1})...")
+            response = requests.post(run_url, headers=headers, json=payload)
+            print(f"Response Status Code: {response.status_code}")
             
-            status = status_data.get("status")
-            print(f"Current status: {status}")
-            
-            if status == "COMPLETED":
-                output = status_data.get("output")
-                print(f"Job completed successfully!")
-                print(f"Output type: {type(output)}")
-                print(f"Full response structure: {json.dumps(status_data, indent=2)}")
+            if response.status_code == 200:
+                job_id = response.json().get("id")
+                print(f"Job submitted with ID: {job_id}")
                 
-                # Variable to track if any video was saved
-                any_videos_saved = False
-                saved_videos = []
+                # Poll for job completion with a longer timeout
+                start_time = time.time()
+                max_duration = 15 * 60  # 15 minutes max wait time
                 
-                # Try to find video data in the response
-                try:
-                    if output:
-                        print(f"Output keys: {output.keys() if isinstance(output, dict) else 'Not a dictionary'}")
-                        
-                        # Process node outputs for videos
-                        if isinstance(output, dict) and 'node_outputs' in output:
-                            node_outputs = output['node_outputs']
-                            print(f"Found node_outputs: {list(node_outputs.keys()) if isinstance(node_outputs, dict) else 'Not a dictionary'}")
-                            
-                            # Look for video outputs from various VHS_VideoCombine nodes
-                            for node_id in ['92', '72', '70', '53']:
-                                node_output_filename = f"generated_video_node{node_id}.mp4"
+                while (time.time() - start_time) < max_duration:
+                    status_response = requests.get(f"{status_url}{job_id}", headers=headers)
+                    status_data = status_response.json()
+                    
+                    status = status_data.get("status")
+                    print(f"Current status: {status}")
+                    
+                    if status == "COMPLETED":
+                        output = status_data.get("output")
+                        print(f"Job completed successfully!")
+                        print(f"Output type: {type(output)}")
+                        print(f"Full response structure: {json.dumps(status_data, indent=2)}")
+                
+                        # Variable to track if any video was saved
+                        any_videos_saved = False
+                        saved_videos = []
+                
+                        # Try to find video data in the response
+                        try:
+                            if output:
+                                print(f"Output keys: {output.keys() if isinstance(output, dict) else 'Not a dictionary'}")
                                 
-                                if node_id in node_outputs:
-                                    print(f"Found output from VHS_VideoCombine node ({node_id})")
-                                    video_data = node_outputs[node_id]
+                                # Process node outputs for videos
+                                if isinstance(output, dict) and 'node_outputs' in output:
+                                    node_outputs = output['node_outputs']
+                                    print(f"Found node_outputs: {list(node_outputs.keys()) if isinstance(node_outputs, dict) else 'Not a dictionary'}")
                                     
-                                    if isinstance(video_data, list) and len(video_data) > 0:
-                                        for i, vid_item in enumerate(video_data):
-                                            item_filename = f"generated_video_node{node_id}_item{i}.mp4"
-                                            if isinstance(vid_item, dict) and 'filename' in vid_item:
-                                                print(f"Video file name: {vid_item['filename']}")
-                                                if 'data' in vid_item:
-                                                    print(f"Found video data in node {node_id}")
-                                                    if save_video(vid_item['data'], item_filename):
-                                                        any_videos_saved = True
-                                                        saved_videos.append(item_filename)
-                                            elif isinstance(vid_item, str):
-                                                print(f"Found video data string in node {node_id}")
-                                                if save_video(vid_item, item_filename):
+                                    # Look for video outputs from various VHS_VideoCombine nodes
+                                    for node_id in ['92', '72', '70', '53']:
+                                        node_output_filename = f"generated_video_node{node_id}.mp4"
+                                        
+                                        if node_id in node_outputs:
+                                            print(f"Found output from VHS_VideoCombine node ({node_id})")
+                                            video_data = node_outputs[node_id]
+                                            
+                                            if isinstance(video_data, list) and len(video_data) > 0:
+                                                for i, vid_item in enumerate(video_data):
+                                                    item_filename = f"generated_video_node{node_id}_item{i}.mp4"
+                                                    if isinstance(vid_item, dict) and 'filename' in vid_item:
+                                                        print(f"Video file name: {vid_item['filename']}")
+                                                        if 'data' in vid_item:
+                                                            print(f"Found video data in node {node_id}")
+                                                            if save_video(vid_item['data'], item_filename):
+                                                                any_videos_saved = True
+                                                                saved_videos.append(item_filename)
+                                                    elif isinstance(vid_item, str):
+                                                        print(f"Found video data string in node {node_id}")
+                                                        if save_video(vid_item, item_filename):
+                                                            any_videos_saved = True
+                                                            saved_videos.append(item_filename)
+                                            elif isinstance(video_data, dict) and 'filename' in video_data and 'data' in video_data:
+                                                print(f"Found video data in node {node_id}")
+                                                if save_video(video_data['data'], node_output_filename):
                                                     any_videos_saved = True
-                                                    saved_videos.append(item_filename)
-                                    elif isinstance(video_data, dict) and 'filename' in video_data and 'data' in video_data:
-                                        print(f"Found video data in node {node_id}")
-                                        if save_video(video_data['data'], node_output_filename):
+                                                    saved_videos.append(node_output_filename)
+                                            elif isinstance(video_data, str):
+                                                print(f"Found video data string in node {node_id}")
+                                                if save_video(video_data, node_output_filename):
+                                                    any_videos_saved = True
+                                                    saved_videos.append(node_output_filename)
+                                
+                                # Check for videos array
+                                if isinstance(output, dict) and 'videos' in output and isinstance(output['videos'], list) and output['videos']:
+                                    print(f"Found videos array with {len(output['videos'])} items")
+                                    for i, vid_data in enumerate(output['videos']):
+                                        array_filename = f"generated_video_array{i}.mp4"
+                                        if isinstance(vid_data, str) and (vid_data.startswith('http') or vid_data.startswith('https')):
+                                            # It's a URL, download it
+                                            print(f"Video {i} is a URL")
+                                            response = requests.get(vid_data)
+                                            with open(os.path.join(OUTPUT_DIR, array_filename), 'wb') as f:
+                                                f.write(response.content)
+                                            print(f"Video saved as {os.path.join(OUTPUT_DIR, array_filename)}")
                                             any_videos_saved = True
-                                            saved_videos.append(node_output_filename)
-                                    elif isinstance(video_data, str):
-                                        print(f"Found video data string in node {node_id}")
-                                        if save_video(video_data, node_output_filename):
-                                            any_videos_saved = True
-                                            saved_videos.append(node_output_filename)
-                        
-                        # Check for videos array
-                        if isinstance(output, dict) and 'videos' in output and isinstance(output['videos'], list) and output['videos']:
-                            print(f"Found videos array with {len(output['videos'])} items")
-                            for i, vid_data in enumerate(output['videos']):
-                                array_filename = f"generated_video_array{i}.mp4"
-                                if isinstance(vid_data, str) and (vid_data.startswith('http') or vid_data.startswith('https')):
-                                    # It's a URL, download it
-                                    print(f"Video {i} is a URL")
-                                    response = requests.get(vid_data)
-                                    with open(os.path.join(OUTPUT_DIR, array_filename), 'wb') as f:
-                                        f.write(response.content)
-                                    print(f"Video saved as {os.path.join(OUTPUT_DIR, array_filename)}")
-                                    any_videos_saved = True
-                                    saved_videos.append(array_filename)
-                                else:
-                                    # Assume it's base64 data
-                                    print(f"Video {i} appears to be base64 data")
-                                    if save_video(vid_data, array_filename):
+                                            saved_videos.append(array_filename)
+                                        else:
+                                            # Assume it's base64 data
+                                            print(f"Video {i} appears to be base64 data")
+                                            if save_video(vid_data, array_filename):
+                                                any_videos_saved = True
+                                                saved_videos.append(array_filename)
+                                
+                                # Check for 'video' field
+                                if isinstance(output, dict) and 'video' in output:
+                                    print("Found 'video' field in output")
+                                    if save_video(output['video'], output_filename):
                                         any_videos_saved = True
-                                        saved_videos.append(array_filename)
+                                        saved_videos.append(output_filename)
+                                    
+                                # Save the entire output as JSON for reference
+                                with open(os.path.join(OUTPUT_DIR, "output.json"), "w") as f:
+                                    json.dump(output, f, indent=2)
+                                
+                                if not any_videos_saved:
+                                    print("No video outputs were successfully saved.")
+                                else:
+                                    print(f"Successfully saved {len(saved_videos)} video(s): {', '.join(saved_videos)}")
+                                
+                        except Exception as processing_error:
+                            print(f"Error processing output: {processing_error}")
+                            # Save the raw output for debugging
+                            try:
+                                with open(os.path.join(OUTPUT_DIR, "raw_output.json"), "w") as f:
+                                    json.dump(status_data, f, indent=2)
+                                print(f"Raw output saved to {os.path.join(OUTPUT_DIR, 'raw_output.json')}")
+                            except:
+                                pass
                         
-                        # Check for 'video' field
-                        if isinstance(output, dict) and 'video' in output:
-                            print("Found 'video' field in output")
-                            if save_video(output['video'], output_filename):
-                                any_videos_saved = True
-                                saved_videos.append(output_filename)
-                            
-                        # Save the entire output as JSON for reference
-                        with open(os.path.join(OUTPUT_DIR, "output.json"), "w") as f:
-                            json.dump(output, f, indent=2)
-                        
-                        if not any_videos_saved:
-                            print("No video outputs were successfully saved.")
+                        return output
+                    
+                    elif status in ["FAILED", "ERROR"]:
+                        error_msg = status_data.get('error', 'Unknown error')
+                        print(f"Job failed with error: {error_msg}")
+                        # If it's a timeout-related error, we'll retry
+                        if "Max retries reached" in error_msg or "timeout" in error_msg.lower():
+                            break  # Break out of the polling loop to retry
                         else:
-                            print(f"Successfully saved {len(saved_videos)} video(s): {', '.join(saved_videos)}")
-                        
-                except Exception as processing_error:
-                    print(f"Error processing output: {processing_error}")
-                    # Save the raw output for debugging
-                    try:
-                        with open(os.path.join(OUTPUT_DIR, "raw_output.json"), "w") as f:
-                            json.dump(status_data, f, indent=2)
-                        print(f"Raw output saved to {os.path.join(OUTPUT_DIR, 'raw_output.json')}")
-                    except:
-                        pass
+                            return None  # For non-timeout errors, don't retry
+                    
+                    # Wait 5 seconds before checking again
+                    time.sleep(5)
                 
-                return output
-            
-            elif status in ["FAILED", "ERROR"]:
-                error_msg = status_data.get('error', 'Unknown error')
-                print(f"Job failed with error: {error_msg}")
-                return None
-            
-            # Wait 5 seconds before checking again
-            time.sleep(5)
-    else:
-        print(f"Failed to submit job: {response.text}")
-        return None
+                # If we've reached here, either the job timed out or failed with a retryable error
+                print(f"Job execution taking too long or retryable error. Retrying...")
+                retry_count += 1
+                
+            else:
+                print(f"Failed to submit job: {response.text}")
+                if response.status_code >= 500:  # Server error, worth retrying
+                    retry_count += 1
+                    print(f"Server error. Retrying...")
+                    time.sleep(5)  # Wait before retry
+                else:
+                    return None  # Client error, don't retry
+                
+        except Exception as e:
+            print(f"Exception during API request: {e}")
+            retry_count += 1
+            time.sleep(5)  # Wait before retry
+    
+    print(f"Exhausted all {max_retries + 1} attempts. Video generation failed.")
+    return None
 
 def main():
     # First check if the endpoint is healthy
@@ -681,4 +714,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

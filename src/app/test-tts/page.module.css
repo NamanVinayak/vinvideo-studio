@@ -7,9 +7,31 @@
 
 .title {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   color: #333;
   text-align: center;
+}
+
+.description {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.projectInfo {
+  background-color: #e3f2fd;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  border-left: 4px solid #2196f3;
+}
+
+.projectInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1565c0;
 }
 
 .form {
@@ -200,4 +222,334 @@
 
 .downloadButton:hover {
   background-color: #0060df;
-} 
+}
+
+/* Workflow Progress Styles */
+.workflowProgress {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.workflowProgress h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.workflowStep {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.workflowStep.pending {
+  background-color: #f8f9fa;
+  border-left-color: #6c757d;
+}
+
+.workflowStep.processing {
+  background-color: #fff3cd;
+  border-left-color: #ffc107;
+  animation: pulse 2s infinite;
+}
+
+.workflowStep.completed {
+  background-color: #d4edda;
+  border-left-color: #28a745;
+}
+
+.workflowStep.error {
+  background-color: #f8d7da;
+  border-left-color: #dc3545;
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stepIcon {
+  font-size: 1.2rem;
+}
+
+.stepName {
+  font-weight: 600;
+  flex: 1;
+}
+
+.stepDuration {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-family: monospace;
+}
+
+.stepError {
+  margin-top: 0.5rem;
+  color: #dc3545;
+  font-size: 0.9rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Results Section */
+.resultsSection {
+  margin-top: 2rem;
+}
+
+.transcriptionResult {
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.transcriptText {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.transcriptText h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.transcriptText p {
+  margin: 0;
+  font-style: italic;
+  color: #555;
+}
+
+.wordTimestamps {
+  padding: 1rem;
+}
+
+.wordTimestamps h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.timestampsGrid {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.wordTimestamp {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.word {
+  font-weight: 600;
+  color: #333;
+}
+
+.timestamp {
+  font-family: monospace;
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.moreWords {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 0.5rem;
+}
+
+/* Producer Results */
+.producerResult {
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.executionStats {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.executionStats h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.statsGrid > div {
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.cutPoints {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.cutPoints h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.cutPointsTable {
+  overflow-x: auto;
+}
+
+.cutPointsTable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.cutPointsTable th,
+.cutPointsTable td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.cutPointsTable th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.cutPointsTable tr:hover {
+  background-color: #f8f9fa;
+}
+
+.rawResponse {
+  padding: 1rem;
+}
+
+.rawResponse h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.rawResponseText {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.producerError {
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+}
+
+.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #ffc107;
+}
+
+/* Director Agent Styles */
+.directorResult {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.directorOutput {
+  margin-top: 1rem;
+}
+
+.directorError {
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+}
+
+/* DoP Agent Styles */
+.dopResult {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.dopOutput {
+  margin-top: 1rem;
+}
+
+.dopError {
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+}
+
+/* Prompt Engineer Agent Styles */
+.promptEngineerResult {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.promptEngineerOutput {
+  margin-top: 1rem;
+}
+
+.promptEngineerError {
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+}
+
+/* JSON Output Display */
+.jsonOutput {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px solid #dee2e6;
+  color: #495057;
+}

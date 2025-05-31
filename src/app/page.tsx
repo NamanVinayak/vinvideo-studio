@@ -169,48 +169,10 @@ export default function Home() {
     }
   };
 
-  // Step 1: Format script for TTS
-  const formatScript = async (projectFolderId: string) => {
+  // Combined step: Format script and convert to speech
+  const formatAndConvertToSpeech = async (projectFolderId: string) => {
+    // Set both format and audio status to loading
     setFormatStatus({ ...formatStatus, loading: true, error: null });
-    
-    try {
-      const response = await fetch('/api/format-script', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ script, folderId: projectFolderId }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to format script');
-      }
-      
-      const data = await response.json();
-      setFormatStatus({ 
-        loading: false, 
-        completed: true, 
-        error: null, 
-        output: data.formattedScript 
-      });
-      
-      return data.formattedScript;
-    } catch (error: unknown) {
-      console.error("Error formatting script:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-      setFormatStatus({ 
-        loading: false, 
-        completed: false, 
-        error: errorMessage, 
-        output: null 
-      });
-      throw error;
-    }
-  };
-
-  // Step 2: Convert text to speech (non-blocking)
-  const convertToSpeech = async (formattedScript: string, projectFolderId: string) => {
     setAudioStatus({ ...audioStatus, loading: true, error: null });
     
     try {
@@ -220,17 +182,27 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          script: formattedScript,
+          script: script,  // Send original script, let the endpoint handle formatting
           folderId: projectFolderId
         }),
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to convert to speech');
+        throw new Error(errorData.error || 'Failed to process script');
       }
       
       const data = await response.json();
+      
+      // Update format status with the formatted script
+      setFormatStatus({ 
+        loading: false, 
+        completed: true, 
+        error: null, 
+        output: data.formattedScript 
+      });
+      
+      // Update audio status with the generated audio
       setAudioStatus({ 
         loading: false, 
         completed: true, 
@@ -238,16 +210,28 @@ export default function Home() {
         output: data.audioUrl 
       });
       
-      return data.audioUrl;
+      return {
+        formattedScript: data.formattedScript,
+        audioUrl: data.audioUrl
+      };
     } catch (error: unknown) {
-      console.error("Error converting to speech:", error);
+      console.error("Error processing script:", error);
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      
+      // Set both statuses to error
+      setFormatStatus({ 
+        loading: false, 
+        completed: false, 
+        error: errorMessage, 
+        output: null 
+      });
       setAudioStatus({ 
         loading: false, 
         completed: false, 
         error: errorMessage, 
         output: null 
       });
+      
       throw error;
     }
   };
@@ -487,22 +471,16 @@ export default function Home() {
       // Step 0: Initialize project to create a folder
       const projectFolderId = await initializeProject();
       
-      // Step 1: Format script for TTS
-      const formattedScript = await formatScript(projectFolderId);
+      // Step 1: Format script and convert to speech (combined)
+      const { formattedScript, audioUrl } = await formatAndConvertToSpeech(projectFolderId);
       
-      // Step 2: Start audio conversion (non-blocking)
-      const audioPromise = convertToSpeech(formattedScript, projectFolderId);
-      
-      // Step 3: Chunk script (proceed without waiting for audio)
+      // Step 2: Chunk script using the formatted script
       const segments = await chunkScript(formattedScript, projectFolderId);
       
-      // Step 4: Generate images
+      // Step 3: Generate images
       const images = await generateImages(segments, projectFolderId);
       
-      // Wait for audio to complete
-      const audioUrl = await audioPromise;
-      
-      // Step 5: Create XML when both audio and images are ready
+      // Step 4: Create XML when both audio and images are ready
       if (audioUrl && images.length > 0) {
         await createXML(projectFolderId);
         setDownloadReady(true);
@@ -718,15 +696,10 @@ export default function Home() {
         <div className={styles.workflow}>
           <h3>Workflow:</h3>
           <ol>
-            <li className={formatStatus.loading ? styles.processing : (formatStatus.completed ? styles.completed : (formatStatus.error ? styles.error : ''))}>
-              Format script for TTS
-              {formatStatus.loading && <div className={styles.loadingBar}><div className={styles.loadingProgress}></div></div>}
-              {formatStatus.error && <div className={styles.errorMessage}>{formatStatus.error}</div>}
-            </li>
-            <li className={audioStatus.loading ? styles.processing : (audioStatus.completed ? styles.completed : (audioStatus.error ? styles.error : ''))}>
-              Convert text to speech
-              {audioStatus.loading && <div className={styles.loadingBar}><div className={styles.loadingProgress}></div></div>}
-              {audioStatus.error && <div className={styles.errorMessage}>{audioStatus.error}</div>}
+            <li className={formatStatus.loading || audioStatus.loading ? styles.processing : (formatStatus.completed && audioStatus.completed ? styles.completed : (formatStatus.error || audioStatus.error ? styles.error : ''))}>
+              Format script and convert to speech
+              {(formatStatus.loading || audioStatus.loading) && <div className={styles.loadingBar}><div className={styles.loadingProgress}></div></div>}
+              {(formatStatus.error || audioStatus.error) && <div className={styles.errorMessage}>{formatStatus.error || audioStatus.error}</div>}
             </li>
             <li className={chunkStatus.loading ? styles.processing : (chunkStatus.completed ? styles.completed : (chunkStatus.error ? styles.error : ''))}>
               Chunk script

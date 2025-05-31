@@ -35,25 +35,25 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
-"@emnapi/core@^1.3.1":
-  version "1.4.0"
-  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/core/-/core-1.4.0.tgz#8844b02d799198158ac1fea21ae2bc81b881da9a"
-  integrity sha1-iESwLXmRmBWKwf6iGuK8gbiB2po=
+"@emnapi/core@^1.4.3":
+  version "1.4.3"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/core/-/core-1.4.3.tgz#9ac52d2d5aea958f67e52c40a065f51de59b77d6"
+  integrity sha1-msUtLVrqlY9n5SxAoGX1HeWbd9Y=
   dependencies:
-    "@emnapi/wasi-threads" "1.0.1"
+    "@emnapi/wasi-threads" "1.0.2"
     tslib "^2.4.0"
 
-"@emnapi/runtime@^1.2.0", "@emnapi/runtime@^1.3.1":
-  version "1.4.0"
-  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/runtime/-/runtime-1.4.0.tgz#8f509bf1059a5551c8fe829a1c4e91db35fdfbee"
-  integrity sha1-j1Cb8QWaVVHI/oKaHE6R2zX9++4=
+"@emnapi/runtime@^1.2.0", "@emnapi/runtime@^1.4.3":
+  version "1.4.3"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/runtime/-/runtime-1.4.3.tgz#c0564665c80dc81c448adac23f9dfbed6c838f7d"
+  integrity sha1-wFZGZcgNyBxEitrCP5377WyDj30=
   dependencies:
     tslib "^2.4.0"
 
-"@emnapi/wasi-threads@1.0.1":
-  version "1.0.1"
-  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/wasi-threads/-/wasi-threads-1.0.1.tgz#d7ae71fd2166b1c916c6cd2d0df2ef565a2e1a5b"
-  integrity sha1-165x/SFmsckWxs0tDfLvVlouGls=
+"@emnapi/wasi-threads@1.0.2":
+  version "1.0.2"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@emnapi/wasi-threads/-/wasi-threads-1.0.2.tgz#977f44f844eac7d6c138a415a123818c655f874c"
+  integrity sha1-l39E+ETqx9bBOKQVoSOBjGVfh0w=
   dependencies:
     tslib "^2.4.0"
 
@@ -128,10 +128,20 @@
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@exodus/schemasafe/-/schemasafe-1.3.0.tgz"
   integrity sha1-cxZWq+Iejnaaf3Ck2DPmMS/lm38=
 
-"@google/generative-ai@^0.24.0":
-  version "0.24.0"
-  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@google/generative-ai/-/generative-ai-0.24.0.tgz"
-  integrity sha1-TSevfZRMkkonpZPBetEzZTXVOEY=
+"@google/genai@^1.3.0":
+  version "1.3.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@google/genai/-/genai-1.3.0.tgz#30e9850a38d075a42b8f7d82d94f58922596a674"
+  integrity sha1-MOmFCjjQdaQrj32C2U9YkiWWpnQ=
+  dependencies:
+    google-auth-library "^9.14.2"
+    ws "^8.18.0"
+    zod "^3.22.4"
+    zod-to-json-schema "^3.22.4"
+
+"@google/generative-ai@^0.24.1":
+  version "0.24.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@google/generative-ai/-/generative-ai-0.24.1.tgz"
+  integrity sha1-Y0o8BvjqemElwbDWweZrsRr7Usk=
 
 "@humanfs/core@^0.19.1":
   version "0.19.1"
@@ -285,12 +295,12 @@
   integrity sha1-nfA7vXxpalxYiFw0qgbaQchUN5Y=
 
 "@napi-rs/wasm-runtime@^0.2.7":
-  version "0.2.7"
-  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@napi-rs/wasm-runtime/-/wasm-runtime-0.2.7.tgz#288f03812a408bc53c2c3686c65f38fe90f295eb"
-  integrity sha1-KI8DgSpAi8U8LDaGxl84/pDyles=
+  version "0.2.10"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@napi-rs/wasm-runtime/-/wasm-runtime-0.2.10.tgz#f3b7109419c6670000b2401e0c778b98afc25f84"
+  integrity sha1-87cQlBnGZwAAskAeDHeLmK/CX4Q=
   dependencies:
-    "@emnapi/core" "^1.3.1"
-    "@emnapi/runtime" "^1.3.1"
+    "@emnapi/core" "^1.4.3"
+    "@emnapi/runtime" "^1.4.3"
     "@tybys/wasm-util" "^0.9.0"
 
 "@next/env@15.2.3":
@@ -558,6 +568,13 @@
   dependencies:
     csstype "^3.0.2"
 
+"@types/wav@^1.0.4":
+  version "1.0.4"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@types/wav/-/wav-1.0.4.tgz#d65674001cc4eb2fe1547a079a59904cd362ea88"
+  integrity sha1-1lZ0ABzE6y/hVHoHmlmQTNNi6og=
+  dependencies:
+    "@types/node" "*"
+
 "@typescript-eslint/eslint-plugin@^5.4.2 || ^6.0.0 || ^7.0.0 || ^8.0.0":
   version "8.27.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.27.0.tgz"
@@ -712,6 +729,11 @@ acorn@^8.14.0:
   version "8.14.1"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/acorn/-/acorn-8.14.1.tgz"
   integrity sha1-ch1dwQ99W1YJqJF3PUdzF5aTXfs=
+
+agent-base@^7.1.2:
+  version "7.1.3"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/agent-base/-/agent-base-7.1.3.tgz#29435eb821bc4194633a5b89e5bc4703bafc25a1"
+  integrity sha1-KUNeuCG8QZRjOluJ5bxHA7r8JaE=
 
 agentkeepalive@^4.2.1:
   version "4.6.0"
@@ -927,10 +949,15 @@ balanced-match@^1.0.0:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/balanced-match/-/balanced-match-1.0.2.tgz"
   integrity sha1-6D46fj8wCzTLnYf2FfoMvzV2kO4=
 
-base64-js@^1.3.1:
+base64-js@^1.3.0, base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha1-GxtEAWClv3rUC2UPCVljSBkDkwo=
+
+bignumber.js@^9.0.0:
+  version "9.3.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/bignumber.js/-/bignumber.js-9.3.0.tgz#bdba7e2a4c1a2eba08290e8dcad4f36393c92acd"
+  integrity sha1-vbp+KkwaLroIKQ6NytTzY5PJKs0=
 
 bl@^4.1.0:
   version "4.1.0"
@@ -962,6 +989,34 @@ braces@^3.0.3:
   integrity sha1-SQMy9AkZRSJy1VqEgK3AxEE1h4k=
   dependencies:
     fill-range "^7.1.1"
+
+buffer-alloc-unsafe@^1.1.0:
+  version "1.1.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/buffer-alloc-unsafe/-/buffer-alloc-unsafe-1.1.0.tgz#bd7dc26ae2972d0eda253be061dba992349c19f0"
+  integrity sha1-vX3CauKXLQ7aJTvgYdupkjScGfA=
+
+buffer-alloc@^1.1.0:
+  version "1.2.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/buffer-alloc/-/buffer-alloc-1.2.0.tgz#890dd90d923a873e08e10e5fd51a57e5b7cce0ec"
+  integrity sha1-iQ3ZDZI6hz4I4Q5f1RpX5bfM4Ow=
+  dependencies:
+    buffer-alloc-unsafe "^1.1.0"
+    buffer-fill "^1.0.0"
+
+buffer-equal-constant-time@^1.0.1:
+  version "1.0.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/buffer-equal-constant-time/-/buffer-equal-constant-time-1.0.1.tgz#f8e71132f7ffe6e01a5c9697a4c6f3e48d5cc819"
+  integrity sha1-+OcRMvf/5uAaXJaXpMbz5I1cyBk=
+
+buffer-fill@^1.0.0:
+  version "1.0.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/buffer-fill/-/buffer-fill-1.0.0.tgz#f8f78b76789888ef39f205cd637f68e702122b2c"
+  integrity sha1-+PeLdniYiO858gXNY39o5wISKyw=
+
+buffer-from@^1.0.0:
+  version "1.1.2"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
+  integrity sha1-KxRqb9cugLT1XSVfNe1Zo6mkG9U=
 
 buffer@^5.5.0:
   version "5.7.1"
@@ -1145,6 +1200,11 @@ concat-map@0.0.1:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/concat-map/-/concat-map-0.0.1.tgz"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
+core-util-is@~1.0.0:
+  version "1.0.3"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/core-util-is/-/core-util-is-1.0.3.tgz#a6042d3634c2b27e9328f837b965fac83808db85"
+  integrity sha1-pgQtNjTCsn6TKPg3uWX6yDgI24U=
+
 cross-spawn@^7.0.3, cross-spawn@^7.0.6:
   version "7.0.6"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/cross-spawn/-/cross-spawn-7.0.6.tgz"
@@ -1206,6 +1266,20 @@ datauri@^4.1.0:
   dependencies:
     image-size "1.0.0"
     mimer "^2.0.2"
+
+debug@2, debug@^2.2.0:
+  version "2.6.9"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
+  integrity sha1-XRKFFd8TT/Mn6QpMk/Tgd6U2NB8=
+  dependencies:
+    ms "2.0.0"
+
+debug@4:
+  version "4.4.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/debug/-/debug-4.4.1.tgz#e5a8bc6cbc4c6cd3e64308b0693a3d4fa550189b"
+  integrity sha1-5ai8bLxMbNPmQwiwaTo9T6VQGJs=
+  dependencies:
+    ms "^2.1.3"
 
 debug@^3.2.7:
   version "3.2.7"
@@ -1276,6 +1350,13 @@ dunder-proto@^1.0.0, dunder-proto@^1.0.1:
     call-bind-apply-helpers "^1.0.1"
     es-errors "^1.3.0"
     gopd "^1.2.0"
+
+ecdsa-sig-formatter@1.0.11, ecdsa-sig-formatter@^1.0.11:
+  version "1.0.11"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz#ae0f0fa2d85045ef14a817daa3ce9acd0489e5bf"
+  integrity sha1-rg8PothQRe8UqBfao86azQSJ5b8=
+  dependencies:
+    safe-buffer "^5.0.1"
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -1755,6 +1836,11 @@ ext@^1.7.0:
   dependencies:
     type "^2.7.2"
 
+extend@^3.0.2:
+  version "3.0.2"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
+  integrity sha1-+LETa0Bx+9jrFAr/hYsQGewpFfo=
+
 fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   version "3.1.3"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
@@ -1946,6 +2032,26 @@ functions-have-names@^1.2.3:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/functions-have-names/-/functions-have-names-1.2.3.tgz"
   integrity sha1-BAT+TuK6L2B/Dg7DyAuumUEzuDQ=
 
+gaxios@^6.0.0, gaxios@^6.1.1:
+  version "6.7.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/gaxios/-/gaxios-6.7.1.tgz#ebd9f7093ede3ba502685e73390248bb5b7f71fb"
+  integrity sha1-69n3CT7eO6UCaF5zOQJIu1t/cfs=
+  dependencies:
+    extend "^3.0.2"
+    https-proxy-agent "^7.0.1"
+    is-stream "^2.0.0"
+    node-fetch "^2.6.9"
+    uuid "^9.0.1"
+
+gcp-metadata@^6.1.0:
+  version "6.1.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/gcp-metadata/-/gcp-metadata-6.1.1.tgz#f65aa69f546bc56e116061d137d3f5f90bdec494"
+  integrity sha1-9lqmn1RrxW4RYGHRN9P1+QvexJQ=
+  dependencies:
+    gaxios "^6.1.1"
+    google-logging-utils "^0.0.2"
+    json-bigint "^1.0.0"
+
 get-caller-file@^2.0.5:
   version "2.0.5"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/get-caller-file/-/get-caller-file-2.0.5.tgz"
@@ -2023,6 +2129,23 @@ globalthis@^1.0.4:
     define-properties "^1.2.1"
     gopd "^1.0.1"
 
+google-auth-library@^9.14.2:
+  version "9.15.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/google-auth-library/-/google-auth-library-9.15.1.tgz#0c5d84ed1890b2375f1cd74f03ac7b806b392928"
+  integrity sha1-DF2E7RiQsjdfHNdPA6x7gGs5KSg=
+  dependencies:
+    base64-js "^1.3.0"
+    ecdsa-sig-formatter "^1.0.11"
+    gaxios "^6.1.1"
+    gcp-metadata "^6.1.0"
+    gtoken "^7.0.0"
+    jws "^4.0.0"
+
+google-logging-utils@^0.0.2:
+  version "0.0.2"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/google-logging-utils/-/google-logging-utils-0.0.2.tgz#5fd837e06fa334da450433b9e3e1870c1594466a"
+  integrity sha1-X9g34G+jNNpFBDO54+GHDBWURmo=
+
 gopd@^1.0.1, gopd@^1.2.0:
   version "1.2.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/gopd/-/gopd-1.2.0.tgz"
@@ -2032,6 +2155,14 @@ graphemer@^1.4.0:
   version "1.4.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/graphemer/-/graphemer-1.4.0.tgz"
   integrity sha1-+y8dVeDjoYSa7/yQxPoN1ToOZsY=
+
+gtoken@^7.0.0:
+  version "7.1.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/gtoken/-/gtoken-7.1.0.tgz#d61b4ebd10132222817f7222b1e6064bd463fc26"
+  integrity sha1-1htOvRATIiKBf3IiseYGS9Rj/CY=
+  dependencies:
+    gaxios "^6.0.0"
+    jws "^4.0.0"
 
 has-bigints@^1.0.2:
   version "1.1.0"
@@ -2080,6 +2211,14 @@ http2-client@^1.2.5:
   version "1.3.5"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/http2-client/-/http2-client-1.3.5.tgz"
   integrity sha1-IMnckJ48yYKE3SCvJDLFJAht8YE=
+
+https-proxy-agent@^7.0.1:
+  version "7.0.6"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz#da8dfeac7da130b05c2ba4b59c9b6cd66611a6b9"
+  integrity sha1-2o3+rH2hMLBcK6S1nJts1mYRprk=
+  dependencies:
+    agent-base "^7.1.2"
+    debug "4"
 
 human-signals@^2.1.0:
   version "2.1.0"
@@ -2139,7 +2278,7 @@ imurmurhash@^0.1.4:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/imurmurhash/-/imurmurhash-0.1.4.tgz"
   integrity sha1-khi5srkoojixPcT7a21XbyMUU+o=
 
-inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.3:
+inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.1, inherits@~2.0.3:
   version "2.0.4"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/inherits/-/inherits-2.0.4.tgz"
   integrity sha1-D6LGT5MpF8NDOg3tVTY6rjdBa3w=
@@ -2367,6 +2506,11 @@ is-weakset@^2.0.3:
     call-bound "^1.0.3"
     get-intrinsic "^1.2.6"
 
+isarray@0.0.1:
+  version "0.0.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/isarray/-/isarray-0.0.1.tgz#8a18acfca9a8f4177e09abfc6038939b05d1eedf"
+  integrity sha1-ihis/Kmo9Bd+Cav8YDiTmwXR7t8=
+
 isarray@^2.0.5:
   version "2.0.5"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/isarray/-/isarray-2.0.5.tgz"
@@ -2408,6 +2552,13 @@ js-yaml@^4.1.0:
   integrity sha1-wftl+PUBeQHN0slRhkuhhFihBgI=
   dependencies:
     argparse "^2.0.1"
+
+json-bigint@^1.0.0:
+  version "1.0.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/json-bigint/-/json-bigint-1.0.0.tgz#ae547823ac0cad8398667f8cd9ef4730f5b01ff1"
+  integrity sha1-rlR4I6wMrYOYZn+M2e9HMPWwH/E=
+  dependencies:
+    bignumber.js "^9.0.0"
 
 json-buffer@3.0.1:
   version "3.0.1"
@@ -2489,6 +2640,23 @@ jsonpointer@^5.0.0:
     array.prototype.flat "^1.3.1"
     object.assign "^4.1.4"
     object.values "^1.1.6"
+
+jwa@^2.0.0:
+  version "2.0.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/jwa/-/jwa-2.0.1.tgz#bf8176d1ad0cd72e0f3f58338595a13e110bc804"
+  integrity sha1-v4F20a0M1y4PP1gzhZWhPhELyAQ=
+  dependencies:
+    buffer-equal-constant-time "^1.0.1"
+    ecdsa-sig-formatter "1.0.11"
+    safe-buffer "^5.0.1"
+
+jws@^4.0.0:
+  version "4.0.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/jws/-/jws-4.0.0.tgz#2d4e8cf6a318ffaa12615e9dec7e86e6c97310f4"
+  integrity sha1-LU6M9qMY/6oSYV6d7H6G5slzEPQ=
+  dependencies:
+    jwa "^2.0.0"
+    safe-buffer "^5.0.1"
 
 keyv@^4.5.4:
   version "4.5.4"
@@ -2693,6 +2861,11 @@ mkdirp@^1.0.4:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha1-PrXtYmInVteaXw4qIh3+utdcL34=
 
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+  integrity sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
+
 ms@^2.0.0, ms@^2.1.1, ms@^2.1.3:
   version "2.1.3"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/ms/-/ms-2.1.3.tgz"
@@ -2758,7 +2931,7 @@ node-fetch-h2@^2.3.0:
   dependencies:
     http2-client "^1.2.5"
 
-node-fetch@2.7.0, node-fetch@^2.6.1, node-fetch@^2.6.7:
+node-fetch@2.7.0, node-fetch@^2.6.1, node-fetch@^2.6.7, node-fetch@^2.6.9:
   version "2.7.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/node-fetch/-/node-fetch-2.7.0.tgz"
   integrity sha1-0PD6bj4twdJ+/NitmdVQvalNGH0=
@@ -3165,6 +3338,16 @@ react@^19.0.0:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/react/-/react-19.0.0.tgz"
   integrity sha1-bhlpJRufEIhwqkv/N6DOnd+qq90=
 
+readable-stream@^1.1.14:
+  version "1.1.14"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/readable-stream/-/readable-stream-1.1.14.tgz#7cf4c54ef648e3813084c636dd2079e166c081d9"
+  integrity sha1-fPTFTvZI44EwhMY23SB54WbAgdk=
+  dependencies:
+    core-util-is "~1.0.0"
+    inherits "~2.0.1"
+    isarray "0.0.1"
+    string_decoder "~0.10.x"
+
 readable-stream@^3.4.0, readable-stream@^3.6.0:
   version "3.6.2"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/readable-stream/-/readable-stream-3.6.2.tgz"
@@ -3312,7 +3495,7 @@ safe-array-concat@^1.1.3:
     has-symbols "^1.1.0"
     isarray "^2.0.5"
 
-safe-buffer@~5.2.0:
+safe-buffer@^5.0.1, safe-buffer@~5.2.0:
   version "5.2.1"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/safe-buffer/-/safe-buffer-5.2.1.tgz"
   integrity sha1-Hq+fqb2x/dTsdfWPnNtOa3gn7sY=
@@ -3551,6 +3734,13 @@ static-eval@2.0.2:
   dependencies:
     escodegen "^1.8.1"
 
+stream-parser@^0.3.1:
+  version "0.3.1"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/stream-parser/-/stream-parser-0.3.1.tgz#1618548694420021a1182ff0af1911c129761773"
+  integrity sha1-FhhUhpRCACGhGC/wrxkRwSl2F3M=
+  dependencies:
+    debug "2"
+
 streamsearch@^1.1.0:
   version "1.1.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/streamsearch/-/streamsearch-1.1.0.tgz"
@@ -3639,6 +3829,11 @@ string_decoder@^1.1.1, string_decoder@^1.3.0:
   integrity sha1-QvEUWUpGzxqOMLCoT1bHjD7awh4=
   dependencies:
     safe-buffer "~5.2.0"
+
+string_decoder@~0.10.x:
+  version "0.10.31"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/string_decoder/-/string_decoder-0.10.31.tgz#62e203bc41766c6c28c9fc84301dab1c5310fa94"
+  integrity sha1-YuIDvEF2bGwoyfyEMB2rHFMQ+pQ=
 
 strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
@@ -3870,7 +4065,7 @@ util-deprecate@^1.0.1:
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=
 
-uuid@9.0.1:
+uuid@9.0.1, uuid@^9.0.1:
   version "9.0.1"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/uuid/-/uuid-9.0.1.tgz"
   integrity sha1-4YjUyIU8xyIiA5LEJM1jfzIpPzA=
@@ -3909,6 +4104,17 @@ validate.io-number@^1.0.3:
   version "1.0.3"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/validate.io-number/-/validate.io-number-1.0.3.tgz"
   integrity sha1-9j/+2iSL8opnqNSODjtGGhZluvg=
+
+wav@^1.0.2:
+  version "1.0.2"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/wav/-/wav-1.0.2.tgz#bdbf3fa0d9b4519e9dfd2f603299ead0a2f22060"
+  integrity sha1-vb8/oNm0UZ6d/S9gMpnq0KLyIGA=
+  dependencies:
+    buffer-alloc "^1.1.0"
+    buffer-from "^1.0.0"
+    debug "^2.2.0"
+    readable-stream "^1.1.14"
+    stream-parser "^0.3.1"
 
 wcwidth@^1.0.1:
   version "1.0.1"
@@ -4014,7 +4220,7 @@ wrap-ansi@^7.0.0:
     string-width "^4.1.0"
     strip-ansi "^6.0.0"
 
-ws@^8.14.2:
+ws@^8.14.2, ws@^8.18.0:
   version "8.18.1"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/ws/-/ws-8.18.1.tgz"
   integrity sha1-6hMdN4Th39/5GtsKShFrEnUV48s=
@@ -4051,6 +4257,16 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha1-ApTrPe4FAo0x7hpfosVWpqrxChs=
+
+zod-to-json-schema@^3.22.4:
+  version "3.24.5"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/zod-to-json-schema/-/zod-to-json-schema-3.24.5.tgz#d1095440b147fb7c2093812a53c54df8d5df50a3"
+  integrity sha1-0QlUQLFH+3wgk4EqU8VN+NXfUKM=
+
+zod@^3.22.4:
+  version "3.25.42"
+  resolved "https://bupaaunz.pkgs.visualstudio.com/_packaging/Bupa_NPM/npm/registry/zod/-/zod-3.25.42.tgz#4818381b32f5120e7ea06decb1cde54a230cad2a"
+  integrity sha1-SBg4GzL1Eg5+oG3ssc3lSiMMrSo=
 
 zod@^3.23.8:
   version "3.24.2"

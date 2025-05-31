@@ -4,6 +4,8 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import { GoogleGenAI } from '@google/genai';
+import wav from 'wav';
 
 /**
  * Fallback to sample audio if TTS fails
@@ -21,89 +23,66 @@ function getFallbackAudio(reason: string): string {
 }
 
 /**
- * Convert text to speech using Hume AI's TTS service
+ * Convert text to speech using Google Gemini TTS service
  * @param text The script text to convert to speech
  * @param folderName Optional folder name to save the audio in (should be a folder in public directory)
  * @returns URL to the generated audio file
  */
 export async function textToSpeech(text: string, folderName?: string): Promise<string> {
   try {
-    console.log('Making real TTS API call to Hume AI...');
+    console.log('Making TTS API call to Google Gemini using official SDK...');
     
-    // Get the Hume AI API key
-    const humeApiKey = process.env.HUME_API_KEY;
-    if (!humeApiKey) {
-      console.error('Hume AI API key is not configured');
+    // Get the Google AI API key
+    const googleApiKey = process.env.GOOGLE_AI_API_KEY;
+    if (!googleApiKey) {
+      console.error('Google AI API key is not configured');
       return getFallbackAudio('No API key configured');
     }
     
-    console.log(`Using Hume AI API key: ${humeApiKey.substring(0, 5)}...`);
+    console.log(`Using Google AI API key: ${googleApiKey.substring(0, 5)}...`);
     
-    // Prepare the request payload
-    const payload = {
-      utterances: [{
-        text: text,
-        description: "Clear, professional narrator voice with natural pacing and emphasis."
-      }],
-      format: {
-        type: "mp3"
-      }
-    };
+    // Create a prompt that combines style instructions with the text
+    const styledPrompt = `Read this script with natural, engaging delivery. Use appropriate pacing, emphasis, and emotion to bring the content to life:
+
+${text}`;
     
-    console.log('Sending payload to Hume AI:', JSON.stringify(payload, null, 2));
+    console.log('Sending text to Gemini TTS...');
     
     try {
-      // Make the actual API call
-      // Correct API endpoint - using Octave API for TTS
-      const response = await fetch('https://api.hume.ai/v0/tts/octave', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Hume-Api-Key': humeApiKey
+      // Use the official Google GenAI SDK as per documentation
+      const ai = new GoogleGenAI({ apiKey: googleApiKey });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: [{ parts: [{ text: styledPrompt }] }],
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: 'Enceladus' },
+            },
+          },
         },
-        body: JSON.stringify(payload)
       });
+
+      console.log('Gemini TTS response received');
       
-      // Check if the request was successful
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Hume AI API error:', response.status, response.statusText);
-        console.error('Error details:', errorText);
-        
-        // Try to parse error response if it's JSON
-        let errorDetails = 'Unknown error';
-        try {
-          const errorJson = JSON.parse(errorText);
-          errorDetails = errorJson.message || errorJson.error || JSON.stringify(errorJson);
-        } catch {
-          errorDetails = errorText.substring(0, 200); // Trim long error messages
-        }
-        
-        return getFallbackAudio(`API error: ${response.status} ${response.statusText} - ${errorDetails}`);
+      // Extract audio data using the correct path from documentation
+      const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      
+      if (!audioData) {
+        console.error('No audio data found in response:', JSON.stringify(response, null, 2));
+        return getFallbackAudio('No audio data in response');
       }
       
-      // Parse the response
-      const data = await response.json();
-      console.log('Hume AI response received with status:', response.status);
+      console.log(`Audio data found: ${audioData.length} characters`);
       
-      // Extract audio data from the response
-      if (!data.generations || data.generations.length === 0) {
-        console.error('No generations in Hume AI response:', JSON.stringify(data, null, 2));
-        return getFallbackAudio('No generations in API response');
-      }
-      
-      if (!data.generations[0].audio) {
-        console.error('No audio data in generation:', JSON.stringify(data.generations[0], null, 2));
-        return getFallbackAudio('No audio data in generation');
-      }
-      
-      // Convert base64 audio data to buffer
-      const audioBase64 = data.generations[0].audio;
-      const audioBuffer = Buffer.from(audioBase64, 'base64');
+      // Convert the audio data to a buffer (it's already PCM data)
+      const audioBuffer = Buffer.from(audioData, 'base64');
       
       // Generate a unique filename with timestamp
       const timestamp = new Date().getTime();
-      const filename = `generated-audio-${timestamp}.mp3`;
+      const filename = `generated-audio-${timestamp}.wav`;
       
       // Determine the output directory based on whether a folderName was provided
       let outputDir;
@@ -120,24 +99,56 @@ export async function textToSpeech(text: string, folderName?: string): Promise<s
       // Create the directory if it doesn't exist
       await fs.mkdir(outputDir, { recursive: true });
       
-      // Save the audio file to the appropriate directory
+      // Save the audio file using proper WAV format
       const outputPath = path.join(outputDir, filename);
       
-      await fs.writeFile(outputPath, audioBuffer);
+      // Use the WAV library to properly format the audio file
+      await saveWaveFile(outputPath, audioBuffer);
+      
       console.log(`Audio saved to ${outputPath}`);
       
       // Return the URL to the generated audio file (relative to public dir)
       return urlPath;
     } catch (fetchError: unknown) {
-      console.error('Fetch error during API call:', fetchError);
+      console.error('Error during Gemini API call:', fetchError);
       const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
-      return getFallbackAudio(`Fetch error: ${errorMessage}`);
+      return getFallbackAudio(`Gemini API error: ${errorMessage}`);
     }
   } catch (error: unknown) {
     console.error('Unexpected error in textToSpeech:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return getFallbackAudio(`Unexpected error: ${errorMessage}`);
   }
+}
+
+/**
+ * Save PCM data as a WAV file using the wav library
+ * @param filename Path to save the WAV file
+ * @param pcmData PCM audio data buffer
+ * @param channels Number of audio channels (default: 1)
+ * @param rate Sample rate (default: 24000)
+ * @param sampleWidth Sample width in bytes (default: 2)
+ */
+async function saveWaveFile(
+  filename: string,
+  pcmData: Buffer,
+  channels = 1,
+  rate = 24000,
+  sampleWidth = 2,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const writer = new wav.FileWriter(filename, {
+      channels,
+      sampleRate: rate,
+      bitDepth: sampleWidth * 8,
+    });
+
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+
+    writer.write(pcmData);
+    writer.end();
+  });
 }
 
 /**

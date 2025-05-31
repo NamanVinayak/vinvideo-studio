@@ -45,7 +45,7 @@ export default function TestFormat() {
     setError(null);
     setFormattedScript(null);
     setStats(null);
-    setProcessingStage('Formatting script with OpenAI GPT-4o-mini');
+    setProcessingStage('Formatting script with Google Gemini');
     setElapsedTime(0);
 
     try {

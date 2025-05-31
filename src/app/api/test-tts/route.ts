@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { textToSpeech } from '@/utils/audioProcessing';
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -42,15 +42,15 @@ export async function POST(request: Request) {
       }
     }
     
-    // Step 1: Format script for TTS using OpenAI
-    console.log('Step 1: Formatting script with OpenAI GPT-4o-mini...');
+    // Step 1: Format script for TTS using Google Gemini
+    console.log('Step 1: Formatting script with Google Gemini...');
     const startFormatting = Date.now();
     const formattedScript = await formatScriptForTTS(script);
     const formattingTime = ((Date.now() - startFormatting) / 1000).toFixed(2);
     console.log(`Script formatted successfully in ${formattingTime}s. Length: ${formattedScript.length} characters`);
     
-    // Step 2: Convert the formatted script to speech using Hume AI TTS
-    console.log('Step 2: Converting formatted script to speech with Hume AI...');
+    // Step 2: Convert the formatted script to speech using Gemini TTS
+    console.log('Step 2: Converting formatted script to speech with Google Gemini TTS...');
     const startTTS = Date.now();
     const audioUrl = await textToSpeech(formattedScript, folderId);
     const ttsTime = ((Date.now() - startTTS) / 1000).toFixed(2);
@@ -85,53 +85,77 @@ export async function POST(request: Request) {
 }
 
 /**
- * Format the script for TTS using OpenAI
+ * Format the script for TTS using Google Gemini
  */
 async function formatScriptForTTS(script: string): Promise<string> {
   try {
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const googleApiKey = process.env.GOOGLE_AI_API_KEY;
+    if (!googleApiKey) {
+      console.error('Google AI API key is not configured');
+      return script;
+    }
+
+    const genAI = new GoogleGenerativeAI(googleApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
-    console.log('Making OpenAI API request...');
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          "role": "system",
-          "content": [
-            {
-              "type": "text",
-              "text": "\n\nYou are a professional voice scriptwriter and prompt engineer specialized in formatting content for Hume AI's Octave text-to-speech (TTS) system. Your goal is to analyze the given script, understand its context, emotion, character, and intent, and then rewrite or format it using natural punctuation, phrasing, and delivery cues that maximize vocal nuance.\n\n⸻\n\nYour Job:\n\t1.\tContextual Understanding:\n\t•\tFirst, deeply analyze the emotional tone, narrative intent, and speaker persona (if implied).\n\t•\tThen decide the most natural and expressive way the script should be spoken — as if by a human trained in voice performance.\n\t•\tAlign the tone of the writing with how it would best be vocally performed (e.g. calm guidance, excited storytelling, reflective monologue, etc.)\n\t2.\tNatural Punctuation & Delivery Cues:\nApply punctuation deliberately to shape delivery:\n\t•\tPeriods (.) for complete stops and clarity\n\t•\tCommas (,) for natural pauses or pacing\n\t•\tEm dashes (—) for emotional or dramatic breaks\n\t•\tExclamation marks (!) for enthusiasm or urgency\n\t•\tQuestion marks (?) for curiosity, reflection, or rising tone\n\t3.\tOptimize for Spoken Language:\n\t•\tRewrite overly technical or robotic phrases to sound natural and conversational\n\t•\tEnsure that phrasing mirrors how a real human would speak\n\t•\tMaintain clear structure without over-complicating syntax\n\t4.\tNormalize Content for Speech:\n\t•\tSpell out numbers and dates:\n\t•\t\"42\" → \"forty-two\"\n\t•\t\"2/23/24\" → \"February twenty-third, twenty twenty-four\"\n\t•\tConvert time:\n\t•\t\"15:30\" → \"three thirty in the afternoon\"\n\t•\tUse \"dot com\" format for emails and URLs\n\t•\tBreak down complex data or codes into speakable segments\n\t5.\tAvoid Non-Speech Elements:\n\t•\tDo not use emojis, markdown, HTML, or symbols like ~ # % * \\\n\t•\tAvoid formatting that won't translate naturally into voice\n\n⸻\n\n Example Output:\n\nOriginal:\n\n\"We're launching the project 3/15/24, so please submit the brief by 15:30.\"\n\nTransformed:\n\n\"We're launching the project on March fifteenth, twenty twenty-four — so please submit the brief by three thirty in the afternoon.\"\n\n⸻\n\n🔍 Remember:\n\t•\tAlways think like a voice actor preparing to read this script aloud.\n\t•\tYour goal is not only correct punctuation — but intelligent delivery.\n\t•\tMatch the style, tone, and delivery to the script's core message.\n\t•\tYou are helping Octave feel the meaning behind the words.\n"
-            }
-          ]
-        },
-        {
-          "role": "user",
-          "content": script
-        }
-      ],
-      response_format: {
-        "type": "text"
-      },
-      temperature: 1,
-      max_tokens: 2048,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0
-    });
-    console.log('OpenAI API response received');
+    console.log('Making Google Gemini API request...');
     
-    const formattedScript = response.choices[0]?.message?.content;
+    const prompt = `You are a professional voice scriptwriter and prompt engineer specialized in formatting content for text-to-speech (TTS) systems. Your goal is to analyze the given script, understand its context, emotion, character, and intent, and then rewrite or format it using natural punctuation, phrasing, and delivery cues that maximize vocal nuance.
+
+Your Job:
+1. Contextual Understanding:
+   • First, deeply analyze the emotional tone, narrative intent, and speaker persona (if implied).
+   • Then decide the most natural and expressive way the script should be spoken — as if by a human trained in voice performance.
+   • Align the tone of the writing with how it would best be vocally performed (e.g. calm guidance, excited storytelling, reflective monologue, etc.)
+
+2. Natural Punctuation & Delivery Cues:
+   Apply punctuation deliberately to shape delivery:
+   • Periods (.) for complete stops and clarity
+   • Commas (,) for natural pauses or pacing
+   • Em dashes (—) for emotional or dramatic breaks
+   • Exclamation marks (!) for enthusiasm or urgency
+   • Question marks (?) for curiosity, reflection, or rising tone
+
+3. Optimize for Spoken Language:
+   • Rewrite overly technical or robotic phrases to sound natural and conversational
+   • Ensure that phrasing mirrors how a real human would speak
+   • Maintain clear structure without over-complicating syntax
+
+4. Normalize Content for Speech:
+   • Spell out numbers and dates:
+     • "42" → "forty-two"
+     • "2/23/24" → "February twenty-third, twenty twenty-four"
+   • Convert time:
+     • "15:30" → "three thirty in the afternoon"
+   • Use "dot com" format for emails and URLs
+   • Break down complex data or codes into speakable segments
+
+5. Avoid Non-Speech Elements:
+   • Do not use emojis, markdown, HTML, or symbols like ~ # % * \\
+   • Avoid formatting that won't translate naturally into voice
+
+Remember:
+• Always think like a voice actor preparing to read this script aloud.
+• Your goal is not only correct punctuation — but intelligent delivery.
+• Match the style, tone, and delivery to the script's core message.
+• You are helping the TTS system feel the meaning behind the words.
+
+Please format this script for TTS:
+
+${script}`;
+    
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const formattedScript = response.text();
     
     if (!formattedScript) {
-      console.warn('OpenAI did not return a formatted script, using original script instead');
+      console.warn('Gemini did not return a formatted script, using original script instead');
       return script;
     }
     
     return formattedScript;
   } catch (error) {
-    console.error('Error formatting script with OpenAI:', error);
+    console.error('Error formatting script with Gemini:', error);
     // Return original script if formatting fails
     return script;
   }
