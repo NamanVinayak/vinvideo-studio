@@ -6,7 +6,7 @@ import base64
 from dotenv import load_dotenv
 
 # Load API key from your .env.local file
-load_dotenv('.env.local')
+load_dotenv('../../.env.local')
 api_key = os.getenv('ARSHH_RUNPOD_API_KEY')
 
 # RunPod endpoint ID
@@ -19,10 +19,12 @@ status_url = f"https://api.runpod.ai/v2/{endpoint_id}/status/"
 
 # Define path for output files
 # You can set this to an absolute path to ensure files are saved in a known location
-OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'public')
+script_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Go up three levels from src/utils to project root
+OUTPUT_DIR = os.getenv('OUTPUT_DIR', os.path.join(script_dir, 'public'))
 
-# Path to the input image for video generation
-IMAGE_PATH = os.path.join('public', 'flux_dev_example.png')
+# Path to the input image for video generation - use absolute path
+script_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Go up three levels from src/utils to project root
+IMAGE_PATH = os.path.join(script_dir, 'public', 'flux_dev_example.png')
 
 def encode_image_to_base64(image_path):
     """Encode an image to base64 for including in the API request"""
@@ -43,30 +45,6 @@ def check_endpoint_health():
         return response.status_code == 200
     except Exception as e:
         print(f"Health check failed with error: {e}")
-        return False
-
-def save_video(video_data, filename="generated_video.mp4"):
-    """Save video data to a local file"""
-    try:
-        # Ensure public directory exists
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        
-        # Save to the public folder
-        public_path = os.path.join(OUTPUT_DIR, filename)
-        
-        # Write the data to file
-        with open(public_path, "wb") as f:
-            if isinstance(video_data, str):
-                # If it's a base64 string
-                f.write(base64.b64decode(video_data))
-            else:
-                # If it's binary data
-                f.write(video_data)
-        
-        print(f"Video saved as {public_path}")
-        return True
-    except Exception as e:
-        print(f"Error saving video: {e}")
         return False
 
 def generate_video(prompt="cute anime girl rotating around in her room", 
@@ -526,7 +504,7 @@ def generate_video(prompt="cute anime girl rotating around in her room",
     }
     
     # Implement a retry mechanism
-    max_retries = 2
+    max_retries = 3
     retry_count = 0
     
     while retry_count <= max_retries:
@@ -554,92 +532,34 @@ def generate_video(prompt="cute anime girl rotating around in her room",
                         output = status_data.get("output")
                         print(f"Job completed successfully!")
                         print(f"Output type: {type(output)}")
-                        print(f"Full response structure: {json.dumps(status_data, indent=2)}")
-                
-                        # Variable to track if any video was saved
-                        any_videos_saved = False
-                        saved_videos = []
-                
-                        # Try to find video data in the response
+                        
+                        # Since videos are automatically uploaded to S3, just process the response
                         try:
                             if output:
                                 print(f"Output keys: {output.keys() if isinstance(output, dict) else 'Not a dictionary'}")
                                 
-                                # Process node outputs for videos
-                                if isinstance(output, dict) and 'node_outputs' in output:
-                                    node_outputs = output['node_outputs']
-                                    print(f"Found node_outputs: {list(node_outputs.keys()) if isinstance(node_outputs, dict) else 'Not a dictionary'}")
-                                    
-                                    # Look for video outputs from various VHS_VideoCombine nodes
-                                    for node_id in ['92', '72', '70', '53']:
-                                        node_output_filename = f"generated_video_node{node_id}.mp4"
-                                        
-                                        if node_id in node_outputs:
-                                            print(f"Found output from VHS_VideoCombine node ({node_id})")
-                                            video_data = node_outputs[node_id]
-                                            
-                                            if isinstance(video_data, list) and len(video_data) > 0:
-                                                for i, vid_item in enumerate(video_data):
-                                                    item_filename = f"generated_video_node{node_id}_item{i}.mp4"
-                                                    if isinstance(vid_item, dict) and 'filename' in vid_item:
-                                                        print(f"Video file name: {vid_item['filename']}")
-                                                        if 'data' in vid_item:
-                                                            print(f"Found video data in node {node_id}")
-                                                            if save_video(vid_item['data'], item_filename):
-                                                                any_videos_saved = True
-                                                                saved_videos.append(item_filename)
-                                                    elif isinstance(vid_item, str):
-                                                        print(f"Found video data string in node {node_id}")
-                                                        if save_video(vid_item, item_filename):
-                                                            any_videos_saved = True
-                                                            saved_videos.append(item_filename)
-                                            elif isinstance(video_data, dict) and 'filename' in video_data and 'data' in video_data:
-                                                print(f"Found video data in node {node_id}")
-                                                if save_video(video_data['data'], node_output_filename):
-                                                    any_videos_saved = True
-                                                    saved_videos.append(node_output_filename)
-                                            elif isinstance(video_data, str):
-                                                print(f"Found video data string in node {node_id}")
-                                                if save_video(video_data, node_output_filename):
-                                                    any_videos_saved = True
-                                                    saved_videos.append(node_output_filename)
+                                # Check for message or status in output
+                                if isinstance(output, dict):
+                                    if 'message' in output:
+                                        print(f"Response message: {output['message']}")
+                                    if 'status' in output:
+                                        print(f"Response status: {output['status']}")
+                                    if 'video_url' in output:
+                                        print(f"Video URL: {output['video_url']}")
+                                    elif 'url' in output:
+                                        print(f"URL: {output['url']}")
+                                    elif 'videos' in output:
+                                        print(f"Videos: {output['videos']}")
                                 
-                                # Check for videos array
-                                if isinstance(output, dict) and 'videos' in output and isinstance(output['videos'], list) and output['videos']:
-                                    print(f"Found videos array with {len(output['videos'])} items")
-                                    for i, vid_data in enumerate(output['videos']):
-                                        array_filename = f"generated_video_array{i}.mp4"
-                                        if isinstance(vid_data, str) and (vid_data.startswith('http') or vid_data.startswith('https')):
-                                            # It's a URL, download it
-                                            print(f"Video {i} is a URL")
-                                            response = requests.get(vid_data)
-                                            with open(os.path.join(OUTPUT_DIR, array_filename), 'wb') as f:
-                                                f.write(response.content)
-                                            print(f"Video saved as {os.path.join(OUTPUT_DIR, array_filename)}")
-                                            any_videos_saved = True
-                                            saved_videos.append(array_filename)
-                                        else:
-                                            # Assume it's base64 data
-                                            print(f"Video {i} appears to be base64 data")
-                                            if save_video(vid_data, array_filename):
-                                                any_videos_saved = True
-                                                saved_videos.append(array_filename)
+                                # Save the output as JSON for reference (debugging purposes)
+                                try:
+                                    with open(os.path.join(OUTPUT_DIR, "output.json"), "w") as f:
+                                        json.dump(output, f, indent=2)
+                                    print(f"Output saved to {os.path.join(OUTPUT_DIR, 'output.json')}")
+                                except Exception as save_error:
+                                    print(f"Could not save output JSON: {save_error}")
                                 
-                                # Check for 'video' field
-                                if isinstance(output, dict) and 'video' in output:
-                                    print("Found 'video' field in output")
-                                    if save_video(output['video'], output_filename):
-                                        any_videos_saved = True
-                                        saved_videos.append(output_filename)
-                                    
-                                # Save the entire output as JSON for reference
-                                with open(os.path.join(OUTPUT_DIR, "output.json"), "w") as f:
-                                    json.dump(output, f, indent=2)
-                                
-                                if not any_videos_saved:
-                                    print("No video outputs were successfully saved.")
-                                else:
-                                    print(f"Successfully saved {len(saved_videos)} video(s): {', '.join(saved_videos)}")
+                                print("Video generation completed and uploaded to S3!")
                                 
                         except Exception as processing_error:
                             print(f"Error processing output: {processing_error}")
@@ -648,8 +568,8 @@ def generate_video(prompt="cute anime girl rotating around in her room",
                                 with open(os.path.join(OUTPUT_DIR, "raw_output.json"), "w") as f:
                                     json.dump(status_data, f, indent=2)
                                 print(f"Raw output saved to {os.path.join(OUTPUT_DIR, 'raw_output.json')}")
-                            except:
-                                pass
+                            except Exception as raw_save_error:
+                                print(f"Could not save raw output: {raw_save_error}")
                         
                         return output
                     
@@ -707,8 +627,7 @@ def main():
     
     if result:
         print("Video generation successful!")
-        video_path = os.path.join(abs_output_dir, "generated_video.mp4")
-        print(f"Video saved to: {video_path}")
+        print("Video has been uploaded to S3 bucket.")
     else:
         print("Video generation failed.")
 
