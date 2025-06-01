@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import styles from './page.module.css';
 
 interface CutPoint {
@@ -42,11 +43,46 @@ interface DoPResult {
 interface PromptEngineerResult {
   success: boolean;
   promptEngineerOutput?: Record<string, unknown>;
+  promptsOutput?: string[]; // New field from updated API
+  numPrompts?: number; // New field from updated API
   executionTime?: number;
   delayTime?: number;
   rawResponse?: string;
   warning?: string;
   error?: string;
+}
+
+interface QwenVLReviewResult {
+  success: boolean;
+  reviewResult?: {
+    overall_score: number;
+    approved: boolean;
+    style_continuity_score: number;
+    narrative_progression_score: number;
+    timeline_position: string;
+    visual_motifs_maintained: boolean;
+    script_alignment: boolean;
+    auto_reject_triggered: boolean;
+    auto_reject_reasons: string[];
+    feedback: string[];
+    narrative_context_notes: string;
+  };
+  framesEvaluated?: {
+    frameA: string;
+    frameB: string;
+    candidateC: string;
+  };
+  rawResponse?: string;
+  warning?: string;
+  error?: string;
+}
+
+interface VideoGenerationResult {
+  success: boolean;
+  generatedVideos?: string[];
+  totalRequested?: number;
+  totalGenerated?: number;
+  errors?: string[];
 }
 
 interface WordTimestamp {
@@ -92,7 +128,10 @@ export default function TestTTS() {
     { name: 'Generate Cut Points (Producer Agent)', status: 'pending' },
     { name: 'Generate Creative Vision (Director Agent)', status: 'pending' },
     { name: 'Generate Cinematography Directions (DoP Agent)', status: 'pending' },
-    { name: 'Generate Image Prompts (Prompt Engineer Agent)', status: 'pending' }
+    { name: 'Generate Image Prompts (Prompt Engineer Agent)', status: 'pending' },
+    { name: 'Generate Images (ComfyUI)', status: 'pending' },
+    { name: 'Review Images (QWEN VL Agent)', status: 'pending' },
+    { name: 'Generate Videos (WAN)', status: 'pending' }
   ]);
   
   // Results from each step
@@ -103,6 +142,10 @@ export default function TestTTS() {
   const [directorResult, setDirectorResult] = useState<DirectorResult | null>(null);
   const [dopResult, setDoPResult] = useState<DoPResult | null>(null);
   const [promptEngineerResult, setPromptEngineerResult] = useState<PromptEngineerResult | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [qwenVLResult, setQwenVLResult] = useState<QwenVLReviewResult | null>(null);
+  const [generatedVideos, setGeneratedVideos] = useState<string[]>([]);
+  const [videoGenerationResult, setVideoGenerationResult] = useState<VideoGenerationResult | null>(null);
 
   // Update loading animation dots
   useEffect(() => {
@@ -149,6 +192,10 @@ export default function TestTTS() {
     setDirectorResult(null);
     setDoPResult(null);
     setPromptEngineerResult(null);
+    setGeneratedImages([]);
+    setQwenVLResult(null);
+    setGeneratedVideos([]);
+    setVideoGenerationResult(null);
     setElapsedTime(0);
 
     // Reset all steps
@@ -397,11 +444,28 @@ export default function TestTTS() {
         }
       }
       
+      // Calculate number of images from DoP output
+      let numImages = 1; // Default fallback
+      if (Array.isArray(dopOutputForPE)) {
+        numImages = dopOutputForPE.length;
+      } else if (dopOutputForPE && typeof dopOutputForPE === 'object' && 'length' in dopOutputForPE) {
+        numImages = dopOutputForPE.length as number;
+      } else if (dopData.rawResponse) {
+        try {
+          const parsedResponse = JSON.parse(dopData.rawResponse);
+          if (Array.isArray(parsedResponse)) {
+            numImages = parsedResponse.length;
+          }
+        } catch {
+          // Keep default of 1
+        }
+      }
+      
       console.log('Sending to Prompt Engineer Agent:', { 
         script: script, 
         director_output: directorOutputForPE, 
         dop_output: dopOutputForPE,
-        num_images: 5
+        num_images: numImages
       });
       
       const promptEngineerResponse = await fetch('/api/prompt-engineer-agent', {
@@ -413,7 +477,7 @@ export default function TestTTS() {
           script: script,
           director_output: directorOutputForPE,
           dop_output: dopOutputForPE,
-          num_images: 5 // Generate 5 image prompts by default
+          num_images: numImages // Use the number of beats from DoP output
         }),
       });
 
@@ -426,6 +490,173 @@ export default function TestTTS() {
       setPromptEngineerResult(promptEngineerData);
       
       updateStepStatus(6, 'completed', promptEngineerData, undefined, Date.now() - step7Start);
+
+      // Step 8: Generate Images using ComfyUI
+      updateStepStatus(7, 'processing');
+      const step8Start = Date.now();
+      
+      // Extract prompts from prompt engineer output
+      let promptsToGenerate: string[] = [];
+      if (promptEngineerData.promptsOutput && Array.isArray(promptEngineerData.promptsOutput)) {
+        promptsToGenerate = promptEngineerData.promptsOutput;
+      } else if (promptEngineerData.rawResponse) {
+        // Try to parse from raw response if structured output failed
+        try {
+          const parsedPrompts = JSON.parse(promptEngineerData.rawResponse);
+          if (Array.isArray(parsedPrompts)) {
+            promptsToGenerate = parsedPrompts;
+          }
+        } catch (parseError) {
+          console.warn('Could not parse prompts from raw response:', parseError);
+        }
+      }
+      
+      if (promptsToGenerate.length === 0) {
+        throw new Error('No prompts found in Prompt Engineer output for image generation');
+      }
+      
+      console.log(`Generating ${promptsToGenerate.length} images using ComfyUI...`);
+      console.log('Prompts preview:', promptsToGenerate.slice(0, 2));
+      
+      const comfyResponse = await fetch('/api/generate-comfy-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompts: promptsToGenerate,
+          folderId: projectFolderId
+        }),
+      });
+
+      if (!comfyResponse.ok) {
+        const errorData = await comfyResponse.json();
+        throw new Error(errorData.error || 'Failed to generate images with ComfyUI');
+      }
+
+      const comfyData = await comfyResponse.json();
+      setGeneratedImages(comfyData.generatedImages || []);
+      
+      updateStepStatus(7, 'completed', comfyData, undefined, Date.now() - step8Start);
+
+      // Get generated image URLs for both QWEN VL and WAN steps
+      const generatedImageUrls = comfyData.generatedImages || [];
+
+      // Step 9: Review Images using QWEN VL Agent
+      updateStepStatus(8, 'processing');
+      const step9Start = Date.now();
+      
+      // Check if we have enough images for review (need at least 3)
+      if (generatedImageUrls.length < 3) {
+        console.warn(`Only ${generatedImageUrls.length} images generated, skipping QWEN VL review (requires at least 3)`);
+        updateStepStatus(8, 'completed', { 
+          skipped: true, 
+          reason: 'Insufficient images for review (need at least 3)' 
+        }, undefined, Date.now() - step9Start);
+      } else {
+        // Ensure we have director output for QWEN VL
+        let directorOutputForQwen = directorData.directorOutput;
+        if (!directorOutputForQwen) {
+          if (directorData.rawResponse) {
+            try {
+              directorOutputForQwen = JSON.parse(directorData.rawResponse);
+            } catch {
+              directorOutputForQwen = { creative_vision: "Raw director output: " + directorData.rawResponse };
+            }
+          } else {
+            directorOutputForQwen = { creative_vision: "Director agent did not return structured output" };
+          }
+        }
+
+        // Ensure we have DoP output for QWEN VL
+        let dopOutputForQwen = dopData.dopOutput;
+        if (!dopOutputForQwen) {
+          if (dopData.rawResponse) {
+            try {
+              dopOutputForQwen = JSON.parse(dopData.rawResponse);
+            } catch {
+              dopOutputForQwen = { cinematography: "Raw DoP output: " + dopData.rawResponse };
+            }
+          } else {
+            dopOutputForQwen = { cinematography: "DoP agent did not return structured output" };
+          }
+        }
+
+        console.log('Sending to QWEN VL Review Agent:', { 
+          director_output: directorOutputForQwen,
+          dop_output: dopOutputForQwen,
+          original_script: script,
+          generated_images: generatedImageUrls // Send all generated images for review
+        });
+
+        const qwenVLResponse = await fetch('/api/qwen-vl-review', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            director_output: directorOutputForQwen,
+            dop_output: dopOutputForQwen,
+            original_script: script,
+            generated_images: generatedImageUrls
+          }),
+        });
+
+        if (!qwenVLResponse.ok) {
+          const errorData = await qwenVLResponse.json();
+          throw new Error(errorData.error || 'Failed to get QWEN VL review response');
+        }
+
+        const qwenVLData = await qwenVLResponse.json();
+        setQwenVLResult(qwenVLData);
+        
+        updateStepStatus(8, 'completed', qwenVLData, undefined, Date.now() - step9Start);
+      }
+
+      // Step 10: Generate Videos using WAN (runs regardless of QWEN VL review)
+      updateStepStatus(9, 'processing');
+      const step10Start = Date.now();
+      
+      // Temporarily skip WAN video generation due to endpoint issues
+      console.log('Skipping WAN video generation due to endpoint issues');
+      updateStepStatus(9, 'completed', { 
+        skipped: true, 
+        reason: 'WAN video generation temporarily disabled due to endpoint issues' 
+      }, undefined, Date.now() - step10Start);
+
+      /* TODO: Re-enable WAN video generation when endpoint is fixed
+      if (generatedImageUrls.length > 0) {
+        console.log(`Generating videos from ${generatedImageUrls.length} images using WAN...`);
+        
+        const wanResponse = await fetch('/api/generate-wan-videos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageUrls: generatedImageUrls,
+            folderId: projectFolderId
+          }),
+        });
+
+        if (!wanResponse.ok) {
+          const errorData = await wanResponse.json();
+          throw new Error(errorData.error || 'Failed to generate videos with WAN');
+        }
+
+        const wanData = await wanResponse.json();
+        setVideoGenerationResult(wanData);
+        setGeneratedVideos(wanData.generatedVideos || []);
+        
+        updateStepStatus(9, 'completed', wanData, undefined, Date.now() - step10Start);
+      } else {
+        console.warn('No images available for video generation');
+        updateStepStatus(9, 'completed', { 
+          skipped: true, 
+          reason: 'No images available for video generation' 
+        }, undefined, Date.now() - step10Start);
+      }
+      */
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -736,6 +967,11 @@ export default function TestTTS() {
                   {dopResult.dopOutput && (
                     <div className={styles.dopOutput}>
                       <h3>Cinematography Directions:</h3>
+                      {Array.isArray(dopResult.dopOutput) && (
+                        <div className={styles.imageCount}>
+                          <strong>Number of Images to Generate:</strong> {dopResult.dopOutput.length}
+                        </div>
+                      )}
                       <pre className={styles.jsonOutput}>
                         {JSON.stringify(dopResult.dopOutput, null, 2)}
                       </pre>
@@ -783,14 +1019,19 @@ export default function TestTTS() {
                       <div>
                         <strong>Delay Time:</strong> {promptEngineerResult.delayTime}ms
                       </div>
+                      {promptEngineerResult.numPrompts && (
+                        <div>
+                          <strong>Number of Prompts Generated:</strong> {promptEngineerResult.numPrompts}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {promptEngineerResult.promptEngineerOutput && (
+                  {promptEngineerResult.promptsOutput && (
                     <div className={styles.promptEngineerOutput}>
                       <h3>Generated Image Prompts:</h3>
                       <pre className={styles.jsonOutput}>
-                        {JSON.stringify(promptEngineerResult.promptEngineerOutput, null, 2)}
+                        {JSON.stringify(promptEngineerResult.promptsOutput, null, 2)}
                       </pre>
                     </div>
                   )}
@@ -815,6 +1056,272 @@ export default function TestTTS() {
               {!promptEngineerResult.success && promptEngineerResult.error && (
                 <div className={styles.promptEngineerError}>
                   <strong>Prompt Engineer Agent Error:</strong> {promptEngineerResult.error}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {generatedImages && generatedImages.length > 0 && (
+          <div className={styles.result}>
+            <h2>8. Generated Images (ComfyUI):</h2>
+            <div className={styles.generatedImagesResult}>
+              <div className={styles.executionStats}>
+                <h3>Image Generation Stats:</h3>
+                <div className={styles.statsGrid}>
+                  <div>
+                    <strong>Images Generated:</strong> {generatedImages.length}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.imagesGrid}>
+                {generatedImages.map((imageUrl, index) => (
+                  <div key={index} className={styles.imageContainer}>
+                    <Image 
+                      src={imageUrl} 
+                      alt={`Generated image ${index + 1}`}
+                      className={styles.generatedImage}
+                      width={500}
+                      height={300}
+                      onError={(e) => {
+                        console.error(`Failed to load image ${index + 1}:`, imageUrl);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+
+                    <div className={styles.imageActions}>
+                      <a 
+                        href={imageUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={styles.viewFullButton}
+                      >
+                        View Full Size
+                      </a>
+                      <button 
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = imageUrl;
+                          link.download = `generated-image-${index + 1}.png`;
+                          link.click();
+                        }}
+                        className={styles.downloadButton}
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {qwenVLResult && (
+          <div className={styles.result}>
+            <h2>9. Image Review (QWEN VL Agent):</h2>
+            <div className={styles.qwenVLResult}>
+              {qwenVLResult.success && qwenVLResult.reviewResult && (
+                <>
+                  <div className={styles.executionStats}>
+                    <h3>Visual Continuity Review:</h3>
+                    <div className={styles.statsGrid}>
+                      <div>
+                        <strong>Overall Score:</strong> {qwenVLResult.reviewResult.overall_score}/10
+                      </div>
+                      <div>
+                        <strong>Style Continuity:</strong> {qwenVLResult.reviewResult.style_continuity_score}/10
+                      </div>
+                      <div>
+                        <strong>Narrative Progression:</strong> {qwenVLResult.reviewResult.narrative_progression_score}/10
+                      </div>
+                      <div>
+                        <strong>Approved:</strong> {qwenVLResult.reviewResult.approved ? '✅ Yes' : '❌ No'}
+                      </div>
+                      <div>
+                        <strong>Script Alignment:</strong> {qwenVLResult.reviewResult.script_alignment ? '✅ Yes' : '❌ No'}
+                      </div>
+                      <div>
+                        <strong>Visual Motifs Maintained:</strong> {qwenVLResult.reviewResult.visual_motifs_maintained ? '✅ Yes' : '❌ No'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {qwenVLResult.reviewResult.auto_reject_triggered && (
+                    <div className={styles.autoReject}>
+                      <h3>Auto-Reject Triggered:</h3>
+                      <div className={styles.autoRejectReasons}>
+                        {qwenVLResult.reviewResult.auto_reject_reasons.map((reason, index) => (
+                          <div key={index} className={styles.rejectReason}>
+                            ❌ {reason}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {qwenVLResult.reviewResult.feedback && qwenVLResult.reviewResult.feedback.length > 0 && (
+                    <div className={styles.feedback}>
+                      <h3>Feedback:</h3>
+                      <div className={styles.feedbackList}>
+                        {qwenVLResult.reviewResult.feedback.map((feedback, index) => (
+                          <div key={index} className={styles.feedbackItem}>
+                            💬 {feedback}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {qwenVLResult.reviewResult.narrative_context_notes && (
+                    <div className={styles.narrativeNotes}>
+                      <h3>Narrative Context Notes:</h3>
+                      <p className={styles.narrativeText}>
+                        {qwenVLResult.reviewResult.narrative_context_notes}
+                      </p>
+                    </div>
+                  )}
+
+                  {qwenVLResult.framesEvaluated && (
+                    <div className={styles.framesEvaluated}>
+                      <h3>Frames Evaluated:</h3>
+                      <div className={styles.framesList}>
+                        <div className={styles.frameItem}>
+                          <strong>Frame A (Reference):</strong>
+                          <Image 
+                            src={qwenVLResult.framesEvaluated.frameA} 
+                            alt="Frame A"
+                            className={styles.reviewFrame}
+                            width={200}
+                            height={120}
+                          />
+                        </div>
+                        <div className={styles.frameItem}>
+                          <strong>Frame B (Reference):</strong>
+                          <Image 
+                            src={qwenVLResult.framesEvaluated.frameB} 
+                            alt="Frame B"
+                            className={styles.reviewFrame}
+                            width={200}
+                            height={120}
+                          />
+                        </div>
+                        <div className={styles.frameItem}>
+                          <strong>Frame C (Candidate):</strong>
+                          <Image 
+                            src={qwenVLResult.framesEvaluated.candidateC} 
+                            alt="Frame C"
+                            className={styles.reviewFrame}
+                            width={200}
+                            height={120}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {qwenVLResult.rawResponse && (
+                <div className={styles.rawResponse}>
+                  <h3>Raw Response:</h3>
+                  <pre className={styles.rawResponseText}>
+                    {qwenVLResult.rawResponse}
+                  </pre>
+                </div>
+              )}
+
+              {qwenVLResult.warning && (
+                <div className={styles.warning}>
+                  <strong>Warning:</strong> {qwenVLResult.warning}
+                </div>
+              )}
+
+              {!qwenVLResult.success && qwenVLResult.error && (
+                <div className={styles.qwenVLError}>
+                  <strong>QWEN VL Review Error:</strong> {qwenVLResult.error}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {(generatedVideos.length > 0 || videoGenerationResult) && (
+          <div className={styles.result}>
+            <h2>10. Generated Videos (WAN):</h2>
+            <div className={styles.videoGenerationResult}>
+              {videoGenerationResult && (
+                <div className={styles.executionStats}>
+                  <h3>Video Generation Stats:</h3>
+                  <div className={styles.statsGrid}>
+                    <div>
+                      <strong>Videos Requested:</strong> {videoGenerationResult.totalRequested}
+                    </div>
+                    <div>
+                      <strong>Videos Generated:</strong> {videoGenerationResult.totalGenerated}
+                    </div>
+                    <div>
+                      <strong>Success Rate:</strong> {(videoGenerationResult.totalRequested && videoGenerationResult.totalGenerated) 
+                        ? Math.round((videoGenerationResult.totalGenerated / videoGenerationResult.totalRequested) * 100) 
+                        : 0}%
+                    </div>
+                  </div>
+                  
+                  {videoGenerationResult.errors && videoGenerationResult.errors.length > 0 && (
+                    <div className={styles.videoErrors}>
+                      <h4>Generation Errors:</h4>
+                      {videoGenerationResult.errors.map((error, index) => (
+                        <div key={index} className={styles.errorItem}>
+                          ❌ {error}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {generatedVideos.length > 0 && (
+                <div className={styles.videosGrid}>
+                  {generatedVideos.map((videoUrl, index) => (
+                    <div key={index} className={styles.videoContainer}>
+                      <h4>Video {index + 1}</h4>
+                      <video 
+                        src={videoUrl} 
+                        controls
+                        className={styles.generatedVideo}
+                        width="500"
+                        height="300"
+                        onError={() => {
+                          console.error(`Failed to load video ${index + 1}:`, videoUrl);
+                        }}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+
+                      <div className={styles.videoActions}>
+                        <a 
+                          href={videoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.viewFullButton}
+                        >
+                          Open in New Tab
+                        </a>
+                        <button 
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = videoUrl;
+                            link.download = `generated-video-${index + 1}.mp4`;
+                            link.click();
+                          }}
+                          className={styles.downloadButton}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

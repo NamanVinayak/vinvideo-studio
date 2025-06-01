@@ -1,13 +1,17 @@
+import os
 import requests
 import json
-import os
-import time
+import argparse
 import base64
+import time
 from dotenv import load_dotenv
 
-# Load API key from your .env.local file
-load_dotenv('.env.local')
+# Load API key from environment variables
+# First check if passed from Node.js, otherwise try .env.local file
 api_key = os.getenv('RUNPOD_API_KEY')
+if not api_key:
+    load_dotenv('../../.env.local')
+    api_key = os.getenv('RUNPOD_API_KEY')
 
 # RunPod endpoint ID
 endpoint_id = "5lq23g82tx2u2k"
@@ -18,8 +22,10 @@ run_url = f"https://api.runpod.ai/v2/{endpoint_id}/run"
 status_url = f"https://api.runpod.ai/v2/{endpoint_id}/status/"
 
 # Define path for output files
-# You can set this to an absolute path to ensure files are saved in a known location
-OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'public')
+# Point to the project root's public directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.join(script_dir, '..', '..')
+OUTPUT_DIR = os.getenv('OUTPUT_DIR', os.path.join(project_root, 'public'))
 
 def check_endpoint_health():
     """Check if the RunPod endpoint is healthy."""
@@ -436,29 +442,61 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
         print(f"Failed to submit job: {response.text}")
         return None
 
-def load_prompts_from_file(filename="message.txt"):
-    """Load prompts from the message.txt file"""
+def load_prompt_engineer_output(filename="prompt_engineer_output.json"):
+    """Load prompts from the prompt engineer output file"""
     try:
-        # Use hardcoded path to message.txt in the src/utils directory
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        message_path = os.path.join(script_dir, "message.txt")
-        print(f"Looking for message.txt at: {message_path}")
+        prompt_path = os.path.join(script_dir, filename)
+        print(f"Looking for prompt engineer output at: {prompt_path}")
         
-        with open(message_path, 'r') as file:
+        with open(prompt_path, 'r') as file:
             data = json.load(file)
-            return data
+            
+            # Expected format: array of strings like ["1: Alex...", "2: Alex..."]
+            if isinstance(data, list) and all(isinstance(item, str) for item in data):
+                return data
+            
+            # If wrapped in another structure, try to extract the array
+            if isinstance(data, dict):
+                for key in ['promptsOutput', 'prompts', 'output', 'data']:
+                    if key in data and isinstance(data[key], list):
+                        return data[key]
+            
+            print(f"Unexpected data format: {type(data)}")
+            return []
     except FileNotFoundError:
-        print(f"Error: File {message_path} not found")
+        print(f"Error: File {prompt_path} not found")
         return []
     except json.JSONDecodeError:
-        print(f"Error: File {message_path} contains invalid JSON")
+        print(f"Error: File {prompt_path} contains invalid JSON")
         return []
     except Exception as e:
-        print(f"Error loading prompts from file: {e}")
+        print(f"Error loading prompt engineer output: {e}")
         return []
 
+def parse_prompt_engineer_string(prompt_string):
+    """Parse a prompt engineer string to extract the main prompt"""
+    try:
+        # The format is: "1: [actual prompt content]"
+        # Split on the first colon and space to get the prompt
+        if ':' in prompt_string:
+            parts = prompt_string.split(':', 1)
+            if len(parts) >= 2:
+                return parts[1].strip()
+        
+        # If no colon found, return the whole string
+        return prompt_string.strip()
+    except Exception as e:
+        print(f"Error parsing prompt string: {e}")
+        return prompt_string
+
 def main():
-    # First check if the endpoint is healthy
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Generate images using ComfyUI')
+    parser.add_argument('--prompts-file', type=str, help='Path to JSON file containing prompts array')
+    args = parser.parse_args()
+    
+    # Check endpoint health
     print("Checking endpoint health...")
     if not check_endpoint_health():
         print("Endpoint health check failed. Please check your endpoint ID and API key.")
@@ -468,53 +506,67 @@ def main():
     abs_output_dir = os.path.abspath(OUTPUT_DIR)
     print(f"Images will be saved to: {abs_output_dir}")
     
-    # Load prompts from file
-    prompts_data = load_prompts_from_file()
-    
-    if not prompts_data:
-        print("No prompts found in message.txt file or file couldn't be loaded.")
-        use_default = input("Use default workflow instead? (y/n): ").lower() == 'y'
+    # Load prompt engineer output
+    if args.prompts_file and os.path.exists(args.prompts_file):
+        print(f"Loading prompts from command line file: {args.prompts_file}")
+        try:
+            with open(args.prompts_file, 'r') as file:
+                prompt_engineer_data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"Error loading prompts file: {e}")
+            return
+    else:
+        prompt_engineer_data = load_prompt_engineer_output()
         
-        if use_default:
-            print("Using default settings.")
-            # Generate the content with default prompts
-            result = generate_image()
+        if not prompt_engineer_data:
+            print("No prompt engineer output found. Please save the prompt engineer output to 'prompt_engineer_output.json' in the utils directory.")
             
-            if result:
-                print("Content generation successful!")
-                print(f"Check {abs_output_dir} for your generated images")
+            # Offer manual input as fallback
+            manual_input = input("Would you like to paste the prompt engineer output manually? (y/n): ").lower() == 'y'
+            if manual_input:
+                print("\nPaste the prompt engineer output (JSON array format):")
+                try:
+                    user_input = input().strip()
+                    prompt_engineer_data = json.loads(user_input)
+                except json.JSONDecodeError:
+                    print("Invalid JSON format. Exiting.")
+                    return
             else:
-                print("Content generation failed.")
+                return
+    
+    # Process prompt engineer format
+    if not isinstance(prompt_engineer_data, list):
+        print("Prompt engineer data is not in the expected array format.")
         return
     
-    # Process each prompt
-    print(f"Found {len(prompts_data)} prompts to process")
+    print(f"Found {len(prompt_engineer_data)} prompts to process")
     
-    for item in prompts_data:
-        beat_number = item.get('beat_no')
-        positive_prompt = item.get('positive_prompt')
-        
-        if not positive_prompt:
-            print(f"Skipping beat {beat_number}: No positive prompt found")
+    for i, prompt_string in enumerate(prompt_engineer_data, 1):
+        if not isinstance(prompt_string, str):
+            print(f"Skipping item {i}: Not a string")
             continue
         
-        print(f"\nProcessing beat {beat_number}...")
-        print(f"Positive prompt: {positive_prompt[:100]}...")
+        # Parse the prompt string to extract the actual prompt
+        actual_prompt = parse_prompt_engineer_string(prompt_string)
+        
+        print(f"\nProcessing image {i}...")
+        print(f"Full prompt: {prompt_string[:100]}...")
+        print(f"Extracted prompt: {actual_prompt[:100]}...")
         
         # Generate image with this prompt
-        output_filename = f"beat{beat_number}.png"
+        output_filename = f"prompt_engineer_image_{i}.png"
         print(f"Generating image: {output_filename}")
         
         result = generate_image(
-            prompt=positive_prompt, 
-            negative_prompt="", 
+            prompt=actual_prompt, 
+            negative_prompt="lowres, blurry, deformed, extra limbs, watermark, text, jpeg artefacts, oversaturated", 
             output_filename=output_filename
         )
         
         if result:
-            print(f"Successfully generated image for beat {beat_number}")
+            print(f"Successfully generated image {i}")
         else:
-            print(f"Failed to generate image for beat {beat_number}")
+            print(f"Failed to generate image {i}")
     
     print("\nAll prompts processed!")
     print(f"Check {abs_output_dir} for your generated images")

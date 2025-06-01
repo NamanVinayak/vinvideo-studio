@@ -46,7 +46,9 @@ ${JSON.stringify(director_output)}
 DOP NOTES (cinematography directions):
 ${JSON.stringify(dop_output)}
 
-${num_images ? `NUMBER OF IMAGES TO GENERATE: ${num_images}` : 'Please auto-detect the number of images needed based on the director and DoP outputs.'}
+${num_images ? `NUMBER OF IMAGES TO GENERATE: ${num_images}
+
+IMPORTANT: You MUST generate exactly ${num_images} image prompts - no more, no less. Each prompt corresponds to one beat from the DoP output.` : 'Please auto-detect the number of images needed based on the director and DoP outputs.'}
 
 Please analyze these inputs and output your FLUX image prompts as a JSON array exactly as specified in your system instructions. Each prompt should be indexed and ready for FLUX 1-dev generation.`;
 
@@ -146,18 +148,31 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
               } else if (cleanedResponse.startsWith('```') && cleanedResponse.endsWith('```')) {
                 cleanedResponse = cleanedResponse.slice(3, -3).trim();
               }
-              
-              // Try to parse the cleaned JSON response
-              const promptsOutput = JSON.parse(cleanedResponse);
-              
+                 // Try to parse the cleaned JSON response
+            const promptsOutput = JSON.parse(cleanedResponse);
+            
+            // Validate the number of prompts if num_images was specified
+            if (num_images && Array.isArray(promptsOutput) && promptsOutput.length !== num_images) {
+              console.warn(`Expected ${num_images} prompts but got ${promptsOutput.length}`);
               return NextResponse.json({
                 success: true,
                 promptsOutput,
-                numPrompts: Array.isArray(promptsOutput) ? promptsOutput.length : 0,
+                numPrompts: promptsOutput.length,
                 executionTime: statusResult.executionTime,
                 delayTime: statusResult.delayTime,
-                rawResponse: promptResponse
+                rawResponse: promptResponse,
+                warning: `Expected ${num_images} prompts but received ${promptsOutput.length}`
               });
+            }
+            
+            return NextResponse.json({
+              success: true,
+              promptsOutput,
+              numPrompts: Array.isArray(promptsOutput) ? promptsOutput.length : 0,
+              executionTime: statusResult.executionTime,
+              delayTime: statusResult.delayTime,
+              rawResponse: promptResponse
+            });
             } catch (parseError) {
               // If JSON parsing fails, return the raw response
               console.error('Failed to parse Prompt Engineer response as JSON:', parseError);
@@ -209,6 +224,20 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         
         // Try to parse the cleaned JSON response
         const promptsOutput = JSON.parse(cleanedResponse);
+        
+        // Validate the number of prompts if num_images was specified
+        if (num_images && Array.isArray(promptsOutput) && promptsOutput.length !== num_images) {
+          console.warn(`Expected ${num_images} prompts but got ${promptsOutput.length}`);
+          return NextResponse.json({
+            success: true,
+            promptsOutput,
+            numPrompts: promptsOutput.length,
+            executionTime: result.executionTime,
+            delayTime: result.delayTime,
+            rawResponse: promptResponse,
+            warning: `Expected ${num_images} prompts but received ${promptsOutput.length}`
+          });
+        }
         
         return NextResponse.json({
           success: true,
