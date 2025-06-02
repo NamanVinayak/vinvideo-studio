@@ -15,11 +15,9 @@ import wav from 'wav';
 function getFallbackAudio(reason: string): string {
   console.warn(`Using fallback audio. Reason: ${reason}`);
   
-  // For testing purposes, create a timestamp to avoid caching issues
-  const timestamp = new Date().getTime();
-  const fallbackUrl = `/sample-audio.mp3?t=${timestamp}&reason=${encodeURIComponent(reason)}`;
-  
-  return fallbackUrl;
+  // Return a simple path to the fallback audio without parameters
+  // URL parameters can cause path issues when constructing file paths
+  return `/sample-audio.mp3`;
 }
 
 /**
@@ -157,7 +155,7 @@ async function saveWaveFile(
  * @param script Original script text
  * @returns Array of segments with timing information
  */
-export async function analyzeAudioSegments(audioUrl: string, formattedScript: string) {
+export async function analyzeAudioSegments(_audioUrl: string, formattedScript: string) {
   try {
     // In a real implementation, we would:
     // 1. Split the text into logical segments (sentences or paragraphs)

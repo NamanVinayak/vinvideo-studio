@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     console.log(`Starting ComfyUI image generation for ${prompts.length} prompts...`);
     console.log(`Output directory: ${publicDir}`);
     
-    return new Promise((resolve) => {
+    return new Promise<Response>((resolve) => {
       const pythonScript = path.join(process.cwd(), 'src', 'utils', 'comfyEndpointTest.py');
       const python = spawn('python3', [pythonScript, '--prompts-file', promptsFilePath], {
         cwd: path.dirname(pythonScript),

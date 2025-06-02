@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -540,9 +541,10 @@ export default function TestTTS() {
       updateStepStatus(7, 'completed', comfyData, undefined, Date.now() - step8Start);
 
       // Get generated image URLs for both QWEN VL and WAN steps
-      const generatedImageUrls = comfyData.generatedImages || [];
+      // const generatedImageUrls = comfyData.generatedImages || [];
 
       // Step 9: Review Images using QWEN VL Agent
+      /*
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
       
@@ -612,8 +614,17 @@ export default function TestTTS() {
         
         updateStepStatus(8, 'completed', qwenVLData, undefined, Date.now() - step9Start);
       }
+      */
+      // Manually mark step 8 as completed (skipped)
+      const step9Start = Date.now(); // Keep timer for consistency if needed, or remove
+      updateStepStatus(8, 'completed', { 
+        skipped: true, 
+        reason: 'QWEN VL review step manually commented out' 
+      }, undefined, Date.now() - step9Start);
+
 
       // Step 10: Generate Videos using WAN (runs regardless of QWEN VL review)
+      /*
       updateStepStatus(9, 'processing');
       const step10Start = Date.now();
       
@@ -624,7 +635,7 @@ export default function TestTTS() {
         reason: 'WAN video generation temporarily disabled due to endpoint issues' 
       }, undefined, Date.now() - step10Start);
 
-      /* TODO: Re-enable WAN video generation when endpoint is fixed
+      // TODO: Re-enable WAN video generation when endpoint is fixed
       if (generatedImageUrls.length > 0) {
         console.log(`Generating videos from ${generatedImageUrls.length} images using WAN...`);
         
@@ -657,6 +668,12 @@ export default function TestTTS() {
         }, undefined, Date.now() - step10Start);
       }
       */
+      // Manually mark step 9 as completed (skipped)
+      const step10Start = Date.now(); // Keep timer for consistency if needed, or remove
+       updateStepStatus(9, 'completed', { 
+        skipped: true, 
+        reason: 'WAN video generation step manually commented out' 
+      }, undefined, Date.now() - step10Start);
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -1330,4 +1347,4 @@ export default function TestTTS() {
       </div>
     </div>
   );
-} 
+}

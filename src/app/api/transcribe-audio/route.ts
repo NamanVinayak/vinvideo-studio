@@ -58,22 +58,24 @@ export async function POST(request: Request) {
 
     // Path to the Python script
     const scriptPath = path.join(process.cwd(), 'src/nvidia/client/transcribe_audio.py');
-    const pythonPath = path.join(process.cwd(), 'venv/bin/python3');
+    const pythonPath = 'python3'; // Use system Python
     
-    // Construct the command with proper escaping
+    // Construct the command with proper escaping - USE SYNC MODE FOR FASTER PROCESSING
     const command = [
-      `"${pythonPath}"`, // Use virtual environment Python
+      pythonPath, // Use system Python
       `"${scriptPath}"`,
       `"${audioPath}"`,
       '--api-key', apiKey,
       '--endpoint-id', '3bm1957lpyat1x',
-      '--output', `"${outputPath}"`
+      '--output', `"${outputPath}"`,
+      '--sync',  // Force synchronous mode to avoid queue delays
+      '--timeout', '300'  // 5 minute timeout instead of 15
     ].join(' ');
     console.log('Executing command:', command);
 
     // Execute the Python script
     const { stdout, stderr } = await execAsync(command, { 
-      timeout: 900000, // 15 minutes timeout
+      timeout: 360000, // 6 minutes timeout (reduced from 15)
       cwd: process.cwd(), // Set working directory
       env: { 
         ...process.env,
