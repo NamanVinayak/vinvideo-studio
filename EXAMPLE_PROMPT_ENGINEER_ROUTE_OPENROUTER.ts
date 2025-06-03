@@ -3,7 +3,7 @@ import { FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineer';
 
 /**
  * Prompt Engineer Agent endpoint to generate image prompts for FLUX
- * MODIFIED: Uses OpenRouter with Google Gemini 2.5 Flash instead of RunPod
+ * MODIFIED VERSION: Using OpenRouter instead of RunPod
  */
 export async function POST(request: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     console.log(`DoP output preview: ${JSON.stringify(dop_output).substring(0, 100)}...`);
     console.log(`Number of images to generate: ${num_images || 'auto-detect from cuts'}`);
     
-    // Prepare the user content message
+    // Prepare the user content message (SAME AS BEFORE)
     const userContent = `Here are the inputs for FLUX image prompt generation:
 
 ORIGINAL SCRIPT:
@@ -50,9 +50,9 @@ IMPORTANT: You MUST generate exactly ${num_images} image prompts - no more, no l
 
 Please analyze these inputs and output your FLUX image prompts as a JSON array exactly as specified in your system instructions. Each prompt should be indexed and ready for FLUX 1-dev generation.`;
 
-    // Create the request payload for OpenRouter
+    // Create the request payload for OpenRouter (SIMPLIFIED)
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "anthropic/claude-3.5-sonnet", // Excellent for prompt generation
       messages: [
         {
           role: "system",
@@ -63,15 +63,12 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
           content: userContent
         }
       ],
-      max_tokens: 20000,          // Increased to handle all 35 prompts with rich descriptions
-      temperature: 0.45,          // High creativity for detailed visual descriptions
-      top_p: 0.7,                // Wide creative vocabulary for visual elements
-      frequency_penalty: 0.4,     // Encourage varied descriptive language
-      presence_penalty: 0.2,      // Promote diverse visual concepts
+      max_tokens: 15000,
+      temperature: 0.1, // Slight creativity for visual descriptions
       stream: false
     };
 
-    // Make the API request to OpenRouter
+    // Make the API request to OpenRouter (SIMPLIFIED)
     const url = 'https://openrouter.ai/api/v1/chat/completions';
     const options = {
       method: 'POST',
@@ -177,3 +174,22 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
     }, { status: 500 });
   }
 }
+
+/**
+ * KEY CHANGES FROM RUNPOD VERSION:
+ * 
+ * 1. URL: RunPod endpoint → OpenRouter endpoint
+ * 2. API Key: ARSHH_RUNPOD_API_KEY → OPENROUTER_API_KEY
+ * 3. Payload structure: Removed 'input' wrapper, simplified params
+ * 4. Temperature: Kept at 0.1 for creative prompts
+ * 5. Response handling: Direct access, no polling
+ * 6. Removed: ~90 lines of polling logic
+ * 7. Added: Usage tracking for cost monitoring
+ * 
+ * PROMPT ENGINEER SPECIFICS:
+ * - Generates detailed FLUX image generation prompts
+ * - Takes input from Script, Director, and DoP agents
+ * - Outputs indexed array of image prompts
+ * - Temperature 0.1 for creative visual descriptions
+ * - Each prompt ~15-40 words with 8 segments
+ */

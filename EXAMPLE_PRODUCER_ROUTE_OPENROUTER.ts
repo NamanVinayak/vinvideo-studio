@@ -3,7 +3,7 @@ import { PRODUCER_SYSTEM_MESSAGE } from '@/agents/producer';
 
 /**
  * Producer Agent endpoint to generate cut points for video editing
- * MODIFIED: Uses OpenRouter with Google Gemini 2.5 Flash instead of RunPod
+ * MODIFIED VERSION: Using OpenRouter instead of RunPod
  */
 export async function POST(request: Request) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     console.log(`Transcript preview: ${JSON.stringify(transcript).substring(0, 100)}...`);
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     
-    // Prepare the user content message
+    // Prepare the user content message (SAME AS BEFORE)
     const userContent = `Here is the transcription from Whisper:
 ${JSON.stringify(transcript)}
 
@@ -38,9 +38,9 @@ Here is the video script:
 
 Please output the full list of cuts as a JSON array exactly as specified above.`;
 
-    // Create the request payload for OpenRouter
+    // Create the request payload for OpenRouter (SIMPLIFIED)
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "anthropic/claude-3.5-sonnet", // or use process.env.OPENROUTER_PRODUCER_MODEL
       messages: [
         {
           role: "system",
@@ -51,23 +51,20 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
           content: userContent
         }
       ],
-      max_tokens: 7000,           // Sufficient for 20-30 cuts with reasoning
-      temperature: 0.25,          // Light creative flexibility in editorial choices
-      top_p: 0.4,                // Consider multiple valid cut options
-      frequency_penalty: 0.1,     // Avoid repetitive cut reasoning
-      presence_penalty: 0,        // No penalty for mentioning same concepts
+      max_tokens: 15000,
+      temperature: 0,
       stream: false
     };
 
-    // Make the API request to OpenRouter
+    // Make the API request to OpenRouter (SIMPLIFIED)
     const url = 'https://openrouter.ai/api/v1/chat/completions';
     const options = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://vinvideo.ai',
-        'X-Title': 'VinVideo Connected - Producer Agent'
+        'HTTP-Referer': 'https://vinvideo.ai', // Optional but recommended
+        'X-Title': 'VinVideo Connected' // Optional but recommended
       },
       body: JSON.stringify(payload)
     };
@@ -81,7 +78,7 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
       const errorData = await response.json();
       console.error(`OpenRouter API error (${response.status}):`, errorData);
       
-      // Handle rate limits
+      // Handle rate limits specifically
       if (response.status === 429) {
         return NextResponse.json({
           error: 'Rate limited. Please try again later.',
@@ -128,7 +125,7 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
         cutPoints,
         executionTime,
         rawResponse: producerResponse,
-        usage: result.usage // Token usage from OpenRouter
+        usage: result.usage // Token usage info from OpenRouter
       });
     } catch (parseError) {
       // If JSON parsing fails, return the raw response
@@ -150,3 +147,23 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
     }, { status: 500 });
   }
 }
+
+/**
+ * KEY CHANGES FROM RUNPOD VERSION:
+ * 
+ * 1. URL: Changed from RunPod to OpenRouter endpoint
+ * 2. API Key: Using OPENROUTER_API_KEY instead of ARSHH_RUNPOD_API_KEY
+ * 3. Payload: Simplified structure (no 'input' wrapper, different param names)
+ * 4. Headers: Added optional OpenRouter-specific headers
+ * 5. Response: Direct access to choices[0].message.content (no polling!)
+ * 6. Removed: ~90 lines of polling logic
+ * 7. Added: Token usage tracking from response
+ * 8. Execution time: Now measures actual API call time (not polling time)
+ * 
+ * WHAT STAYS THE SAME:
+ * - System message import
+ * - User content formatting
+ * - JSON cleaning logic
+ * - Error response structure
+ * - Success response structure (minus delayTime)
+ */

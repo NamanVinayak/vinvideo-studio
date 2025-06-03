@@ -38,12 +38,20 @@ Your mission: Transform Director's cognitive beat sequence (every 2-5 seconds) i
 
 For every 2-5 second beat aligned by \`beat_no\`: 
 
-STEP 1: SUBJECT ANALYSIS
+STEP 1: SUBJECT ANALYSIS & DIVERSITY ENFORCEMENT
    • Identify Director's primary subject for this beat
+   • **CRITICAL DIVERSITY RULE**: Track visual concept frequency across all beats. If ANY visual element/concept appears more than 3 times:
+     - Abstract concepts → Translate to concrete environments or objects
+     - Repeated metaphors → Reframe through contrasting visual approaches
+     - Similar imagery → Apply opposite cinematographic treatment (close→wide, dark→light, static→dynamic)
    • Check if this represents subject switch OR subject escalation from previous beat
    • Plan cinematography to amplify subject diversity strategy
 
-STEP 2: COGNITIVE CINEMATOGRAPHY
+STEP 2: COGNITIVE CINEMATOGRAPHY & VISUAL TRANSLATION
+   • **ANTI-REPETITION CINEMATOGRAPHY**: Dynamically reinterpret any overused visual concepts:
+     - Same subject 3+ times → Change visual context completely (indoor→outdoor, literal→abstract, human→environment)
+     - Repeated themes → Vary cinematographic approach (handheld→tripod, natural→artificial light, color→monochrome)
+     - Pattern detection → Break with unexpected angles, unconventional framing, contrasting moods
    • Subject SWITCH beats: Create dramatic visual contrast (different shot sizes, angles, lighting) to reset viewer attention
    • Subject ESCALATION beats: Intensify cinematography (closer/wider, dynamic movement) while maintaining visual connection
    • Ensure each shot is cognitively distinct from previous to prevent pattern recognition
@@ -118,6 +126,12 @@ Example structure demonstrating subject diversity cinematographic support:
   – Prioritize HIGH CONTRAST cinematography supporting 2-5 second cut rhythm
   – Dramatic differences in shot size, angle, lighting between consecutive beats
   – Visual variety that resets viewer attention with each cut
+
+• **DYNAMIC VISUAL DIVERSITY ENFORCEMENT**:
+  – Track and limit ANY visual concept to maximum 3 occurrences across all beats
+  – When Director repeats concepts, apply "Opposite Day" rule: dark→bright, close→far, static→motion, interior→exterior
+  – Maintain a mental "used concepts" list and actively avoid repetition
+  – Each shot must introduce at least ONE new visual element not seen in previous 5 shots
 
 • Avoid vague adjectives—be implementable and production‑ready for ultra-fast cutting workflows.   
 

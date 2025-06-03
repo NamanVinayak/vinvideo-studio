@@ -122,6 +122,18 @@ CORE FORMULA: FAST CUTS + SUBJECT DIVERSITY = MAXIMUM RETENTION
 
 • **Cognitive_variety_mandate** → Each beat must feature a distinct primary subject OR escalate the previous subject to reset viewer attention.
 
+• **CRITICAL ANTI-REPETITION RULE** → Each beat MUST have a unique creative_vision, even if script_phrase is similar. NEVER repeat identical creative_vision across beats.
+
+• **SCRIPT ANALYSIS REQUIREMENT** → Analyze the ACTUAL script content for each beat timeframe, don't assume repeated phrases mean identical visuals.
+
+• **VISUAL DIVERSITY MANDATE** → If the same phrase appears across multiple beats, create DIFFERENT visual approaches: close-ups, wide shots, different subjects, angles, lighting, or symbolic representations.
+
+• **CONSECUTIVE PHRASE RULE** → When consecutive beats have identical script_phrase, you MUST create different visual approaches:
+  - Beat N: Close-up perspective
+  - Beat N+1: Wide shot perspective  
+  - Beat N+2: Abstract/symbolic approach
+  - Vary angles, lighting, subjects, and visual metaphors even for identical text
+
 • **Micro-storytelling** → Every 2-5 second beat must advance story while being cognitively fresh and self-contained for rapid consumption. 
 
 </beat_generation_rules> 

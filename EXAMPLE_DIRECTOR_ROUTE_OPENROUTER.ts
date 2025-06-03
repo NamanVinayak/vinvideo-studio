@@ -1,65 +1,62 @@
 import { NextResponse } from 'next/server';
-import { PRODUCER_SYSTEM_MESSAGE } from '@/agents/producer';
+import { DIRECTOR_SYSTEM_MESSAGE } from '@/agents/director';
 
 /**
- * Producer Agent endpoint to generate cut points for video editing
- * MODIFIED: Uses OpenRouter with Google Gemini 2.5 Flash instead of RunPod
+ * Director Agent endpoint to generate creative vision and story beats
+ * MODIFIED VERSION: Using OpenRouter instead of RunPod
  */
 export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { transcript, script } = body;
+    const { producer_output, script } = body;
     
-    if (!transcript || !script) {
-      return NextResponse.json({ 
-        error: 'Both transcript and script are required' 
+    if (producer_output === undefined || producer_output === null || !script) {
+      return NextResponse.json({
+        error: 'Both producer_output and script are required'
       }, { status: 400 });
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ 
-        error: 'OpenRouter API key is not configured' 
+      return NextResponse.json({
+        error: 'OpenRouter API key is not configured'
       }, { status: 500 });
     }
     
-    console.log('Calling Producer Agent with transcript and script...');
-    console.log(`Transcript preview: ${JSON.stringify(transcript).substring(0, 100)}...`);
+    console.log('Calling Director Agent with producer output and script...');
+    console.log(`Producer output preview: ${JSON.stringify(producer_output).substring(0, 100)}...`);
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     
-    // Prepare the user content message
-    const userContent = `Here is the transcription from Whisper:
-${JSON.stringify(transcript)}
+    // Prepare the user content message (SAME AS BEFORE)
+    const userContent = `Here is the Producer's cut points output:
+${JSON.stringify(producer_output)}
 
-Here is the video script:
+Here is the original video script:
 "${script}"
 
-Please output the full list of cuts as a JSON array exactly as specified above.`;
+Please analyze this and output your creative vision as JSON exactly as specified in your system instructions.`;
 
-    // Create the request payload for OpenRouter
+    // Create the request payload for OpenRouter (SIMPLIFIED)
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "anthropic/claude-3.5-sonnet", // Creative tasks benefit from Claude
       messages: [
         {
           role: "system",
-          content: PRODUCER_SYSTEM_MESSAGE
+          content: DIRECTOR_SYSTEM_MESSAGE
         },
         {
           role: "user",
           content: userContent
         }
       ],
-      max_tokens: 7000,           // Sufficient for 20-30 cuts with reasoning
-      temperature: 0.25,          // Light creative flexibility in editorial choices
-      top_p: 0.4,                // Consider multiple valid cut options
-      frequency_penalty: 0.1,     // Avoid repetitive cut reasoning
-      presence_penalty: 0,        // No penalty for mentioning same concepts
+      max_tokens: 15000,
+      temperature: 0.1, // Slightly higher for creative vision
       stream: false
     };
 
-    // Make the API request to OpenRouter
+    // Make the API request to OpenRouter (SIMPLIFIED)
     const url = 'https://openrouter.ai/api/v1/chat/completions';
     const options = {
       method: 'POST',
@@ -67,12 +64,12 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://vinvideo.ai',
-        'X-Title': 'VinVideo Connected - Producer Agent'
+        'X-Title': 'VinVideo Connected - Director Agent'
       },
       body: JSON.stringify(payload)
     };
 
-    console.log('Sending request to Producer Agent via OpenRouter...');
+    console.log('Sending request to Director Agent via OpenRouter...');
     const startTime = Date.now();
     const response = await fetch(url, options);
     const executionTime = Date.now() - startTime;
@@ -99,9 +96,9 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
     console.log('OpenRouter response received');
 
     // Extract the response content (DIRECT ACCESS - NO POLLING!)
-    const producerResponse = result.choices[0]?.message?.content;
+    const directorResponse = result.choices[0]?.message?.content;
     
-    if (!producerResponse) {
+    if (!directorResponse) {
       return NextResponse.json({
         error: 'No content in response',
         details: result
@@ -111,7 +108,7 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
     // Process the response (SAME LOGIC AS BEFORE)
     try {
       // Clean the response by removing markdown code blocks
-      let cleanedResponse = producerResponse.trim();
+      let cleanedResponse = directorResponse.trim();
       
       // Remove markdown code blocks if present
       if (cleanedResponse.startsWith('```json') && cleanedResponse.endsWith('```')) {
@@ -121,21 +118,21 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
       }
       
       // Try to parse the cleaned JSON response
-      const cutPoints = JSON.parse(cleanedResponse);
+      const directorOutput = JSON.parse(cleanedResponse);
       
       return NextResponse.json({
         success: true,
-        cutPoints,
+        directorOutput,
         executionTime,
-        rawResponse: producerResponse,
+        rawResponse: directorResponse,
         usage: result.usage // Token usage from OpenRouter
       });
     } catch (parseError) {
       // If JSON parsing fails, return the raw response
-      console.error('Failed to parse producer response as JSON:', parseError);
+      console.error('Failed to parse director response as JSON:', parseError);
       return NextResponse.json({
         success: true,
-        rawResponse: producerResponse,
+        rawResponse: directorResponse,
         executionTime,
         warning: 'Response could not be parsed as JSON',
         usage: result.usage
@@ -143,10 +140,28 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
     }
 
   } catch (error: unknown) {
-    console.error('Error in producer-agent endpoint:', error);
+    console.error('Error in director-agent endpoint:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json({
       error: errorMessage
     }, { status: 500 });
   }
 }
+
+/**
+ * KEY CHANGES FROM RUNPOD VERSION:
+ * 
+ * 1. URL: RunPod endpoint → OpenRouter endpoint
+ * 2. API Key: ARSHH_RUNPOD_API_KEY → OPENROUTER_API_KEY
+ * 3. Payload structure: Removed 'input' wrapper, simplified params
+ * 4. Temperature: Kept at 0.1 for creative consistency
+ * 5. Response handling: Direct access, no polling
+ * 6. Removed: ~90 lines of polling logic
+ * 7. Added: Usage tracking for cost monitoring
+ * 
+ * DIRECTOR AGENT SPECIFICS:
+ * - Generates creative vision and story beats
+ * - Works with producer's cut points
+ * - Outputs structured JSON with narrative beats
+ * - Temperature 0.1 for balanced creativity
+ */

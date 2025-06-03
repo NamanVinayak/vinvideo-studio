@@ -120,6 +120,7 @@ export default function TestTTS() {
   const [folderId, setFolderId] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [loadingDots, setLoadingDots] = useState<string>('');
+  const [runId, setRunId] = useState<string | null>(null);
   
   // Workflow state
   const [steps, setSteps] = useState<WorkflowStep[]>([
@@ -144,6 +145,13 @@ export default function TestTTS() {
   const [dopResult, setDoPResult] = useState<DoPResult | null>(null);
   const [promptEngineerResult, setPromptEngineerResult] = useState<PromptEngineerResult | null>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [imageGenerationProgress, setImageGenerationProgress] = useState<{
+    currentIndex: number;
+    totalImages: number;
+    percentage: number;
+    isGenerating: boolean;
+    message: string;
+  }>({ currentIndex: 0, totalImages: 0, percentage: 0, isGenerating: false, message: '' });
   const [qwenVLResult, setQwenVLResult] = useState<QwenVLReviewResult | null>(null);
   const [generatedVideos, setGeneratedVideos] = useState<string[]>([]);
   const [videoGenerationResult, setVideoGenerationResult] = useState<VideoGenerationResult | null>(null);
@@ -182,6 +190,35 @@ export default function TestTTS() {
     return steps.findIndex(step => step.status === 'processing');
   };
 
+  // Helper function to save agent outputs
+  const saveAgentOutput = async (agentName: string, output: any, rawResponse?: string) => {
+    if (!runId) return;
+    
+    try {
+      const response = await fetch('/api/save-agent-output', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          runId,
+          agentName,
+          output,
+          rawResponse
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`Saved ${agentName} output to:`, result.savedTo);
+      } else {
+        console.error(`Failed to save ${agentName} output`);
+      }
+    } catch (error) {
+      console.error(`Error saving ${agentName} output:`, error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -194,10 +231,16 @@ export default function TestTTS() {
     setDoPResult(null);
     setPromptEngineerResult(null);
     setGeneratedImages([]);
+    setImageGenerationProgress({ currentIndex: 0, totalImages: 0, percentage: 0, isGenerating: false, message: '' });
     setQwenVLResult(null);
     setGeneratedVideos([]);
     setVideoGenerationResult(null);
     setElapsedTime(0);
+
+    // Generate run ID for this workflow execution
+    const currentRunId = Date.now().toString();
+    setRunId(currentRunId);
+    console.log('Starting new run with ID:', currentRunId);
 
     // Reset all steps
     setSteps(prev => prev.map(step => ({ ...step, status: 'pending', result: undefined, error: undefined, duration: undefined })));
@@ -226,6 +269,14 @@ export default function TestTTS() {
         projectFolderId = initData.folderId;
         setFolderId(projectFolderId);
       }
+      
+      // Save initial project setup
+      const projectSetup = { 
+        folderId: projectFolderId, 
+        script: script,
+        startTime: new Date().toISOString()
+      };
+      await saveAgentOutput('project-setup', projectSetup);
       
       updateStepStatus(0, 'completed', { folderId: projectFolderId }, undefined, Date.now() - step1Start);
 
@@ -281,6 +332,9 @@ export default function TestTTS() {
       const transcribeData = await transcribeResponse.json();
       setTranscriptionResult(transcribeData);
       
+      // Save Transcription output
+      await saveAgentOutput('transcription', transcribeData);
+      
       updateStepStatus(2, 'completed', transcribeData, undefined, Date.now() - step3Start);
 
       // Step 4: Generate Cut Points using Producer Agent
@@ -305,6 +359,9 @@ export default function TestTTS() {
 
       const producerData = await producerResponse.json();
       setProducerResult(producerData);
+      
+      // Save Producer Agent output
+      await saveAgentOutput('producer', producerData, producerData.rawResponse);
       
       updateStepStatus(3, 'completed', producerData, undefined, Date.now() - step4Start);
 
@@ -350,6 +407,9 @@ export default function TestTTS() {
 
       const directorData = await directorResponse.json();
       setDirectorResult(directorData);
+      
+      // Save Director Agent output (including failed parsing attempts)
+      await saveAgentOutput('director', directorData, directorData.rawResponse || 'No raw response available');
       
       updateStepStatus(4, 'completed', directorData, undefined, Date.now() - step5Start);
 
@@ -410,6 +470,9 @@ export default function TestTTS() {
 
       const dopData = await dopResponse.json();
       setDoPResult(dopData);
+      
+      // Save DoP Agent output
+      await saveAgentOutput('dop', dopData, dopData.rawResponse);
       
       updateStepStatus(5, 'completed', dopData, undefined, Date.now() - step6Start);
 
@@ -490,6 +553,9 @@ export default function TestTTS() {
       const promptEngineerData = await promptEngineerResponse.json();
       setPromptEngineerResult(promptEngineerData);
       
+      // Save Prompt Engineer Agent output
+      await saveAgentOutput('prompt-engineer', promptEngineerData, promptEngineerData.rawResponse);
+      
       updateStepStatus(6, 'completed', promptEngineerData, undefined, Date.now() - step7Start);
 
       // Step 8: Generate Images using ComfyUI
@@ -516,34 +582,187 @@ export default function TestTTS() {
         throw new Error('No prompts found in Prompt Engineer output for image generation');
       }
       
-      console.log(`Generating ${promptsToGenerate.length} images using ComfyUI...`);
+      console.log(`Generating ${promptsToGenerate.length} images using ComfyUI with real-time streaming...`);
       console.log('Prompts preview:', promptsToGenerate.slice(0, 2));
       
-      const comfyResponse = await fetch('/api/generate-comfy-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompts: promptsToGenerate,
-          folderId: projectFolderId
-        }),
+      // Initialize progress state
+      setImageGenerationProgress({
+        currentIndex: 0,
+        totalImages: promptsToGenerate.length,
+        percentage: 0,
+        isGenerating: true,
+        message: `Starting generation of ${promptsToGenerate.length} images...`
       });
-
-      if (!comfyResponse.ok) {
-        const errorData = await comfyResponse.json();
-        throw new Error(errorData.error || 'Failed to generate images with ComfyUI');
+      
+      // Initialize generated images array with placeholders
+      const placeholderImages = new Array(promptsToGenerate.length).fill('');
+      setGeneratedImages(placeholderImages);
+      
+      // Use fetch with streaming response for SSE
+      const allGeneratedImages: string[] = [...placeholderImages];
+      let finalOutput: any = null;
+      let isComplete = false;
+      
+      try {
+        const response = await fetch('/api/generate-comfy-images-stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompts: promptsToGenerate,
+            folderId: projectFolderId
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        
+        if (!reader) {
+          throw new Error('No response body');
+        }
+        
+        let buffer = '';
+        
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Process complete SSE events from buffer
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; // Keep incomplete line in buffer
+          
+          for (const line of lines) {
+            if (line.startsWith('event:')) {
+              const eventType = line.substring(6).trim();
+              
+              // Get the data line (should be next)
+              const dataLineIndex = lines.indexOf(line) + 1;
+              if (dataLineIndex < lines.length && lines[dataLineIndex].startsWith('data:')) {
+                const dataLine = lines[dataLineIndex];
+                const data = JSON.parse(dataLine.substring(5).trim());
+                
+                switch (eventType) {
+                  case 'start':
+                    console.log('Generation started:', data);
+                    setImageGenerationProgress(prev => ({
+                      ...prev,
+                      message: data.message
+                    }));
+                    break;
+                    
+                  case 'processing':
+                    console.log('Processing image:', data);
+                    setImageGenerationProgress(prev => ({
+                      ...prev,
+                      currentIndex: data.index,
+                      message: data.message
+                    }));
+                    break;
+                    
+                  case 'image':
+                    console.log('Image generated:', data);
+                    
+                    // Update the specific image in the array
+                    allGeneratedImages[data.index] = data.imageUrl;
+                    setGeneratedImages([...allGeneratedImages]);
+                    
+                    // Update progress
+                    setImageGenerationProgress(prev => ({
+                      ...prev,
+                      currentIndex: data.index + 1,
+                      percentage: data.progress,
+                      message: data.message
+                    }));
+                    break;
+                    
+                  case 'error':
+                    console.error('Generation error:', data);
+                    break;
+                    
+                  case 'complete':
+                    console.log('Generation complete:', data);
+                    
+                    if (data.success) {
+                      // Update final images if provided
+                      if (data.generatedImages && data.generatedImages.length > 0) {
+                        setGeneratedImages(data.generatedImages);
+                      }
+                      
+                      finalOutput = data;
+                      
+                      // Save Image Generation output
+                      await saveAgentOutput('image-generation', data);
+                      
+                      // Update progress to completed
+                      setImageGenerationProgress(prev => ({
+                        ...prev,
+                        percentage: 100,
+                        isGenerating: false,
+                        message: data.message
+                      }));
+                      
+                      updateStepStatus(7, 'completed', data, undefined, Date.now() - step8Start);
+                      isComplete = true;
+                    } else {
+                      throw new Error(data.error || 'Failed to generate images with ComfyUI');
+                    }
+                    break;
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Streaming error:', error);
+        
+        setImageGenerationProgress(prev => ({
+          ...prev,
+          isGenerating: false,
+          message: 'Error during image generation, falling back to batch mode'
+        }));
+        
+        // Fall back to regular API
+        const comfyResponse = await fetch('/api/generate-comfy-images', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompts: promptsToGenerate,
+            folderId: projectFolderId
+          }),
+        });
+        
+        if (!comfyResponse.ok) {
+          const errorData = await comfyResponse.json();
+          throw new Error(errorData.error || 'Failed to generate images with ComfyUI');
+        }
+        
+        const comfyData = await comfyResponse.json();
+        setGeneratedImages(comfyData.generatedImages || []);
+        await saveAgentOutput('image-generation', comfyData);
+        updateStepStatus(7, 'completed', comfyData, undefined, Date.now() - step8Start);
+        isComplete = true;
+      }
+      
+      // Ensure we've completed before continuing
+      if (!isComplete) {
+        throw new Error('Image generation did not complete properly');
       }
 
-      const comfyData = await comfyResponse.json();
-      setGeneratedImages(comfyData.generatedImages || []);
-      
-      updateStepStatus(7, 'completed', comfyData, undefined, Date.now() - step8Start);
+      // Mark remaining steps as completed (skipped for testing)
+      updateStepStatus(8, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });
+      updateStepStatus(9, 'completed', { skipped: true, reason: 'Video Generation step commented out for testing' });
 
-      // Get generated image URLs for both QWEN VL and WAN steps
-      // const generatedImageUrls = comfyData.generatedImages || [];
-
-      // Step 9: Review Images using QWEN VL Agent
+      // COMMENTED OUT FOR TESTING - Step 9: Review Images using QWEN VL Agent
       /*
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
@@ -668,12 +887,6 @@ export default function TestTTS() {
         }, undefined, Date.now() - step10Start);
       }
       */
-      // Manually mark step 9 as completed (skipped)
-      const step10Start = Date.now(); // Keep timer for consistency if needed, or remove
-       updateStepStatus(9, 'completed', { 
-        skipped: true, 
-        reason: 'WAN video generation step manually commented out' 
-      }, undefined, Date.now() - step10Start);
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -711,13 +924,15 @@ export default function TestTTS() {
       <p className={styles.description}>
         This workflow will: 1) Generate audio from your script, 2) Transcribe the audio using Nvidia, 
         3) Generate cut points using the Producer Agent, 4) Generate creative vision using the Director Agent,
-        5) Generate cinematography directions using the DoP Agent, 6) Generate image prompts using the Prompt Engineer Agent.
-        Each step will be clearly shown below.
+        5) Generate cinematography directions using the DoP Agent, 6) Generate image prompts using the Prompt Engineer Agent,
+        7) Generate images using ComfyUI (FLUX model). Steps 8-10 (image review, video generation) are commented out. Each step will be clearly shown below.
       </p>
       
-      {folderId && (
+      {(folderId || runId) && (
         <div className={styles.projectInfo}>
-          <p><strong>Project ID:</strong> {folderId}</p>
+          {folderId && <p><strong>Project ID:</strong> {folderId}</p>}
+          {runId && <p><strong>Run ID:</strong> {runId}</p>}
+          {runId && <p><strong>Outputs saved to:</strong> /public/run-{runId}/</p>}
         </div>
       )}
       
@@ -1079,7 +1294,7 @@ export default function TestTTS() {
           </div>
         )}
 
-        {generatedImages && generatedImages.length > 0 && (
+        {(generatedImages && generatedImages.length > 0) || imageGenerationProgress.isGenerating ? (
           <div className={styles.result}>
             <h2>8. Generated Images (ComfyUI):</h2>
             <div className={styles.generatedImagesResult}>
@@ -1087,53 +1302,82 @@ export default function TestTTS() {
                 <h3>Image Generation Stats:</h3>
                 <div className={styles.statsGrid}>
                   <div>
-                    <strong>Images Generated:</strong> {generatedImages.length}
+                    <strong>Progress:</strong> {imageGenerationProgress.currentIndex}/{imageGenerationProgress.totalImages} ({imageGenerationProgress.percentage}%)
                   </div>
+                  {imageGenerationProgress.message && (
+                    <div>
+                      <strong>Status:</strong> {imageGenerationProgress.message}
+                    </div>
+                  )}
                 </div>
+                {imageGenerationProgress.isGenerating && (
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill} 
+                      style={{ width: `${imageGenerationProgress.percentage}%` }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className={styles.imagesGrid}>
                 {generatedImages.map((imageUrl, index) => (
                   <div key={index} className={styles.imageContainer}>
-                    <Image 
-                      src={imageUrl} 
-                      alt={`Generated image ${index + 1}`}
-                      className={styles.generatedImage}
-                      width={500}
-                      height={300}
-                      onError={(e) => {
-                        console.error(`Failed to load image ${index + 1}:`, imageUrl);
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-
-                    <div className={styles.imageActions}>
-                      <a 
-                        href={imageUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={styles.viewFullButton}
-                      >
-                        View Full Size
-                      </a>
-                      <button 
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = imageUrl;
-                          link.download = `generated-image-${index + 1}.png`;
-                          link.click();
-                        }}
-                        className={styles.downloadButton}
-                      >
-                        Download
-                      </button>
-                    </div>
+                    {imageUrl ? (
+                      <>
+                        <Image 
+                          src={imageUrl} 
+                          alt={`Generated image ${index + 1}`}
+                          className={styles.generatedImage}
+                          width={500}
+                          height={300}
+                          onError={(e) => {
+                            console.error(`Failed to load image ${index + 1}:`, imageUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        <div className={styles.imageActions}>
+                          <a 
+                            href={imageUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={styles.viewFullButton}
+                          >
+                            View Full Size
+                          </a>
+                          <button 
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = imageUrl;
+                              link.download = `generated-image-${index + 1}.png`;
+                              link.click();
+                            }}
+                            className={styles.downloadButton}
+                          >
+                            Download
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className={styles.imagePlaceholder}>
+                        <div className={styles.placeholderContent}>
+                          {index < imageGenerationProgress.currentIndex ? (
+                            <>
+                              <div className={styles.spinner}></div>
+                              <p>Processing image {index + 1}...</p>
+                            </>
+                          ) : (
+                            <p>Waiting for image {index + 1}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {qwenVLResult && (
           <div className={styles.result}>
