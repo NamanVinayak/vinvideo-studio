@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
 
@@ -114,9 +115,16 @@ interface WorkflowStep {
 }
 
 export default function TestTTS() {
+  const searchParams = useSearchParams();
+  const conversationMode = searchParams?.get('conversationMode') === 'true';
+  const conversationData = searchParams?.get('conversation');
+  const preGeneratedScript = searchParams?.get('script');
+  
   const [script, setScript] = useState<string>('Have you ever been alone at night and heard something outside your door?');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingScript, setIsGeneratingScript] = useState<boolean>(false);
+  const [conversationAnalyzed, setConversationAnalyzed] = useState<boolean>(false);
   const [folderId, setFolderId] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [loadingDots, setLoadingDots] = useState<string>('');
@@ -177,6 +185,53 @@ export default function TestTTS() {
       clearInterval(timerInterval);
     };
   }, [loading]);
+
+  // Handle conversation mode analysis
+  useEffect(() => {
+    if (conversationMode && preGeneratedScript && !conversationAnalyzed) {
+      // Script is already generated from conversation mode
+      setScript(decodeURIComponent(preGeneratedScript));
+      setConversationAnalyzed(true);
+    } else if (conversationMode && conversationData && !conversationAnalyzed) {
+      // Fallback: analyze conversation (legacy support)
+      analyzeConversationAndGenerateScript();
+    }
+  }, [conversationMode, conversationData, preGeneratedScript, conversationAnalyzed]);
+
+  const analyzeConversationAndGenerateScript = async () => {
+    if (!conversationData) return;
+    
+    setIsGeneratingScript(true);
+    setError(null);
+    
+    try {
+      const decodedConversation = decodeURIComponent(conversationData);
+      
+      const response = await fetch('/api/conversation-to-script', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversation: decodedConversation
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate script from conversation');
+      }
+
+      const data = await response.json();
+      setScript(data.script);
+      setConversationAnalyzed(true);
+      
+    } catch (error) {
+      console.error('Error analyzing conversation:', error);
+      setError('Failed to generate script from conversation. Please try again.');
+    } finally {
+      setIsGeneratingScript(false);
+    }
+  };
 
   const updateStepStatus = (stepIndex: number, status: WorkflowStep['status'], result?: unknown, error?: string, duration?: number) => {
     setSteps(prev => prev.map((step, index) => 
@@ -936,27 +991,50 @@ export default function TestTTS() {
         </div>
       )}
       
+      {conversationMode && (
+        <div className={styles.conversationModeInfo}>
+          <h2>🤖 Conversation Mode</h2>
+          <p>{preGeneratedScript ? 'Script loaded from your conversation!' : 'Generating script from your conversation...'}</p>
+          {isGeneratingScript && (
+            <div className={styles.generatingScript}>
+              <div className={styles.loadingSpinner}></div>
+              <span>Analyzing conversation and generating script...</span>
+            </div>
+          )}
+          {conversationAnalyzed && (
+            <div className={styles.scriptGenerated}>
+              ✅ Script generated successfully from your conversation!
+            </div>
+          )}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputGroup}>
-          <label htmlFor="script" className={styles.label}>Enter Script:</label>
+          <label htmlFor="script" className={styles.label}>
+            {conversationMode ? 'Generated Script:' : 'Enter Script:'}
+          </label>
           <textarea
             id="script"
             value={script}
             onChange={(e) => setScript(e.target.value)}
             className={styles.textarea}
             rows={5}
-            placeholder="Enter your script here..."
+            placeholder={conversationMode ? "Script will be generated from your conversation..." : "Enter your script here..."}
             required
-            disabled={loading}
+            disabled={loading || isGeneratingScript}
+            readOnly={conversationMode && !conversationAnalyzed}
           />
         </div>
         
         <button 
           type="submit" 
           className={styles.button}
-          disabled={loading}
+          disabled={loading || isGeneratingScript || (conversationMode && !conversationAnalyzed)}
         >
-          {loading ? 'Processing Workflow...' : 'Start Complete Workflow'}
+          {loading ? 'Processing Workflow...' : 
+           isGeneratingScript ? 'Generating Script...' : 
+           'Start Complete Workflow'}
         </button>
       </form>
 

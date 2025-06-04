@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     process.env.OUTPUT_DIR = publicDir;
     
     // Ensure API key is available for the Python script
-    const apiKey = process.env.ARSHH_RUNPOD_API_KEY;
+    const apiKey = process.env.RUNPOD_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: 'RunPod API key is not configured' }, { status: 500 });
     }
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
           env: { 
             ...process.env, 
             OUTPUT_DIR: publicDir,
-            ARSHH_RUNPOD_API_KEY: apiKey
+            RUNPOD_API_KEY: apiKey
           }
         });
         
