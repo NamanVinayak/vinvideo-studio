@@ -214,8 +214,8 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
       },
       "27": {
         "inputs": {
-          "width": 832,
-          "height": 1216,
+          "width": 1216,
+          "height": 832,
           "batch_size": 1
         },
         "class_type": "EmptySD3LatentImage",

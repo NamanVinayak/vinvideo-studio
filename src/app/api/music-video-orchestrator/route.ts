@@ -215,7 +215,7 @@ async function generateImageWithComfyUI(
     model_used: 'FLUX-dev',
     prompt_used: fluxPrompt,
     technical_details: {
-      resolution: '1024x1024',
+      resolution: '1216x832',
       format: 'PNG',
       quality_score: 0.85 + Math.random() * 0.15
     }

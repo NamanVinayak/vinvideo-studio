@@ -22,12 +22,6 @@ interface MusicVideoState {
   error: string | null;
   loading: boolean;
   currentStep: string;
-  pipelineType?: 'music' | 'no_music';
-  timer: {
-    startTime: number | null;
-    elapsedTime: number;
-    isRunning: boolean;
-  };
 }
 
 export default function MusicVideoPipelinePage() {
@@ -48,72 +42,41 @@ export default function MusicVideoPipelinePage() {
     },
     error: null,
     loading: false,
-    currentStep: '',
-    timer: {
-      startTime: null,
-      elapsedTime: 0,
-      isRunning: false
-    }
+    currentStep: ''
   });
 
   // DEPENDENCY VALIDATION SYSTEM - now takes current state as parameter
   const validateStageInputs = (targetStage: number, currentState: MusicVideoState): { isValid: boolean; missingInputs: string[] } => {
     const missingInputs: string[] = [];
-    const isNoMusic = currentState.pipelineType === 'no_music';
     
-    console.log(`🔍 Validating inputs for Stage ${targetStage} (${isNoMusic ? 'no-music' : 'music'} pipeline)...`);
+    console.log(`🔍 Validating inputs for Stage ${targetStage}...`);
     
-    if (isNoMusic) {
-      // NO-MUSIC PIPELINE VALIDATION
-      switch (targetStage) {
-        case 2: // No-Music Director needs Vision Document
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          break;
-          
-        case 3: // No-Music DoP needs Vision Document + Director Beats
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
-          break;
-          
-        case 4: // No-Music Prompt Engineer needs Vision Document + Director Beats + DoP Specs
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
-          if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
-          break;
-          
-        case 5: // No-Music Image Generation needs prompts
-          if (!currentState.promptEngineerResult) missingInputs.push('promptEngineerResult');
-          break;
-      }
-    } else {
-      // MUSIC PIPELINE VALIDATION
-      switch (targetStage) {
-        case 2: // Music Analysis needs Vision Document
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          break;
-          
-        case 4: // Director needs Vision Document + Music Analysis
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
-          break;
-          
-        case 5: // DoP needs Vision Document + Music Analysis + Director Beats
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
-          break;
-          
-        case 6: // Prompt Engineer needs ALL previous outputs
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
-          if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
-          break;
-          
-        case 7: // Image Generation needs prompts
-          if (!currentState.promptEngineerResult) missingInputs.push('promptEngineerResult');
-          break;
-      }
+    switch (targetStage) {
+      case 2: // Music Analysis needs Vision Document
+        if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        break;
+        
+      case 4: // Director needs Vision Document + Music Analysis
+        if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
+        break;
+        
+      case 5: // DoP needs Vision Document + Music Analysis + Director Beats
+        if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
+        if (!currentState.directorBeats) missingInputs.push('directorBeats');
+        break;
+        
+      case 6: // Prompt Engineer needs ALL previous outputs
+        if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
+        if (!currentState.directorBeats) missingInputs.push('directorBeats');
+        if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
+        break;
+        
+      case 7: // Image Generation needs prompts
+        if (!currentState.promptEngineerResult) missingInputs.push('promptEngineerResult');
+        break;
     }
     
     const isValid = missingInputs.length === 0;
@@ -177,21 +140,20 @@ export default function MusicVideoPipelinePage() {
 
   // REACTIVE STAGE TRANSITIONS - No more setTimeout chaining!
   
-  // Stage 1 → Stage 2: When visionDocument is ready (MUSIC PIPELINE ONLY)
+  // Stage 1 → Stage 2: When visionDocument is ready
   useEffect(() => {
     console.log('🔍 Stage 1→2 useEffect check:', {
       stage: state.stage,
       hasVisionDocument: !!state.visionDocument,
       loading: state.loading,
-      pipelineType: state.pipelineType,
-      shouldTrigger: state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType !== 'no_music'
+      shouldTrigger: state.stage === 2 && state.visionDocument && !state.loading
     });
     
-    if (state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType !== 'no_music') {
+    if (state.stage === 2 && state.visionDocument && !state.loading) {
       console.log('🔄 Auto-triggering Stage 2: Music Analysis');
       runStage2MusicAnalysis();
     }
-  }, [state.stage, state.visionDocument, state.loading, state.pipelineType]);
+  }, [state.stage, state.visionDocument, state.loading]);
 
   // Stage 2 → Stage 4: When musicAnalysis is ready  
   useEffect(() => {
@@ -224,130 +186,28 @@ export default function MusicVideoPipelinePage() {
     }
   }, [state.stage, state.dopSpecs, state.loading]);
 
-  // Stage 6 → Stage 7: When promptEngineerResult is ready - COMMENTED OUT FOR DEBUGGING
+  // Stage 6 → Stage 7: When promptEngineerResult is ready (test-tts pattern validation)
   useEffect(() => {
     if (state.stage === 6 && state.promptEngineerResult && !state.loading) {
-      console.log('🔄 Music Stage 7: Image Generation SKIPPED for debugging');
       // Apply test-tts pattern: Check data structure validity, not just existence
-      // const hasValidPrompts = state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
-      // const hasRawResponse = state.promptEngineerResult.rawResponse;
+      const hasValidPrompts = state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
+      const hasRawResponse = state.promptEngineerResult.rawResponse;
       
-      // if (hasValidPrompts || hasRawResponse) {
-      //   console.log('🔄 Auto-triggering Stage 7: Image Generation with valid data');
-      //   runStage7ImageGeneration();
-      // } else {
-      //   console.warn('⚠️ Stage 6 complete but no valid prompts found, Stage 7 may need fallback handling');
-      //   runStage7ImageGeneration(); // Still proceed - Stage 7 has fallback logic now
-      // }
-      
-      // Just mark as complete for debugging
-      setState(prev => ({
-        ...prev,
-        currentStep: 'Pipeline complete! (Image generation skipped for debugging)',
-        loading: false
-      }));
+      if (hasValidPrompts || hasRawResponse) {
+        console.log('🔄 Auto-triggering Stage 7: Image Generation with valid data');
+        runStage7ImageGeneration();
+      } else {
+        console.warn('⚠️ Stage 6 complete but no valid prompts found, Stage 7 may need fallback handling');
+        runStage7ImageGeneration(); // Still proceed - Stage 7 has fallback logic now
+      }
     }
   }, [state.stage, state.promptEngineerResult, state.loading]);
 
-  // NO-MUSIC PIPELINE: Stage 1 → Stage 2 (Director)
-  useEffect(() => {
-    console.log('🔍 No-Music Stage 1→2 useEffect check:', {
-      stage: state.stage,
-      hasVisionDocument: !!state.visionDocument,
-      loading: state.loading,
-      pipelineType: state.pipelineType,
-      shouldTrigger: state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType === 'no_music'
-    });
-    
-    if (state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType === 'no_music') {
-      console.log('🔄 Auto-triggering No-Music Stage 2: Director');
-      runNoMusicStage2Director();
-    }
-  }, [state.stage, state.visionDocument, state.loading, state.pipelineType]);
-
-  // NO-MUSIC PIPELINE: Stage 2 → Stage 3 (DoP)
-  useEffect(() => {
-    if (state.stage === 3 && state.directorBeats && !state.loading && state.pipelineType === 'no_music') {
-      console.log('🔄 Auto-triggering No-Music Stage 3: DoP');
-      runNoMusicStage3DoP();
-    }
-  }, [state.stage, state.directorBeats, state.loading, state.pipelineType]);
-
-  // NO-MUSIC PIPELINE: Stage 3 → Stage 4 (Prompt Engineer)
-  useEffect(() => {
-    if (state.stage === 4 && state.dopSpecs && !state.loading && state.pipelineType === 'no_music') {
-      console.log('🔄 Auto-triggering No-Music Stage 4: Prompt Engineer');
-      runNoMusicStage4PromptEngineer();
-    }
-  }, [state.stage, state.dopSpecs, state.loading, state.pipelineType]);
-
-  // NO-MUSIC PIPELINE: Stage 4 → Stage 5 (Image Generation) - COMMENTED OUT FOR DEBUGGING
-  useEffect(() => {
-    if (state.stage === 5 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music') {
-      console.log('🔄 No-Music Stage 5: Image Generation SKIPPED for debugging');
-      // runStage7ImageGeneration(); // Reuse existing image generation function
-      
-      // Just mark as complete for debugging
-      setState(prev => ({
-        ...prev,
-        currentStep: 'Pipeline complete! (Image generation skipped for debugging)',
-        loading: false
-      }));
-    }
-  }, [state.stage, state.promptEngineerResult, state.loading, state.pipelineType]);
-
-  // TIMER MANAGEMENT - Updates every second when running
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    
-    if (state.timer.isRunning && state.timer.startTime) {
-      interval = setInterval(() => {
-        setState(prev => ({
-          ...prev,
-          timer: {
-            ...prev.timer,
-            elapsedTime: Date.now() - prev.timer.startTime!
-          }
-        }));
-      }, 1000); // Update every second
-    }
-    
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [state.timer.isRunning, state.timer.startTime]);
-
-  // Helper function to format elapsed time
-  const formatElapsedTime = (milliseconds: number): string => {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const newFormData = {
+    setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    };
-    
-    // Update pipeline type when music preference changes
-    if (e.target.name === 'musicPreference') {
-      setState(prev => ({
-        ...prev,
-        pipelineType: e.target.value === 'no_music' ? 'no_music' : 'music'
-      }));
-      
-      // Clear audio file when switching to no_music
-      if (e.target.value === 'no_music') {
-        setAudioFile(null);
-        setAudioFileName('');
-      }
-    }
-    
-    setFormData(newFormData);
+    });
   };
 
   const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -389,7 +249,6 @@ export default function MusicVideoPipelinePage() {
       stage7Running: false
     });
     
-    const startTime = Date.now();
     setState(prev => ({ 
       ...prev, 
       loading: true, 
@@ -408,11 +267,6 @@ export default function MusicVideoPipelinePage() {
         percentage: 0,
         isGenerating: false,
         message: ''
-      },
-      timer: {
-        startTime: startTime,
-        elapsedTime: 0,
-        isRunning: true
       }
     }));
 
@@ -428,37 +282,17 @@ export default function MusicVideoPipelinePage() {
         ...prev,
         error: `Workflow failed: ${error}`,
         loading: false,
-        currentStep: '',
-        timer: {
-          ...prev.timer,
-          isRunning: false // Stop timer on error
-        }
+        currentStep: ''
       }));
     }
   };
 
   const runStage1VisionUnderstanding = async () => {
-    const isNoMusicPipeline = formData.musicPreference === 'no_music';
-    console.log('🚨 PIPELINE DEBUG:', {
-      musicPreference: formData.musicPreference,
-      isNoMusicPipeline,
-      willSetPipelineType: isNoMusicPipeline ? 'no_music' : 'music'
-    });
-    
-    setState(prev => ({ 
-      ...prev, 
-      loading: true, 
-      error: null, 
-      currentStep: isNoMusicPipeline ? 'Stage 1: Analyzing concept and generating timing...' : 'Stage 1: Analyzing your concept...',
-      pipelineType: isNoMusicPipeline ? 'no_music' : 'music'
-    }));
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 1: Analyzing your concept...' }));
     
     try {
-      // Route to different endpoints based on pipeline type
-      const apiEndpoint = isNoMusicPipeline ? '/api/no-music-vision-understanding' : '/api/vision-understanding';
-      
-      // Call the appropriate Vision Understanding Agent
-      const response = await fetch(apiEndpoint, {
+      // Call the Vision Understanding Agent
+      const response = await fetch('/api/vision-understanding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -492,11 +326,7 @@ export default function MusicVideoPipelinePage() {
             ...prev,
             error: `Need clarification: ${result.stage1_vision_analysis?.requires_user_clarification || 'Vision analysis needs more specific input'}`,
             visionDocument: debugInfo, // Store debug info even on clarification
-            loading: false,
-            timer: {
-              ...prev.timer,
-              isRunning: false
-            }
+            loading: false
           }));
           return;
         }
@@ -505,11 +335,7 @@ export default function MusicVideoPipelinePage() {
           setState(prev => ({
             ...prev,
             error: `Vision analysis issues: ${result.validation?.issues?.join(', ') || 'Vision document or user input validation missing'}`,
-            loading: false,
-            timer: {
-              ...prev.timer,
-              isRunning: false
-            }
+            loading: false
           }));
           return;
         }
@@ -527,14 +353,6 @@ export default function MusicVideoPipelinePage() {
         }
         
         // Store the complete result for detailed display
-        const isNoMusic = formData.musicPreference === 'no_music';
-        console.log('🚨 STAGE 1 COMPLETE DEBUG:', {
-          musicPreference: formData.musicPreference,
-          isNoMusic,
-          willSetPipelineType: isNoMusic ? 'no_music' : 'music',
-          currentStage: 2
-        });
-        
         setState(prev => ({
           ...prev,
           stage: 2,
@@ -545,8 +363,7 @@ export default function MusicVideoPipelinePage() {
             _executionTime: result.executionTime
           },
           loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 2
-          currentStep: isNoMusic ? 'Stage 1 complete! Moving to visual direction...' : 'Stage 1 complete! Moving to music analysis...',
-          pipelineType: isNoMusic ? 'no_music' : 'music' // Ensure pipelineType is set correctly
+          currentStep: 'Stage 1 complete! Moving to music analysis...'
         }));
         
         console.log('Stage 1 Complete: Vision Understanding', result);
@@ -1264,11 +1081,7 @@ export default function MusicVideoPipelinePage() {
         stage: 7,
         generatedImages: finalImages, // Ensure clean images are set
         currentStep: 'Stage 7 complete! All images generated.',
-        loading: false,
-        timer: {
-          ...prev.timer,
-          isRunning: false // Stop timer when images are complete
-        }
+        loading: false
       }));
       
       // Reset execution flag
@@ -1276,15 +1089,7 @@ export default function MusicVideoPipelinePage() {
       
       // Move to final completion stage
       setTimeout(() => {
-        setState(prev => ({ 
-          ...prev, 
-          stage: 8, 
-          currentStep: 'All stages complete!',
-          timer: {
-            ...prev.timer,
-            isRunning: false // Ensure timer is stopped at final completion
-          }
-        }));
+        setState(prev => ({ ...prev, stage: 8, currentStep: 'All stages complete!' }));
       }, 1000);
       
     } catch (error) {
@@ -1307,144 +1112,6 @@ export default function MusicVideoPipelinePage() {
 
 
   // Simplified audio analysis with progress reporting and async processing
-  // NO-MUSIC PIPELINE STAGE RUNNERS
-  const runNoMusicStage2Director = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 2: Creating visual beats (no music)...' }));
-    
-    try {
-      // For no-music pipeline, vision document includes timing blueprint
-      const response = await fetch('/api/no-music-director-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userVisionDocument: state.visionDocument,
-          contentClassification: { type: formData.contentType }
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          stage: 3,
-          directorBeats: {
-            ...result,
-            _rawResponse: result.rawResponse,
-            _executionTime: result.executionTime
-          },
-          loading: false,
-          currentStep: 'Stage 2 complete! Moving to cinematography...'
-        }));
-      } else {
-        throw new Error(result.error || 'No-music director failed');
-      }
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: `No-music director failed: ${error}`,
-        loading: false
-      }));
-    }
-  };
-
-  const runNoMusicStage3DoP = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 3: Creating cinematography (no music)...' }));
-    
-    try {
-      // Extract director visual beats
-      let directorVisualBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
-      
-      const response = await fetch('/api/no-music-dop-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          directorVisualBeats,
-          visionDocument: state.visionDocument,
-          contentClassification: { type: formData.contentType }
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          stage: 4,
-          dopSpecs: {
-            ...result,
-            _rawResponse: result.rawResponse,
-            _executionTime: result.executionTime
-          },
-          loading: false,
-          currentStep: 'Stage 3 complete! Moving to prompt engineering...'
-        }));
-      } else {
-        throw new Error(result.error || 'No-music DoP failed');
-      }
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: `No-music DoP failed: ${error}`,
-        loading: false
-      }));
-    }
-  };
-
-  const runNoMusicStage4PromptEngineer = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 4: Creating FLUX prompts (no music)...' }));
-    
-    try {
-      // Extract data for prompt engineer
-      let directorBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
-      let dopSpecs = state.dopSpecs?.stage3_dop_output?.cinematographic_shots || [];
-      
-      console.log('🔍 No-Music Stage 4 Data Extraction:');
-      console.log('directorBeats extracted:', directorBeats.length);
-      console.log('dopSpecs extracted:', dopSpecs.length);
-      console.log('state.dopSpecs structure check:', {
-        hasStage3Output: !!state.dopSpecs?.stage3_dop_output,
-        hasStage5Output: !!state.dopSpecs?.stage5_dop_output,
-        hasCinematographicShots: !!state.dopSpecs?.stage3_dop_output?.cinematographic_shots,
-        actualStructure: Object.keys(state.dopSpecs || {})
-      });
-      
-      const response = await fetch('/api/no-music-prompt-engineer-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          visionDocument: state.visionDocument,
-          directorBeats,
-          dopSpecs
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          stage: 5,
-          promptEngineerResult: {
-            ...result,
-            _rawResponse: result.rawResponse,
-            _executionTime: result.executionTime
-          },
-          loading: false,
-          currentStep: 'Stage 4 complete! Moving to image generation...'
-        }));
-      } else {
-        throw new Error(result.error || 'No-music prompt engineer failed');
-      }
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: `No-music prompt engineer failed: ${error}`,
-        loading: false
-      }));
-    }
-  };
-
   const performAudioAnalysisWithProgress = async (audioFile: File, onProgress: (progress: number) => void) => {
     console.log(`Starting audio analysis for ${audioFile.name} (${(audioFile.size / 1024 / 1024).toFixed(1)}MB)`);
     onProgress(10);
@@ -1661,49 +1328,19 @@ export default function MusicVideoPipelinePage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.headerText}>
-            <h1>Music Video Pipeline Test</h1>
-            <p>End-to-end test workflow for the Music Video Pipeline implementation</p>
-          </div>
-          
-          {/* Timer Display */}
-          {state.timer.startTime && (
-            <div className={styles.timerDisplay}>
-              <div className={styles.timerLabel}>Pipeline Timer</div>
-              <div className={styles.timerValue}>
-                {formatElapsedTime(state.timer.elapsedTime)}
-              </div>
-              <div className={styles.timerStatus}>
-                {state.timer.isRunning ? '🟢 Running' : '🔴 Stopped'}
-              </div>
-            </div>
-          )}
-        </div>
+        <h1>Music Video Pipeline Test</h1>
+        <p>End-to-end test workflow for the Music Video Pipeline implementation</p>
       </header>
 
       <div className={styles.stageIndicator}>
-        {state.pipelineType === 'no_music' ? (
-          <>
-            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Vision & Timing</div>
-            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Director (Visual Beats)</div>
-            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. DoP (Cinematography)</div>
-            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. Prompt Engineer</div>
-            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. Image Generation</div>
-            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Complete!</div>
-          </>
-        ) : (
-          <>
-            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Concept Analysis</div>
-            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Music Analysis</div>
-            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. Producer (Cut Points)</div>
-            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. Director (Visual Beats)</div>
-            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. DoP (Cinematography)</div>
-            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Prompt Engineer</div>
-            <div className={`${styles.stage} ${state.stage >= 7 ? styles.active : ''}`}>7. Image Generation</div>
-            <div className={`${styles.stage} ${state.stage >= 8 ? styles.active : ''}`}>8. Complete!</div>
-          </>
-        )}
+        <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Concept Analysis</div>
+        <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Music Analysis</div>
+        <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. Producer (Cut Points)</div>
+        <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. Director (Visual Beats)</div>
+        <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. DoP (Cinematography)</div>
+        <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Prompt Engineer</div>
+        <div className={`${styles.stage} ${state.stage >= 7 ? styles.active : ''}`}>7. Image Generation</div>
+        <div className={`${styles.stage} ${state.stage >= 8 ? styles.active : ''}`}>8. Complete!</div>
       </div>
 
       {state.error && (
@@ -1836,7 +1473,6 @@ export default function MusicVideoPipelinePage() {
                 <option value="auto">Auto-select based on mood</option>
                 <option value="database">Choose from database</option>
                 <option value="upload">Upload custom track</option>
-                <option value="no_music">No Music (Visual-Only Pipeline)</option>
               </select>
             </div>
 

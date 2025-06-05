@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_DEEPSEEK_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
@@ -214,7 +214,30 @@ function parseCinematographyFromResponse(response: string, expectedCount: number
       jsonText = jsonText.slice(3, -3).trim();
     }
     
-    const parsed = JSON.parse(jsonText);
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch (initialParseError) {
+      console.log('Initial JSON parse failed, attempting recovery...');
+      
+      // Try to fix common JSON issues
+      let fixedResponse = jsonText;
+      
+      // Fix trailing commas
+      fixedResponse = fixedResponse.replace(/,(\s*[}\]])/g, '$1');
+      
+      // Fix unescaped quotes in strings
+      fixedResponse = fixedResponse.replace(/([^\\])"([^"]*?[^\\])"(?=\s*[,}\]])/g, '$1"$2"');
+      
+      // Try to extract JSON if it's wrapped in text
+      const jsonMatch = fixedResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        fixedResponse = jsonMatch[0];
+      }
+      
+      parsed = JSON.parse(fixedResponse);
+      console.log('JSON recovery successful');
+    }
     if (parsed && (parsed.cinematographic_shots || parsed.stage5_dop_output)) {
       const shots = parsed.cinematographic_shots || parsed.stage5_dop_output?.cinematographic_shots || [];
       if (shots.length > 0) {

@@ -132,8 +132,39 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         cleanedResponse = cleanedResponse.slice(3, -3).trim();
       }
       
-      // Try to parse the cleaned JSON response
-      const promptsOutput = JSON.parse(cleanedResponse);
+      // Try to parse the cleaned JSON response with enhanced error recovery
+      let promptsOutput;
+      try {
+        promptsOutput = JSON.parse(cleanedResponse);
+      } catch (initialParseError) {
+        console.log('Initial JSON parse failed, attempting recovery...');
+        
+        // Try to fix common JSON issues
+        let fixedResponse = cleanedResponse;
+        
+        // Fix trailing commas
+        fixedResponse = fixedResponse.replace(/,(\s*[}\]])/g, '$1');
+        
+        // Fix unescaped quotes in strings
+        fixedResponse = fixedResponse.replace(/([^\\])"([^"]*?[^\\])"(?=\s*[,}\]])/g, '$1"$2"');
+        
+        // Try to extract JSON if it's wrapped in text
+        const jsonMatch = fixedResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          fixedResponse = jsonMatch[0];
+        }
+        
+        try {
+          promptsOutput = JSON.parse(fixedResponse);
+          console.log('JSON recovery successful');
+        } catch (secondParseError) {
+          console.error('JSON recovery failed:', secondParseError);
+          console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
+          
+          // Return a structured error with the raw response
+          throw new Error(`Could not parse prompt engineer response: ${secondParseError.message}`);
+        }
+      }
       
       // Validate the number of prompts if num_images was specified
       if (num_images && Array.isArray(promptsOutput) && promptsOutput.length !== num_images) {

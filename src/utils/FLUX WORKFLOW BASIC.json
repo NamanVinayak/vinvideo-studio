@@ -43,8 +43,8 @@
   },
   "27": {
     "inputs": {
-      "width": 832,
-      "height": 1216,
+      "width": 1216,
+      "height": 832,
       "batch_size": 1
     },
     "class_type": "EmptySD3LatentImage",

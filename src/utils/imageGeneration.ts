@@ -44,8 +44,8 @@ export async function generateImage(
 ): Promise<string> {
   // Set default options
   const {
-    width = 1024,
-    height = 576,
+    width = 1216,
+    height = 832,
     // Style could be used to enhance the prompt in the future
   } = options;
 

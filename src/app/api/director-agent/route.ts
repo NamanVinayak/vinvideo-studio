@@ -18,10 +18,10 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables - Using DeepSeek R1 key
-    const apiKey = process.env.OPENROUTER_DEEPSEEK_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({
-        error: 'OpenRouter DeepSeek API key is not configured'
+        error: 'OpenRouter API key is not configured'
       }, { status: 500 });
     }
     

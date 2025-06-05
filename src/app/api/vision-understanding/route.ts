@@ -18,10 +18,10 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_DEEPSEEK_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
-        error: 'OpenRouter DeepSeek API key is not configured' 
+        error: 'OpenRouter API key is not configured' 
       }, { status: 500 });
     }
     
@@ -162,8 +162,39 @@ Generate the complete vision analysis as JSON only.`;
       
       console.log('Cleaned response:', cleanedResponse.substring(0, 500) + '...');
       
-      // Try to parse the cleaned JSON response
-      const visionAnalysis = JSON.parse(cleanedResponse);
+      // Try to parse the cleaned JSON response with enhanced error recovery
+      let visionAnalysis;
+      try {
+        visionAnalysis = JSON.parse(cleanedResponse);
+      } catch (initialParseError) {
+        console.log('Initial JSON parse failed, attempting recovery...');
+        
+        // Try to fix common JSON issues
+        let fixedResponse = cleanedResponse;
+        
+        // Fix trailing commas
+        fixedResponse = fixedResponse.replace(/,(\s*[}\]])/g, '$1');
+        
+        // Fix unescaped quotes in strings
+        fixedResponse = fixedResponse.replace(/([^\\])"([^"]*?[^\\])"(?=\s*[,}\]])/g, '$1"$2"');
+        
+        // Try to extract JSON if it's wrapped in text
+        const jsonMatch = fixedResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          fixedResponse = jsonMatch[0];
+        }
+        
+        try {
+          visionAnalysis = JSON.parse(fixedResponse);
+          console.log('JSON recovery successful');
+        } catch (secondParseError) {
+          console.error('JSON recovery failed:', secondParseError);
+          console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
+          
+          // Return a structured error with the raw response
+          throw new Error(`Could not parse agent response: ${secondParseError.message}`);
+        }
+      }
       
       // Validate the vision analysis structure
       const validation = validateVisionAnalysis(visionAnalysis);
