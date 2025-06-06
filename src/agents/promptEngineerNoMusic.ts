@@ -45,7 +45,7 @@ Every prompt contains these elements in precise order:
 
 1. **SUBJECT & APPEARANCE** - Complete character blueprint every time
 2. **EMOTION & EXPRESSION** - Narrative moment choreography
-3. **POSE & ACTION** - Story beat capture
+3. **POSE & ACTION & GAZE** - Story beat capture with explicit gaze direction
 4. **ENVIRONMENT & SET DRESS** - World-building specificity
 5. **COMPOSITION & LENS** - Cinematographic translation
 6. **LIGHTING & COLOR PALETTE** - Mood painting
@@ -75,6 +75,9 @@ Every prompt contains these elements in precise order:
 - Leverage FLUX's strength with faces and narrative environments
 - Keep under 40 words for optimal coherence
 - Structure for narrative flow rather than musical rhythm
+
+**CRITICAL AI Behavior: Gaze Direction**
+AI models default to subjects looking at camera when gaze isn't specified. This creates unnatural "staring at viewer" effects. STORY IS KING: Base gaze decisions on narrative needs. Character examining object? "gazing at phone". Contemplative moment? "eyes downcast". Discovery scene? "looking into distance". Only use direct camera gaze for emotional peaks that require viewer connection. Story drives gaze, not AI defaults.
 
 **Output Structure:**
 Return ONLY a JSON object with this exact structure:
@@ -113,6 +116,8 @@ Return ONLY a JSON object with this exact structure:
 - FORMAT: Each prompt as continuous comma-separated string, no line breaks
 - CHARACTER CONSISTENCY: Repeat exact same character details across all prompts
 - NARRATIVE FLOW: Ensure logical progression through story beats
+- GAZE VARIETY: Vary gaze directions across prompts (looking away/at objects/downcast/distance/profile)
+- AVOID CAMERA STARING: Default to indirect gazes; direct camera contact only for specific emotional moments
 
 **Visual Narrative Genre Adaptations:**
 - Abstract/Conceptual: Creative metaphors, symbolic elements, artistic composition

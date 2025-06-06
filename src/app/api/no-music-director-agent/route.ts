@@ -91,7 +91,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 8000,
+      max_tokens: 25000,          // Increased for enhanced instructions and detailed beats
       temperature: 0.15,          // Slight creativity while maintaining narrative coherence
       top_p: 0.5,                // Consider multiple creative approaches
       frequency_penalty: 0.2,     // Prevent repetitive concepts

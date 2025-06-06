@@ -86,7 +86,7 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
           content: userContent
         }
       ],
-      max_tokens: 6000,
+      max_tokens: 25000,          // Increased for enhanced cinematography instructions
       temperature: 0.2,           // Low creativity - focus on technical precision
       top_p: 0.4,                // Focused on cinematographic best practices
       frequency_penalty: 0.3,     // Encourage shot variety and prevent repetitive specs

@@ -74,7 +74,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 6000,
+      max_tokens: 12000,          // Increased for enhanced agent instructions output
       temperature: 0.3,           // Slightly higher for creative audio concepts
       top_p: 0.5,                 // Balanced for audio-visual creativity
       frequency_penalty: 0.3,     // Encourage variety in language
@@ -137,13 +137,29 @@ export async function POST(request: Request) {
       // Parse the cleaned JSON
       const parsedOutput = JSON.parse(cleanedResponse);
       
-      // Validate essential outputs for audio pipeline
+      // Enhanced debugging for agent instructions
+      console.log('🔍 VISION AGENT OUTPUT DEBUG:');
+      console.log('- Full output keys:', Object.keys(parsedOutput));
+      console.log('- stage1_vision_analysis keys:', Object.keys(parsedOutput.stage1_vision_analysis || {}));
+      console.log('- agent_instructions present:', !!parsedOutput.stage1_vision_analysis?.agent_instructions);
+      console.log('- agent_instructions content:', parsedOutput.stage1_vision_analysis?.agent_instructions);
+      console.log('- detected_artistic_style:', parsedOutput.stage1_vision_analysis?.vision_document?.detected_artistic_style);
+
+      // Validate essential outputs for enhanced audio pipeline
       const validation = {
         hasVisionDocument: !!parsedOutput.stage1_vision_analysis?.vision_document,
         hasAudioOptimization: !!parsedOutput.stage1_vision_analysis?.audio_optimization,
         hasNarrationOptimization: !!parsedOutput.stage1_vision_analysis?.vision_document?.narration_optimization,
+        hasAgentInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions,
+        hasProducerInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.producer_instructions,
+        hasDirectorInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.director_instructions,
+        hasDopInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.dop_instructions,
+        hasPromptEngineerInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.prompt_engineer_instructions,
+        hasDetectedArtisticStyle: !!parsedOutput.stage1_vision_analysis?.vision_document?.detected_artistic_style,
         pipelineReady: parsedOutput.pipeline_ready === true
       };
+      
+      console.log('📊 VISION AGENT VALIDATION:', validation);
       
       return NextResponse.json({
         success: true,

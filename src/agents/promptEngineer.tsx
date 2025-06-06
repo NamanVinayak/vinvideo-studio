@@ -57,6 +57,9 @@ Every prompt contains these elements in precise order:
 - Leverage FLUX's strength with faces and fashion
 - Keep under 40 words for optimal coherence
 
+**CRITICAL AI Behavior: Gaze Direction**
+AI models default to subjects looking at camera when gaze isn't specified. This creates unnatural "staring at viewer" effects. STORY IS KING: Base gaze decisions on narrative needs. Character examining object? "gazing at phone". Contemplative moment? "eyes downcast". Discovery scene? "looking into distance". Only use direct camera gaze for emotional peaks that require viewer connection. Story drives gaze, not AI defaults.
+
 **Output Structure:**
 Return ONLY a JSON array of indexed prompt strings:
 

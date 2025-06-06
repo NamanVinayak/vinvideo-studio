@@ -104,7 +104,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 8000,
+      max_tokens: 25000,          // Increased for enhanced prompt generation with gaze instructions
       temperature: 0.2,           // Some creativity for prompt variety
       top_p: 0.6,                // Allow creative prompt variations
       frequency_penalty: 0.3,     // Encourage prompt diversity

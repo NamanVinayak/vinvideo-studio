@@ -392,6 +392,7 @@ export default function TestTTS() {
     let generatedAudioUrl = '';
     let generatedFormattedScript = '';
     let currentVisionDocument: VisionDocument | null = null;
+    let currentVisionAgentData: any = null; // Store full vision agent response for agent instructions
 
     try {
       // Step 1: Initialize Project
@@ -463,6 +464,7 @@ export default function TestTTS() {
         setVisionAgentResult(visionData.visionAgentData);
         setNarrationScript(visionData.narrationScript);
         currentVisionDocument = visionData.visionDocument; // Store for agent chain
+        currentVisionAgentData = visionData.visionAgentData; // Store for agent enhancement instructions
         
         console.log('✅ Vision understanding completed:', visionData.visionDocument);
         console.log('📜 Narration script:', visionData.narrationScript);
@@ -618,6 +620,15 @@ export default function TestTTS() {
         throw new Error('Invalid formatted script - missing or empty');
       }
       
+      // Extract producer instructions from Vision Agent output
+      const producerInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.producer_instructions;
+      
+      console.log('🔍 PRODUCER AGENT ENHANCEMENT DEBUG:');
+      console.log('- currentVisionAgentData available:', !!currentVisionAgentData);
+      console.log('- agent_instructions available:', !!currentVisionAgentData?.stage1_vision_analysis?.agent_instructions);
+      console.log('- producer_instructions available:', !!producerInstructions);
+      console.log('- producer_instructions content:', producerInstructions);
+      
       const producerResponse = await fetch('/api/producer-agent', {
         method: 'POST',
         headers: {
@@ -626,6 +637,11 @@ export default function TestTTS() {
         body: JSON.stringify({
           transcript: transcriptData,
           script: generatedFormattedScript, // Use local variable for consistency
+          
+          // ENHANCED: Pass producer instructions for intelligent pacing
+          ...(producerInstructions && {
+            producer_instructions: producerInstructions
+          }),
           
           // FIXED: Always pass vision context when available
           ...(currentVisionDocument && {
@@ -670,11 +686,20 @@ export default function TestTTS() {
         }
       }
       
+      // Extract director instructions from Vision Agent output
+      const directorInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.director_instructions;
+      
+      console.log('🔍 DIRECTOR AGENT ENHANCEMENT DEBUG:');
+      console.log('- currentVisionAgentData available:', !!currentVisionAgentData);
+      console.log('- director_instructions available:', !!directorInstructions);
+      console.log('- director_instructions content:', directorInstructions);
+      
       console.log('Sending to Director Agent:', { 
         producer_output: producerOutput, 
         script: generatedFormattedScript,
         hasVisionDocument: !!currentVisionDocument,
-        visionConcept: currentVisionDocument?.core_concept 
+        visionConcept: currentVisionDocument?.core_concept,
+        hasDirectorInstructions: !!directorInstructions
       });
       
       const directorResponse = await fetch('/api/director-agent', {
@@ -685,6 +710,11 @@ export default function TestTTS() {
         body: JSON.stringify({
           producer_output: producerOutput,
           script: generatedFormattedScript, // Use local variable
+          
+          // ENHANCED: Pass director instructions for creative vision
+          ...(directorInstructions && {
+            director_instructions: directorInstructions
+          }),
           
           // FIXED: Always pass vision context when available
           ...(currentVisionDocument && {
@@ -739,12 +769,17 @@ export default function TestTTS() {
         }
       }
       
+      // Extract dop instructions from Vision Agent output
+      const dopInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.dop_instructions;
+      
       console.log('Sending to DoP Agent:', { 
         script: generatedFormattedScript, 
         producer_output: producerOutputForDoP, 
         director_output: directorOutputForDoP,
         hasVisionDocument: !!currentVisionDocument,
-        visionConcept: currentVisionDocument?.core_concept 
+        visionConcept: currentVisionDocument?.core_concept,
+        hasDopInstructions: !!dopInstructions,
+        detectedArtisticStyle: currentVisionDocument?.detected_artistic_style
       });
       
       const dopResponse = await fetch('/api/dop-agent', {
@@ -756,6 +791,11 @@ export default function TestTTS() {
           script: generatedFormattedScript, // Use local variable
           producer_output: producerOutputForDoP,
           director_output: directorOutputForDoP,
+          
+          // ENHANCED: Pass dop instructions for cinematography guidance
+          ...(dopInstructions && {
+            dop_instructions: dopInstructions
+          }),
           
           // FIXED: Always pass vision context when available
           ...(currentVisionDocument && {
@@ -827,6 +867,9 @@ export default function TestTTS() {
         }
       }
       
+      // Extract prompt engineer instructions from Vision Agent output
+      const promptEngineerInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.prompt_engineer_instructions;
+      
       console.log('Sending to Prompt Engineer Agent:', { 
         script: generatedFormattedScript, 
         director_output: directorOutputForPE, 
@@ -834,7 +877,9 @@ export default function TestTTS() {
         num_images: numImages,
         hasVisionDocument: !!currentVisionDocument,
         visionConcept: currentVisionDocument?.core_concept,
-        visualStyle: currentVisionDocument?.visual_style
+        visualStyle: currentVisionDocument?.visual_style,
+        hasPromptEngineerInstructions: !!promptEngineerInstructions,
+        detectedArtisticStyle: currentVisionDocument?.detected_artistic_style
       });
       
       const promptEngineerResponse = await fetch('/api/prompt-engineer-agent', {
@@ -847,6 +892,11 @@ export default function TestTTS() {
           director_output: directorOutputForPE,
           dop_output: dopOutputForPE,
           num_images: numImages, // Use the number of beats from DoP output
+          
+          // ENHANCED: Pass prompt engineer instructions for image generation
+          ...(promptEngineerInstructions && {
+            prompt_engineer_instructions: promptEngineerInstructions
+          }),
           
           // FIXED: Always pass vision context when available
           ...(currentVisionDocument && {
@@ -1598,6 +1648,100 @@ export default function TestTTS() {
                           <strong>Recommended Voice:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.recommended_voice_characteristics}
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* NEW: Agent-Specific Instructions Display */}
+                  {visionAgentResult.stage1_vision_analysis?.agent_instructions && (
+                    <div className={styles.agentInstructions}>
+                      <h3>🎭 Agent-Specific Instructions from Vision Agent:</h3>
+                      
+                      {/* Producer Instructions */}
+                      {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions && (
+                        <div className={styles.agentInstructionSection}>
+                          <h4>📽️ Producer Agent Instructions:</h4>
+                          <div className={styles.instructionContent}>
+                            <div><strong>Target Cut Timing:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing}</div>
+                            <div><strong>Audio Analysis Enhancement:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement}</div>
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules && (
+                              <div>
+                                <strong>Pacing Rules:</strong>
+                                <ul>
+                                  {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules.map((rule, index) => (
+                                    <li key={index}>{rule}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Director Instructions */}
+                      {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions && (
+                        <div className={styles.agentInstructionSection}>
+                          <h4>🎬 Director Agent Instructions:</h4>
+                          <div className={styles.instructionContent}>
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy && (
+                              <div><strong>Scene Direction Philosophy:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture && (
+                              <div><strong>Emotional Architecture:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics && (
+                              <div><strong>Character Dynamics:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery && (
+                              <div><strong>Visual Storytelling:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance && (
+                              <div><strong>Pacing & Rhythm:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration && (
+                              <div><strong>Environmental Integration:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration}</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* DoP Instructions */}
+                      {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions && (
+                        <div className={styles.agentInstructionSection}>
+                          <h4>📹 DoP Agent Instructions:</h4>
+                          <div className={styles.instructionContent}>
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy && (
+                              <div><strong>Lighting Philosophy:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.movement_style && (
+                              <div><strong>Movement Style:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.movement_style}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support && (
+                              <div><strong>Artistic Style Support:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support}</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Prompt Engineer Instructions */}
+                      {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions && (
+                        <div className={styles.agentInstructionSection}>
+                          <h4>✍️ Prompt Engineer Agent Instructions:</h4>
+                          <div className={styles.instructionContent}>
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements && (
+                              <div><strong>Character Requirements:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details && (
+                              <div><strong>Setting Details:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications && (
+                              <div><strong>Technical Specs:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications}</div>
+                            )}
+                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement && (
+                              <div><strong>Artistic Style:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement}</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 

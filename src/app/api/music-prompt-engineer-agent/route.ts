@@ -52,7 +52,7 @@ export async function POST(request: Request) {
           content: fluxInput + promptCountInstruction
         }
       ],
-      max_tokens: 8000,
+      max_tokens: 25000,          // Increased for enhanced prompt generation with gaze instructions
       temperature: 0.1,           // Low creativity for consistent FLUX prompts
       top_p: 0.3,                // Focused on FLUX best practices
       frequency_penalty: 0.2,     // Encourage prompt variety

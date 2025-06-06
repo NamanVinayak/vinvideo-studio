@@ -86,7 +86,7 @@ Generate the complete visual beat sequence as JSON only.`;
           content: userContent
         }
       ],
-      max_tokens: 8000,
+      max_tokens: 25000,          // Increased for enhanced instructions and detailed beats
       temperature: 0.15,          // Slight creativity while maintaining musical alignment
       top_p: 0.5,                // Consider multiple creative approaches
       frequency_penalty: 0.2,     // Prevent repetitive concepts

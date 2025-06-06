@@ -34,6 +34,68 @@
   color: #1565c0;
 }
 
+/* Agent Instructions Styling */
+.agentInstructions {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.agentInstructions h3 {
+  margin-top: 0;
+  color: #495057;
+  border-bottom: 2px solid #6c757d;
+  padding-bottom: 0.5rem;
+}
+
+.agentInstructionSection {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.agentInstructionSection h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.25rem;
+}
+
+.instructionContent {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.instructionContent > div {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-left: 3px solid #007bff;
+  border-radius: 4px;
+}
+
+.instructionContent strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+.instructionContent ul {
+  margin: 0.5rem 0 0 1rem;
+  padding-left: 1rem;
+}
+
+.instructionContent li {
+  margin-bottom: 0.25rem;
+  color: #6c757d;
+}
+
 .form {
   background-color: #f5f5f5;
   padding: 1.5rem;

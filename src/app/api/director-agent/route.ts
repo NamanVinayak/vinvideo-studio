@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { producer_output, script, visionDocument, enhancedMode } = body;
+    const { producer_output, script, visionDocument, enhancedMode, director_instructions } = body;
     
     if (producer_output === undefined || producer_output === null || !script) {
       return NextResponse.json({
@@ -29,21 +29,43 @@ export async function POST(request: Request) {
     console.log(`Producer output preview: ${JSON.stringify(producer_output).substring(0, 100)}...`);
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
+    console.log(`Director Instructions available: ${!!director_instructions}`);
+    console.log(`Enhanced Mode: ${!!director_instructions}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
     }
     
-    // Prepare the user content message with vision context
+    // Prepare enhanced vision context with director instructions
     const visionContext = visionDocument && enhancedMode ? `
 🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
 Core Concept: "${visionDocument.core_concept}"
 Visual Style: "${visionDocument.visual_style}" 
 Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
 Color Philosophy: "${visionDocument.color_philosophy}"
+${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artistic Style: "${visionDocument.detected_artistic_style}"` : ''}
 
 ` : '';
 
-    const userContent = `${visionContext}Here is the Producer's cut points output:
+    const enhancedDirectorGuidance = director_instructions ? `
+🚀 ENHANCED DIRECTOR GUIDANCE (Vision Agent Strategist):
+
+MANDATORY REQUIREMENTS:
+${director_instructions.mandatory_requirements?.map(req => `- ${req}`).join('\n')}
+
+CREATIVE CONSTRAINTS:
+${director_instructions.creative_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+
+NARRATIVE BEATS GUIDANCE: ${director_instructions.narrative_beats_guidance}
+
+CHARACTER ELEMENTS: ${director_instructions.character_elements || 'None specified'}
+
+SETTING REQUIREMENTS: ${director_instructions.setting_requirements}
+
+Use this strategic guidance to create beats that fulfill the creative vision while following these specific requirements.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedDirectorGuidance}Here is the Producer's cut points output:
 ${JSON.stringify(producer_output)}
 
 Here is the original video script with timing context:
@@ -66,7 +88,7 @@ Please analyze this and output your creative vision as JSON exactly as specified
           content: userContent
         }
       ],
-      max_tokens: 20000,          // Increased for handling 35+ beats
+      max_tokens: 25000,          // Increased for enhanced instructions and detailed beats
       temperature: 0.5,           // Balanced creativity for DeepSeek R1
       top_p: 0.8,                // More diverse creative options
       frequency_penalty: 0.2,     // Encourage varied creative language

@@ -106,7 +106,7 @@ Please analyze this music and vision data to make optimal timing decisions.
           }
         ],
         temperature: 0.3, // Lower temperature for consistent timing decisions
-        max_tokens: 4000
+        max_tokens: 12000          // Increased for enhanced scene analysis and detailed timing
       })
     });
 

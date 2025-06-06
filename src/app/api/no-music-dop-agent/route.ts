@@ -94,7 +94,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 16000,          // Increased for multiple detailed shots
+      max_tokens: 25000,          // Increased for enhanced cinematography instructions
       temperature: 0.2,           // Slightly higher for creativity in shot design
       top_p: 0.6,                // More diverse technical responses
       frequency_penalty: 0.1,     // Reduced to allow detailed descriptions
