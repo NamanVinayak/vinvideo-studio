@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, director_output, dop_output, num_images } = body;
+    const { script, director_output, dop_output, num_images, visionDocument, enhancedMode } = body;
     
     if (!script || director_output === undefined || director_output === null || 
         dop_output === undefined || dop_output === null) {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
@@ -28,12 +28,29 @@ export async function POST(request: Request) {
     
     console.log('Calling Prompt Engineer Agent...');
     console.log(`Script preview: ${script.substring(0, 100)}...`);
+    console.log(`Vision Document available: ${!!visionDocument}`);
+    if (visionDocument) {
+      console.log(`Vision core concept: ${visionDocument.core_concept}`);
+      console.log(`Vision visual style: ${visionDocument.visual_style}`);
+      console.log(`Enhanced mode: ${enhancedMode}`);
+    }
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
     console.log(`DoP output preview: ${JSON.stringify(dop_output).substring(0, 100)}...`);
     console.log(`Number of images to generate: ${num_images || 'auto-detect from cuts'}`);
     
-    // Prepare the user content message
-    const userContent = `Here are the inputs for FLUX image prompt generation:
+    // Prepare the user content message with vision document context
+    const visionContext = visionDocument && enhancedMode ? `
+🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
+Core Concept: "${visionDocument.core_concept}"
+Visual Style: "${visionDocument.visual_style}" 
+Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
+Pacing: ${visionDocument.pacing}
+Duration: ${visionDocument.duration} seconds
+Color Philosophy: "${visionDocument.color_philosophy}"
+
+` : '';
+
+    const userContent = `${visionContext}Here are the inputs for FLUX image prompt generation:
 
 ORIGINAL SCRIPT:
 "${script}"

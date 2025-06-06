@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, producer_output, director_output } = body;
+    const { script, producer_output, director_output, visionDocument, enhancedMode } = body;
     
     if (!script || producer_output === undefined || producer_output === null || 
         director_output === undefined || director_output === null) {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
@@ -30,9 +30,22 @@ export async function POST(request: Request) {
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     console.log(`Producer output preview: ${JSON.stringify(producer_output).substring(0, 100)}...`);
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
+    console.log(`Vision Document available: ${!!visionDocument}`);
+    if (visionDocument) {
+      console.log(`Vision core concept: ${visionDocument.core_concept}`);
+    }
     
-    // Prepare the user content message
-    const userContent = `Here are the inputs for cinematography planning:
+    // Prepare the user content message with vision context
+    const visionContext = visionDocument && enhancedMode ? `
+🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
+Core Concept: "${visionDocument.core_concept}"
+Visual Style: "${visionDocument.visual_style}" 
+Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
+Color Philosophy: "${visionDocument.color_philosophy}"
+
+` : '';
+
+    const userContent = `${visionContext}Here are the inputs for cinematography planning:
 
 ORIGINAL SCRIPT:
 "${script}"

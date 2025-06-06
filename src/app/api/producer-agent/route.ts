@@ -11,14 +11,30 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { transcript, script } = body;
     
-    if (!transcript || !script) {
+    // Enhanced debugging for Producer Agent input
+    console.log('🎬 PRODUCER AGENT - Debug Input:');
+    console.log('- transcript type:', typeof transcript);
+    console.log('- transcript value:', transcript);
+    console.log('- transcript length/size:', Array.isArray(transcript) ? transcript.length : (transcript ? Object.keys(transcript).length : 'N/A'));
+    console.log('- script type:', typeof script);
+    console.log('- script value:', script);
+    console.log('- script length:', script ? script.length : 'N/A');
+    
+    // More specific validation
+    const hasValidTranscript = transcript && (Array.isArray(transcript) ? transcript.length > 0 : Object.keys(transcript).length > 0);
+    const hasValidScript = script && typeof script === 'string' && script.trim().length > 0;
+    
+    console.log('- hasValidTranscript:', hasValidTranscript);
+    console.log('- hasValidScript:', hasValidScript);
+    
+    if (!hasValidTranscript || !hasValidScript) {
       return NextResponse.json({ 
-        error: 'Both transcript and script are required' 
+        error: `Both transcript and script are required. Received: transcript=${!!transcript} (${typeof transcript}), script=${!!script} (${typeof script})` 
       }, { status: 400 });
     }
 
     // Get API key from environment variables
-    const apiKey = process.env.OPENROUTER_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 

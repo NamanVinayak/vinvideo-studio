@@ -114,6 +114,63 @@ interface WorkflowStep {
   duration?: number;
 }
 
+// NEW: Vision Document Interface (enhanced for audio pipeline)
+interface VisionDocument {
+  core_concept: string;
+  emotion_arc: string[];
+  pacing: 'contemplative' | 'moderate' | 'dynamic' | 'fast';
+  visual_style: string;
+  duration: number;
+  content_classification: {
+    type: 'narrative_driven' | 'concept_driven' | 'abstract_thematic' | 'narrative_character';
+  };
+  audio_mood_hints: string[]; // Changed from music_mood_hints
+  visual_complexity: 'simple' | 'moderate' | 'complex';
+  color_philosophy: string;
+  // NEW: Audio-specific optimization fields
+  narration_optimization?: {
+    vocal_style: 'dramatic' | 'conversational' | 'mysterious' | 'inspiring' | 'intimate';
+    emphasis_points: string[];
+    natural_pauses: string[];
+    audio_visual_sync: 'tight' | 'loose' | 'atmospheric';
+  };
+}
+
+// NEW: Vision Understanding Result Interface (for future use)
+// interface VisionUnderstandingResult {
+//   success: boolean;
+//   stage1_vision_analysis?: {
+//     vision_document: VisionDocument;
+//     timing_blueprint?: {
+//       total_duration: number;
+//       cut_strategy: string;
+//       optimal_cut_count: number;
+//       average_cut_length: number;
+//       pacing_rationale: string;
+//       cut_points: Array<{
+//         cut_number: number;
+//         cut_time: number;
+//         narrative_reason: string;
+//         content_transition: string;
+//         cognitive_weight: 'light' | 'medium' | 'heavy';
+//         emotional_intensity: 'low' | 'medium' | 'high';
+//       }>;
+//     };
+//   };
+//   executionTime?: number;
+//   rawResponse?: string;
+//   error?: string;
+// }
+
+// NEW: Vision Form Data Interface
+interface VisionFormData {
+  concept: string;
+  style: 'cinematic' | 'documentary' | 'artistic' | 'minimal';
+  pacing: 'contemplative' | 'moderate' | 'dynamic' | 'fast';
+  duration: number;
+  contentType: 'general' | 'educational' | 'storytelling' | 'abstract';
+}
+
 export default function TestTTS() {
   const searchParams = useSearchParams();
   const conversationMode = searchParams?.get('conversationMode') === 'true';
@@ -130,10 +187,21 @@ export default function TestTTS() {
   const [loadingDots, setLoadingDots] = useState<string>('');
   const [runId, setRunId] = useState<string | null>(null);
   
-  // Workflow state
+  // NEW: Vision form state
+  const [useVisionMode, setUseVisionMode] = useState<boolean>(false);
+  const [visionFormData, setVisionFormData] = useState<VisionFormData>({
+    concept: '',
+    style: 'cinematic',
+    pacing: 'moderate',
+    duration: 30,
+    contentType: 'general'
+  });
+
+  // Workflow state (UPDATED: Separated vision understanding from audio generation)
   const [steps, setSteps] = useState<WorkflowStep[]>([
     { name: 'Initialize Project', status: 'pending' },
-    { name: 'Format Script & Generate Audio', status: 'pending' },
+    { name: 'Vision Understanding', status: 'pending' }, // NEW: Separate step
+    { name: 'Generate Audio from Script', status: 'pending' }, // NEW: Separate step
     { name: 'Transcribe Audio (Nvidia)', status: 'pending' },
     { name: 'Generate Cut Points (Producer Agent)', status: 'pending' },
     { name: 'Generate Creative Vision (Director Agent)', status: 'pending' },
@@ -145,6 +213,9 @@ export default function TestTTS() {
   ]);
   
   // Results from each step
+  const [visionDocument, setVisionDocument] = useState<VisionDocument | null>(null); // NEW: Vision result
+  const [visionAgentResult, setVisionAgentResult] = useState<Record<string, unknown> | null>(null); // NEW: Raw vision agent result
+  const [narrationScript, setNarrationScript] = useState<string | null>(null); // NEW: Original narration script from vision agent
   const [formattedScript, setFormattedScript] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null);
@@ -246,7 +317,7 @@ export default function TestTTS() {
   };
 
   // Helper function to save agent outputs
-  const saveAgentOutput = async (agentName: string, output: any, rawResponse?: string) => {
+  const saveAgentOutput = async (agentName: string, output: unknown, rawResponse?: string) => {
     if (!runId) return;
     
     try {
@@ -276,8 +347,25 @@ export default function TestTTS() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input based on mode
+    if (useVisionMode) {
+      if (!visionFormData.concept.trim()) {
+        setError('Please enter a concept for vision mode');
+        return;
+      }
+    } else {
+      if (!script.trim()) {
+        setError('Please enter a script for script mode');
+        return;
+      }
+    }
+    
     setLoading(true);
     setError(null);
+    setVisionDocument(null); // NEW: Reset vision document
+    setVisionAgentResult(null); // NEW: Reset vision agent result
+    setNarrationScript(null); // NEW: Reset narration script
     setFormattedScript(null);
     setAudioUrl(null);
     setTranscriptionResult(null);
@@ -295,10 +383,15 @@ export default function TestTTS() {
     // Generate run ID for this workflow execution
     const currentRunId = Date.now().toString();
     setRunId(currentRunId);
-    console.log('Starting new run with ID:', currentRunId);
+    console.log(`Starting new run with ID: ${currentRunId} in ${useVisionMode ? 'VISION' : 'SCRIPT'} mode`);
 
     // Reset all steps
     setSteps(prev => prev.map(step => ({ ...step, status: 'pending', result: undefined, error: undefined, duration: undefined })));
+
+    // Variables to store data across steps (fixes React state async timing issues)
+    let generatedAudioUrl = '';
+    let generatedFormattedScript = '';
+    let currentVisionDocument: VisionDocument | null = null;
 
     try {
       // Step 1: Initialize Project
@@ -312,7 +405,10 @@ export default function TestTTS() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ script }),
+          body: JSON.stringify({ 
+            script: useVisionMode ? visionFormData.concept : script,
+            mode: useVisionMode ? 'vision' : 'script'
+          }),
         });
 
         if (!initResponse.ok) {
@@ -325,47 +421,142 @@ export default function TestTTS() {
         setFolderId(projectFolderId);
       }
       
-      // Save initial project setup
+      // Save initial project setup with mode information
       const projectSetup = { 
         folderId: projectFolderId, 
-        script: script,
+        mode: useVisionMode ? 'vision' : 'script',
+        input: useVisionMode ? visionFormData : { script },
         startTime: new Date().toISOString()
       };
       await saveAgentOutput('project-setup', projectSetup);
       
       updateStepStatus(0, 'completed', { folderId: projectFolderId }, undefined, Date.now() - step1Start);
 
-      // Step 2: Format Script and Generate Audio
-      updateStepStatus(1, 'processing');
-      const step2Start = Date.now();
-      
-      const ttsResponse = await fetch('/api/test-tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ script, folderId: projectFolderId }),
-      });
+      if (useVisionMode) {
+        // Step 2: Vision Understanding (Separate step)
+        updateStepStatus(1, 'processing');
+        const step2Start = Date.now();
+        
+        const visionResponse = await fetch('/api/vision-only', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            concept: visionFormData.concept,
+            style: visionFormData.style,
+            pacing: visionFormData.pacing,
+            duration: visionFormData.duration,
+            contentType: visionFormData.contentType
+          }),
+        });
 
-      if (!ttsResponse.ok) {
-        const errorData = await ttsResponse.json();
-        throw new Error(errorData.error || 'Failed to process script');
+        if (!visionResponse.ok) {
+          const errorData = await visionResponse.json();
+          throw new Error(errorData.error || 'Failed to generate vision understanding');
+        }
+
+        const visionData = await visionResponse.json();
+        
+        // Store vision results immediately
+        setVisionDocument(visionData.visionDocument);
+        setVisionAgentResult(visionData.visionAgentData);
+        setNarrationScript(visionData.narrationScript);
+        currentVisionDocument = visionData.visionDocument; // Store for agent chain
+        
+        console.log('✅ Vision understanding completed:', visionData.visionDocument);
+        console.log('📜 Narration script:', visionData.narrationScript);
+        
+        // Save vision results
+        await saveAgentOutput('vision-understanding', visionData);
+        
+        updateStepStatus(1, 'completed', visionData, undefined, Date.now() - step2Start);
+
+        // Step 3: Generate Audio from Script (Separate step)
+        updateStepStatus(2, 'processing');
+        const step3Start = Date.now();
+        
+        const audioResponse = await fetch('/api/generate-audio-from-script', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            narrationScript: visionData.narrationScript,
+            folderId: projectFolderId
+          }),
+        });
+
+        if (!audioResponse.ok) {
+          const errorData = await audioResponse.json();
+          throw new Error(errorData.error || 'Failed to generate audio');
+        }
+
+        const audioData = await audioResponse.json();
+        
+        setFormattedScript(audioData.formattedScript);
+        setAudioUrl(audioData.audioUrl);
+        generatedAudioUrl = audioData.audioUrl; // Store for transcription step
+        generatedFormattedScript = audioData.formattedScript; // Store for Producer Agent step
+        
+        console.log('✅ Audio generation completed:', audioData.audioUrl);
+        
+        // Save audio results
+        await saveAgentOutput('audio-generation', audioData);
+        
+        updateStepStatus(2, 'completed', audioData, undefined, Date.now() - step3Start);
+        
+      } else {
+        // Script Mode: Use the existing combined endpoint for backward compatibility
+        updateStepStatus(1, 'processing'); // Skip vision step in script mode
+        updateStepStatus(2, 'processing');
+        const step2Start = Date.now();
+        
+        const visionAudioResponse = await fetch('/api/vision-understanding-and-audio', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            useVisionMode: false,
+            script: script,
+            folderId: projectFolderId
+          }),
+        });
+
+        if (!visionAudioResponse.ok) {
+          const errorData = await visionAudioResponse.json();
+          throw new Error(errorData.error || 'Failed to process script');
+        }
+
+        const visionAudioData = await visionAudioResponse.json();
+        
+        setFormattedScript(visionAudioData.formattedScript);
+        setAudioUrl(visionAudioData.audioUrl);
+        generatedAudioUrl = visionAudioData.audioUrl; // Store for transcription step
+        generatedFormattedScript = visionAudioData.formattedScript; // Store for Producer Agent step
+        
+        // Save script mode results
+        await saveAgentOutput('script-formatting-and-audio', visionAudioData);
+        
+        updateStepStatus(1, 'completed', { skipped: true, reason: 'Script mode - no vision understanding needed' }, undefined, 0);
+        updateStepStatus(2, 'completed', visionAudioData, undefined, Date.now() - step2Start);
       }
 
-      const ttsData = await ttsResponse.json();
-      setFormattedScript(ttsData.formattedScript);
-      setAudioUrl(ttsData.audioUrl);
-      
-      updateStepStatus(1, 'completed', ttsData, undefined, Date.now() - step2Start);
-
-      // Step 3: Transcribe Audio using Nvidia script
-      updateStepStatus(2, 'processing');
-      const step3Start = Date.now();
+      // Step 4: Transcribe Audio using Nvidia script (updated index)
+      updateStepStatus(3, 'processing');
+      const step4Start = Date.now();
       
       // Extract project folder from audio URL (e.g., "/script-123/generated-audio-456.wav" -> "script-123")
-      const projectFolder = ttsData.audioUrl.split('/')[1]; // Get the folder name from the URL
+      // Use the project folder ID directly since we know it from initialization
+      const projectFolder = projectFolderId;
       
-      console.log('Audio URL:', ttsData.audioUrl);
+      // Ensure we have a valid audio URL
+      if (!generatedAudioUrl) {
+        throw new Error('Audio URL is not available for transcription. Audio generation may have failed.');
+      }
+      
+      console.log('Audio URL:', generatedAudioUrl);
       console.log('Project folder:', projectFolder);
       
       const transcribeResponse = await fetch('/api/transcribe-audio', {
@@ -374,7 +565,7 @@ export default function TestTTS() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          audioUrl: ttsData.audioUrl,
+          audioUrl: generatedAudioUrl,
           projectFolder: projectFolder
         }),
       });
@@ -385,16 +576,47 @@ export default function TestTTS() {
       }
 
       const transcribeData = await transcribeResponse.json();
+      
+      // Debug: Check transcription response structure
+      console.log('📝 TRANSCRIPTION RESPONSE DEBUG:');
+      console.log('- Full response:', transcribeData);
+      console.log('- transcribeData.word_timestamps:', transcribeData.word_timestamps);
+      console.log('- transcribeData.transcription:', transcribeData.transcription);
+      console.log('- transcribeData.transcript:', transcribeData.transcript);
+      console.log('- generatedFormattedScript available:', !!generatedFormattedScript);
+      console.log('- generatedFormattedScript value:', generatedFormattedScript);
+      
       setTranscriptionResult(transcribeData);
       
       // Save Transcription output
       await saveAgentOutput('transcription', transcribeData);
       
-      updateStepStatus(2, 'completed', transcribeData, undefined, Date.now() - step3Start);
+      updateStepStatus(3, 'completed', transcribeData, undefined, Date.now() - step4Start);
 
-      // Step 4: Generate Cut Points using Producer Agent
-      updateStepStatus(3, 'processing');
-      const step4Start = Date.now();
+      // Step 5: Generate Cut Points using Producer Agent
+      updateStepStatus(4, 'processing');
+      const step5Start = Date.now();
+      
+      // Debug: Check what we're sending to producer agent
+      const transcriptData = transcribeData.word_timestamps || transcribeData.transcription?.word_timestamps || [];
+      console.log('🔍 DEBUG Producer Agent Input:');
+      console.log('- Transcript data:', transcriptData);
+      console.log('- Transcript length:', Array.isArray(transcriptData) ? transcriptData.length : 'Not an array');
+      console.log('- Generated formatted script:', generatedFormattedScript);
+      console.log('- Script length:', generatedFormattedScript ? generatedFormattedScript.length : 'Script is null/undefined');
+      
+      // Additional validation
+      if (!Array.isArray(transcriptData) || transcriptData.length === 0) {
+        console.error('⚠️ TRANSCRIPT DATA ISSUE: transcript is not a valid array or is empty');
+        throw new Error('Invalid transcript data received from transcription service');
+      }
+      
+      if (!generatedFormattedScript || typeof generatedFormattedScript !== 'string' || generatedFormattedScript.trim().length === 0) {
+        console.error('⚠️ SCRIPT DATA ISSUE: generatedFormattedScript is not valid');
+        console.error('- generatedFormattedScript type:', typeof generatedFormattedScript);
+        console.error('- generatedFormattedScript value:', generatedFormattedScript);
+        throw new Error('Invalid formatted script - missing or empty');
+      }
       
       const producerResponse = await fetch('/api/producer-agent', {
         method: 'POST',
@@ -402,8 +624,14 @@ export default function TestTTS() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          transcript: transcribeData.word_timestamps || transcribeData.transcription?.word_timestamps || [],
-          script: script
+          transcript: transcriptData,
+          script: generatedFormattedScript, // Use local variable for consistency
+          
+          // FIXED: Always pass vision context when available
+          ...(currentVisionDocument && {
+            visionDocument: currentVisionDocument,
+            enhancedMode: true
+          })
         }),
       });
 
@@ -418,11 +646,11 @@ export default function TestTTS() {
       // Save Producer Agent output
       await saveAgentOutput('producer', producerData, producerData.rawResponse);
       
-      updateStepStatus(3, 'completed', producerData, undefined, Date.now() - step4Start);
+      updateStepStatus(4, 'completed', producerData, undefined, Date.now() - step5Start);
 
-      // Step 5: Generate Creative Vision using Director Agent
-      updateStepStatus(4, 'processing');
-      const step5Start = Date.now();
+      // Step 6: Generate Creative Vision using Director Agent
+      updateStepStatus(5, 'processing');
+      const step6Start = Date.now();
       
       // Ensure we have producer output to pass to the director
       let producerOutput = producerData.cutPoints;
@@ -442,7 +670,12 @@ export default function TestTTS() {
         }
       }
       
-      console.log('Sending to Director Agent:', { producer_output: producerOutput, script: script });
+      console.log('Sending to Director Agent:', { 
+        producer_output: producerOutput, 
+        script: generatedFormattedScript,
+        hasVisionDocument: !!currentVisionDocument,
+        visionConcept: currentVisionDocument?.core_concept 
+      });
       
       const directorResponse = await fetch('/api/director-agent', {
         method: 'POST',
@@ -451,7 +684,13 @@ export default function TestTTS() {
         },
         body: JSON.stringify({
           producer_output: producerOutput,
-          script: script
+          script: generatedFormattedScript, // Use local variable
+          
+          // FIXED: Always pass vision context when available
+          ...(currentVisionDocument && {
+            visionDocument: currentVisionDocument,
+            enhancedMode: true
+          })
         }),
       });
 
@@ -466,11 +705,11 @@ export default function TestTTS() {
       // Save Director Agent output (including failed parsing attempts)
       await saveAgentOutput('director', directorData, directorData.rawResponse || 'No raw response available');
       
-      updateStepStatus(4, 'completed', directorData, undefined, Date.now() - step5Start);
+      updateStepStatus(5, 'completed', directorData, undefined, Date.now() - step6Start);
 
-      // Step 6: Generate Cinematography Directions using DoP Agent
-      updateStepStatus(5, 'processing');
-      const step6Start = Date.now();
+      // Step 7: Generate Cinematography Directions using DoP Agent
+      updateStepStatus(6, 'processing');
+      const step7Start = Date.now();
       
       // Ensure we have producer output to pass to DoP (reuse the same logic)
       let producerOutputForDoP = producerData.cutPoints;
@@ -501,9 +740,11 @@ export default function TestTTS() {
       }
       
       console.log('Sending to DoP Agent:', { 
-        script: script, 
+        script: generatedFormattedScript, 
         producer_output: producerOutputForDoP, 
-        director_output: directorOutputForDoP 
+        director_output: directorOutputForDoP,
+        hasVisionDocument: !!currentVisionDocument,
+        visionConcept: currentVisionDocument?.core_concept 
       });
       
       const dopResponse = await fetch('/api/dop-agent', {
@@ -512,9 +753,15 @@ export default function TestTTS() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          script: script,
+          script: generatedFormattedScript, // Use local variable
           producer_output: producerOutputForDoP,
-          director_output: directorOutputForDoP
+          director_output: directorOutputForDoP,
+          
+          // FIXED: Always pass vision context when available
+          ...(currentVisionDocument && {
+            visionDocument: currentVisionDocument,
+            enhancedMode: true
+          })
         }),
       });
 
@@ -529,11 +776,11 @@ export default function TestTTS() {
       // Save DoP Agent output
       await saveAgentOutput('dop', dopData, dopData.rawResponse);
       
-      updateStepStatus(5, 'completed', dopData, undefined, Date.now() - step6Start);
+      updateStepStatus(6, 'completed', dopData, undefined, Date.now() - step7Start);
 
-      // Step 7: Generate Image Prompts using Prompt Engineer Agent
-      updateStepStatus(6, 'processing');
-      const step7Start = Date.now();
+      // Step 8: Generate Image Prompts using Prompt Engineer Agent
+      updateStepStatus(7, 'processing');
+      const step8Start = Date.now();
       
       // Ensure we have director output to pass to Prompt Engineer
       let directorOutputForPE = directorData.directorOutput;
@@ -581,10 +828,13 @@ export default function TestTTS() {
       }
       
       console.log('Sending to Prompt Engineer Agent:', { 
-        script: script, 
+        script: generatedFormattedScript, 
         director_output: directorOutputForPE, 
         dop_output: dopOutputForPE,
-        num_images: numImages
+        num_images: numImages,
+        hasVisionDocument: !!currentVisionDocument,
+        visionConcept: currentVisionDocument?.core_concept,
+        visualStyle: currentVisionDocument?.visual_style
       });
       
       const promptEngineerResponse = await fetch('/api/prompt-engineer-agent', {
@@ -593,10 +843,16 @@ export default function TestTTS() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          script: script,
+          script: generatedFormattedScript, // Use local variable
           director_output: directorOutputForPE,
           dop_output: dopOutputForPE,
-          num_images: numImages // Use the number of beats from DoP output
+          num_images: numImages, // Use the number of beats from DoP output
+          
+          // FIXED: Always pass vision context when available
+          ...(currentVisionDocument && {
+            visionDocument: currentVisionDocument,
+            enhancedMode: true
+          })
         }),
       });
 
@@ -611,11 +867,11 @@ export default function TestTTS() {
       // Save Prompt Engineer Agent output
       await saveAgentOutput('prompt-engineer', promptEngineerData, promptEngineerData.rawResponse);
       
-      updateStepStatus(6, 'completed', promptEngineerData, undefined, Date.now() - step7Start);
+      updateStepStatus(7, 'completed', promptEngineerData, undefined, Date.now() - step8Start);
 
-      // Step 8: Generate Images using ComfyUI
-      updateStepStatus(7, 'processing');
-      const step8Start = Date.now();
+      // Step 9: Generate Images using ComfyUI
+      updateStepStatus(8, 'processing');
+      const step9Start = Date.now();
       
       // Extract prompts from prompt engineer output
       let promptsToGenerate: string[] = [];
@@ -655,7 +911,7 @@ export default function TestTTS() {
       
       // Use fetch with streaming response for SSE
       const allGeneratedImages: string[] = [...placeholderImages];
-      let finalOutput: any = null;
+      // let finalOutput: unknown = null; // Commented out as not used
       let isComplete = false;
       
       try {
@@ -751,7 +1007,7 @@ export default function TestTTS() {
                         setGeneratedImages(data.generatedImages);
                       }
                       
-                      finalOutput = data;
+                      // finalOutput = data; // Commented out as not used
                       
                       // Save Image Generation output
                       await saveAgentOutput('image-generation', data);
@@ -764,7 +1020,7 @@ export default function TestTTS() {
                         message: data.message
                       }));
                       
-                      updateStepStatus(7, 'completed', data, undefined, Date.now() - step8Start);
+                      updateStepStatus(8, 'completed', data, undefined, Date.now() - step9Start);
                       isComplete = true;
                     } else {
                       throw new Error(data.error || 'Failed to generate images with ComfyUI');
@@ -804,7 +1060,7 @@ export default function TestTTS() {
         const comfyData = await comfyResponse.json();
         setGeneratedImages(comfyData.generatedImages || []);
         await saveAgentOutput('image-generation', comfyData);
-        updateStepStatus(7, 'completed', comfyData, undefined, Date.now() - step8Start);
+        updateStepStatus(8, 'completed', comfyData, undefined, Date.now() - step9Start);
         isComplete = true;
       }
       
@@ -814,21 +1070,21 @@ export default function TestTTS() {
       }
 
       // Mark remaining steps as completed (skipped for testing)
-      updateStepStatus(8, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });
-      updateStepStatus(9, 'completed', { skipped: true, reason: 'Video Generation step commented out for testing' });
+      updateStepStatus(9, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });
+      updateStepStatus(10, 'completed', { skipped: true, reason: 'Video Generation step commented out for testing' });
 
-      // COMMENTED OUT FOR TESTING - Step 9: Review Images using QWEN VL Agent
+      // COMMENTED OUT FOR TESTING - Step 10: Review Images using QWEN VL Agent
       /*
-      updateStepStatus(8, 'processing');
-      const step9Start = Date.now();
+      updateStepStatus(9, 'processing');
+      const step10Start = Date.now();
       
       // Check if we have enough images for review (need at least 3)
       if (generatedImageUrls.length < 3) {
         console.warn(`Only ${generatedImageUrls.length} images generated, skipping QWEN VL review (requires at least 3)`);
-        updateStepStatus(8, 'completed', { 
+        updateStepStatus(9, 'completed', { 
           skipped: true, 
           reason: 'Insufficient images for review (need at least 3)' 
-        }, undefined, Date.now() - step9Start);
+        }, undefined, Date.now() - step10Start);
       } else {
         // Ensure we have director output for QWEN VL
         let directorOutputForQwen = directorData.directorOutput;
@@ -886,28 +1142,28 @@ export default function TestTTS() {
         const qwenVLData = await qwenVLResponse.json();
         setQwenVLResult(qwenVLData);
         
-        updateStepStatus(8, 'completed', qwenVLData, undefined, Date.now() - step9Start);
+        updateStepStatus(9, 'completed', qwenVLData, undefined, Date.now() - step10Start);
       }
       */
-      // Manually mark step 8 as completed (skipped)
-      const step9Start = Date.now(); // Keep timer for consistency if needed, or remove
-      updateStepStatus(8, 'completed', { 
+      // Manually mark step 9 as completed (skipped)
+      const step10Start = Date.now(); // Keep timer for consistency if needed, or remove
+      updateStepStatus(9, 'completed', { 
         skipped: true, 
         reason: 'QWEN VL review step manually commented out' 
-      }, undefined, Date.now() - step9Start);
+      }, undefined, Date.now() - step10Start);
 
 
-      // Step 10: Generate Videos using WAN (runs regardless of QWEN VL review)
+      // Step 11: Generate Videos using WAN (runs regardless of QWEN VL review)
       /*
-      updateStepStatus(9, 'processing');
-      const step10Start = Date.now();
+      updateStepStatus(10, 'processing');
+      const step11Start = Date.now();
       
       // Temporarily skip WAN video generation due to endpoint issues
       console.log('Skipping WAN video generation due to endpoint issues');
-      updateStepStatus(9, 'completed', { 
+      updateStepStatus(10, 'completed', { 
         skipped: true, 
         reason: 'WAN video generation temporarily disabled due to endpoint issues' 
-      }, undefined, Date.now() - step10Start);
+      }, undefined, Date.now() - step11Start);
 
       // TODO: Re-enable WAN video generation when endpoint is fixed
       if (generatedImageUrls.length > 0) {
@@ -933,13 +1189,13 @@ export default function TestTTS() {
         setVideoGenerationResult(wanData);
         setGeneratedVideos(wanData.generatedVideos || []);
         
-        updateStepStatus(9, 'completed', wanData, undefined, Date.now() - step10Start);
+        updateStepStatus(10, 'completed', wanData, undefined, Date.now() - step11Start);
       } else {
         console.warn('No images available for video generation');
-        updateStepStatus(9, 'completed', { 
+        updateStepStatus(10, 'completed', { 
           skipped: true, 
           reason: 'No images available for video generation' 
-        }, undefined, Date.now() - step10Start);
+        }, undefined, Date.now() - step11Start);
       }
       */
 
@@ -977,10 +1233,12 @@ export default function TestTTS() {
     <div className={styles.container}>
       <h1 className={styles.title}>Complete Video Production Workflow</h1>
       <p className={styles.description}>
-        This workflow will: 1) Generate audio from your script, 2) Transcribe the audio using Nvidia, 
+        <strong>Enhanced with Vision Understanding!</strong> Choose between Script Mode (legacy) or Vision Mode (enhanced) for input. 
+        This workflow will: 1) Understand your creative vision and generate audio, 2) Transcribe the audio using Nvidia, 
         3) Generate cut points using the Producer Agent, 4) Generate creative vision using the Director Agent,
         5) Generate cinematography directions using the DoP Agent, 6) Generate image prompts using the Prompt Engineer Agent,
-        7) Generate images using ComfyUI (FLUX model). Steps 8-10 (image review, video generation) are commented out. Each step will be clearly shown below.
+        7) Generate images using ComfyUI (FLUX model). Steps 8-10 (image review, video generation) are commented out. 
+        Vision Mode provides richer creative context to all agents for better results.
       </p>
       
       {(folderId || runId) && (
@@ -1010,31 +1268,148 @@ export default function TestTTS() {
       )}
 
       <form onSubmit={handleSubmit} className={styles.form}>
+        {/* NEW: Mode Toggle */}
         <div className={styles.inputGroup}>
-          <label htmlFor="script" className={styles.label}>
-            {conversationMode ? 'Generated Script:' : 'Enter Script:'}
-          </label>
-          <textarea
-            id="script"
-            value={script}
-            onChange={(e) => setScript(e.target.value)}
-            className={styles.textarea}
-            rows={5}
-            placeholder={conversationMode ? "Script will be generated from your conversation..." : "Enter your script here..."}
-            required
-            disabled={loading || isGeneratingScript}
-            readOnly={conversationMode && !conversationAnalyzed}
-          />
+          <label className={styles.label}>Input Mode:</label>
+          <div className={styles.modeToggle}>
+            <label className={styles.radioLabel}>
+              <input
+                type="radio"
+                name="inputMode"
+                checked={!useVisionMode}
+                onChange={() => setUseVisionMode(false)}
+                disabled={loading || isGeneratingScript}
+              />
+              Script Mode (Legacy)
+            </label>
+            <label className={styles.radioLabel}>
+              <input
+                type="radio"
+                name="inputMode"
+                checked={useVisionMode}
+                onChange={() => setUseVisionMode(true)}
+                disabled={loading || isGeneratingScript}
+              />
+              Vision Mode (Enhanced)
+            </label>
+          </div>
         </div>
+
+        {/* Script Mode Input (Existing) */}
+        {!useVisionMode && (
+          <div className={styles.inputGroup}>
+            <label htmlFor="script" className={styles.label}>
+              {conversationMode ? 'Generated Script:' : 'Enter Script:'}
+            </label>
+            <textarea
+              id="script"
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              className={styles.textarea}
+              rows={5}
+              placeholder={conversationMode ? "Script will be generated from your conversation..." : "Enter your script here..."}
+              required
+              disabled={loading || isGeneratingScript}
+              readOnly={conversationMode && !conversationAnalyzed}
+            />
+          </div>
+        )}
+
+        {/* NEW: Vision Mode Input */}
+        {useVisionMode && (
+          <>
+            <div className={styles.inputGroup}>
+              <label htmlFor="concept" className={styles.label}>
+                Video Concept *
+              </label>
+              <textarea
+                id="concept"
+                value={visionFormData.concept}
+                onChange={(e) => setVisionFormData({...visionFormData, concept: e.target.value})}
+                className={styles.textarea}
+                rows={4}
+                placeholder="Describe your creative vision (e.g., 'A mysterious figure walking through an abandoned city at dusk, exploring themes of isolation and hope...')"
+                required
+                disabled={loading || isGeneratingScript}
+              />
+            </div>
+
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="style" className={styles.label}>Visual Style</label>
+                <select
+                  id="style"
+                  value={visionFormData.style}
+                  onChange={(e) => setVisionFormData({...visionFormData, style: e.target.value as VisionFormData['style']})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="cinematic">Cinematic</option>
+                  <option value="documentary">Documentary</option>
+                  <option value="artistic">Artistic</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="pacing" className={styles.label}>Pacing</label>
+                <select
+                  id="pacing"
+                  value={visionFormData.pacing}
+                  onChange={(e) => setVisionFormData({...visionFormData, pacing: e.target.value as VisionFormData['pacing']})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="contemplative">Contemplative</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="dynamic">Dynamic</option>
+                  <option value="fast">Fast</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="duration" className={styles.label}>Duration (seconds)</label>
+                <input
+                  type="number"
+                  id="duration"
+                  value={visionFormData.duration}
+                  onChange={(e) => setVisionFormData({...visionFormData, duration: parseInt(e.target.value)})}
+                  min="10"
+                  max="300"
+                  className={styles.input}
+                  disabled={loading || isGeneratingScript}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="contentType" className={styles.label}>Content Type</label>
+                <select
+                  id="contentType"
+                  value={visionFormData.contentType}
+                  onChange={(e) => setVisionFormData({...visionFormData, contentType: e.target.value as VisionFormData['contentType']})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="general">General</option>
+                  <option value="educational">Educational</option>
+                  <option value="storytelling">Storytelling</option>
+                  <option value="abstract">Abstract</option>
+                </select>
+              </div>
+            </div>
+          </>
+        )}
         
         <button 
           type="submit" 
           className={styles.button}
-          disabled={loading || isGeneratingScript || (conversationMode && !conversationAnalyzed)}
+          disabled={loading || isGeneratingScript || (conversationMode && !conversationAnalyzed) || (useVisionMode && !visionFormData.concept.trim())}
         >
           {loading ? 'Processing Workflow...' : 
            isGeneratingScript ? 'Generating Script...' : 
-           'Start Complete Workflow'}
+           useVisionMode ? 'Start Vision-Enhanced Workflow' : 'Start Complete Workflow'}
         </button>
       </form>
 
@@ -1080,18 +1455,205 @@ export default function TestTTS() {
       
       {/* Results Section */}
       <div className={styles.resultsSection}>
+        {/* NEW: Vision Document Display (when in vision mode) */}
+        {visionDocument && (
+          <div className={styles.result}>
+            <h2>1. Vision Understanding:</h2>
+            <div className={styles.visionResult}>
+              <div className={styles.resultGrid}>
+                <div className={styles.resultItem}>
+                  <strong>Core Concept:</strong>
+                  <p>{visionDocument.core_concept}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Emotion Arc:</strong>
+                  <p>{visionDocument.emotion_arc?.join(' → ')}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Visual Style:</strong>
+                  <p>{visionDocument.visual_style}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Pacing:</strong>
+                  <p>{visionDocument.pacing}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Duration:</strong>
+                  <p>{visionDocument.duration} seconds</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Content Type:</strong>
+                  <p>{visionDocument.content_classification?.type}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Visual Complexity:</strong>
+                  <p>{visionDocument.visual_complexity}</p>
+                </div>
+                <div className={styles.resultItem}>
+                  <strong>Color Philosophy:</strong>
+                  <p>{visionDocument.color_philosophy}</p>
+                </div>
+              </div>
+              
+              {/* Display audio optimization details if available */}
+              {visionDocument.narration_optimization && (
+                <div className={styles.audioOptimization}>
+                  <h3>Audio Optimization:</h3>
+                  <div className={styles.resultGrid}>
+                    <div className={styles.resultItem}>
+                      <strong>Vocal Style:</strong>
+                      <p>{visionDocument.narration_optimization.vocal_style}</p>
+                    </div>
+                    <div className={styles.resultItem}>
+                      <strong>Audio-Visual Sync:</strong>
+                      <p>{visionDocument.narration_optimization.audio_visual_sync}</p>
+                    </div>
+                    <div className={styles.resultItem}>
+                      <strong>Emphasis Points:</strong>
+                      <p>{visionDocument.narration_optimization.emphasis_points.join(', ')}</p>
+                    </div>
+                    <div className={styles.resultItem}>
+                      <strong>Natural Pauses:</strong>
+                      <p>{visionDocument.narration_optimization.natural_pauses.join(', ')}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* NEW: Vision Agent Raw Output */}
+        {visionAgentResult && (
+          <div className={styles.result}>
+            <h2>1b. Vision Agent Output (Raw):</h2>
+            <div className={styles.visionAgentResult}>
+              {visionAgentResult.success && (
+                <>
+                  <div className={styles.executionStats}>
+                    <h3>Execution Stats:</h3>
+                    <div className={styles.statsGrid}>
+                      <div>
+                        <strong>Execution Time:</strong> {visionAgentResult.executionTime as number}ms
+                      </div>
+                      <div>
+                        <strong>Pipeline Ready:</strong> {visionAgentResult.pipeline_ready ? '✅ Yes' : '❌ No'}
+                      </div>
+                      <div>
+                        <strong>Needs Clarification:</strong> {visionAgentResult.needs_clarification ? '⚠️ Yes' : '✅ No'}
+                      </div>
+                      <div>
+                        <strong>Pipeline Type:</strong> {(visionAgentResult.pipeline_type as string) || 'audio_enhanced'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {visionAgentResult.validation && (
+                    <div className={styles.validationStats}>
+                      <h3>Validation Scores:</h3>
+                      <div className={styles.statsGrid}>
+                        <div>
+                          <strong>Audio-Visual Coherence:</strong> {((visionAgentResult.validation as Record<string, unknown>).audio_visual_coherence as number * 100).toFixed(1)}%
+                        </div>
+                        <div>
+                          <strong>Narration Quality:</strong> {((visionAgentResult.validation as Record<string, unknown>).narration_quality_score as number * 100).toFixed(1)}%
+                        </div>
+                        <div>
+                          <strong>Concept Specificity:</strong> {((visionAgentResult.validation as Record<string, unknown>).concept_specificity_score as number * 100).toFixed(1)}%
+                        </div>
+                        <div>
+                          <strong>Emotional Coherence:</strong> {((visionAgentResult.validation as Record<string, unknown>).emotional_coherence_score as number * 100).toFixed(1)}%
+                        </div>
+                        <div>
+                          <strong>Technical Completeness:</strong> {((visionAgentResult.validation as Record<string, unknown>).technical_completeness_score as number * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                      {visionAgentResult.validation.issues && visionAgentResult.validation.issues.length > 0 && (
+                        <div className={styles.validationIssues}>
+                          <h4>Issues:</h4>
+                          {visionAgentResult.validation.issues.map((issue, index) => (
+                            <div key={index} className={styles.issueItem}>
+                              ⚠️ {issue}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {visionAgentResult.stage1_vision_analysis?.audio_optimization && (
+                    <div className={styles.audioOptimizationRaw}>
+                      <h3>Audio Optimization Analysis:</h3>
+                      <div className={styles.statsGrid}>
+                        <div>
+                          <strong>Concept Speakability:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.concept_speakability}
+                        </div>
+                        <div>
+                          <strong>Vocal Performance Potential:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.vocal_performance_potential}
+                        </div>
+                        <div>
+                          <strong>TTS Friendliness:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.tts_friendliness}
+                        </div>
+                        <div>
+                          <strong>Recommended Voice:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.recommended_voice_characteristics}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {visionAgentResult.rawResponse && (
+                    <div className={styles.rawResponse}>
+                      <h3>Raw Agent Response:</h3>
+                      <pre className={styles.rawResponseText}>
+                        {visionAgentResult.rawResponse}
+                      </pre>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {!visionAgentResult.success && visionAgentResult.error && (
+                <div className={styles.visionAgentError}>
+                  <strong>Vision Agent Error:</strong> {visionAgentResult.error}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* NEW: Original Narration Script Display */}
+        {narrationScript && (
+          <div className={styles.result}>
+            <h2>1c. Original Narration Script (from Vision Agent):</h2>
+            <div className={styles.narrationScript}>
+              <p><strong>This is the complete story script generated by the vision agent:</strong></p>
+              <div className={styles.scriptContent}>
+                {narrationScript}
+              </div>
+              <p className={styles.scriptNote}>
+                <em>This script was then formatted by Google Gemini for optimal TTS delivery (see next section).</em>
+              </p>
+            </div>
+          </div>
+        )}
+
         {formattedScript && (
           <div className={styles.result}>
-            <h2>1. Formatted Script:</h2>
+            <h2>{visionDocument ? '2. Formatted Script (for TTS):' : '1. Formatted Script:'}</h2>
             <div className={styles.formattedScript}>
               {formattedScript}
             </div>
+            {visionDocument && (
+              <p className={styles.visionNote}>
+                <em>Script optimized from narration script: &ldquo;{narrationScript?.substring(0, 100)}...&rdquo;</em>
+              </p>
+            )}
           </div>
         )}
         
         {audioUrl && (
           <div className={styles.result}>
-            <h2>2. Generated Audio:</h2>
+            <h2>{visionDocument ? '3. Generated Audio (from Vision):' : '2. Generated Audio:'}</h2>
             <audio controls src={audioUrl} className={styles.audio} />
             <div className={styles.downloadContainer}>
               <a 
@@ -1107,7 +1669,7 @@ export default function TestTTS() {
 
         {transcriptionResult && (
           <div className={styles.result}>
-            <h2>3. Audio Transcription:</h2>
+            <h2>{visionDocument ? '4. Audio Transcription:' : '3. Audio Transcription:'}</h2>
             <div className={styles.transcriptionResult}>
               <div className={styles.transcriptText}>
                 <h3>Transcript:</h3>
@@ -1135,7 +1697,7 @@ export default function TestTTS() {
 
         {producerResult && (
           <div className={styles.result}>
-            <h2>4. Producer Agent Cut Points:</h2>
+            <h2>{visionDocument ? '5. Producer Agent Cut Points:' : '4. Producer Agent Cut Points:'}</h2>
             <div className={styles.producerResult}>
               {producerResult.success && (
                 <>
@@ -1205,7 +1767,7 @@ export default function TestTTS() {
 
         {directorResult && (
           <div className={styles.result}>
-            <h2>5. Director Agent Creative Vision:</h2>
+            <h2>{visionDocument ? '6. Director Agent Creative Vision:' : '5. Director Agent Creative Vision:'}</h2>
             <div className={styles.directorResult}>
               {directorResult.success && (
                 <>
@@ -1258,7 +1820,7 @@ export default function TestTTS() {
 
         {dopResult && (
           <div className={styles.result}>
-            <h2>6. DoP Agent Cinematography:</h2>
+            <h2>{visionDocument ? '7. DoP Agent Cinematography:' : '6. DoP Agent Cinematography:'}</h2>
             <div className={styles.dopResult}>
               {dopResult.success && (
                 <>
@@ -1316,7 +1878,7 @@ export default function TestTTS() {
 
         {promptEngineerResult && (
           <div className={styles.result}>
-            <h2>7. Prompt Engineer Image Prompts:</h2>
+            <h2>{visionDocument ? '8. Prompt Engineer Image Prompts:' : '7. Prompt Engineer Image Prompts:'}</h2>
             <div className={styles.promptEngineerResult}>
               {promptEngineerResult.success && (
                 <>
@@ -1374,7 +1936,7 @@ export default function TestTTS() {
 
         {(generatedImages && generatedImages.length > 0) || imageGenerationProgress.isGenerating ? (
           <div className={styles.result}>
-            <h2>8. Generated Images (ComfyUI):</h2>
+            <h2>{visionDocument ? '9. Generated Images (ComfyUI):' : '8. Generated Images (ComfyUI):'}</h2>
             <div className={styles.generatedImagesResult}>
               <div className={styles.executionStats}>
                 <h3>Image Generation Stats:</h3>
@@ -1459,7 +2021,7 @@ export default function TestTTS() {
 
         {qwenVLResult && (
           <div className={styles.result}>
-            <h2>9. Image Review (QWEN VL Agent):</h2>
+            <h2>{visionDocument ? '10. Image Review (QWEN VL Agent):' : '9. Image Review (QWEN VL Agent):'}</h2>
             <div className={styles.qwenVLResult}>
               {qwenVLResult.success && qwenVLResult.reviewResult && (
                 <>
@@ -1588,7 +2150,7 @@ export default function TestTTS() {
 
         {(generatedVideos.length > 0 || videoGenerationResult) && (
           <div className={styles.result}>
-            <h2>10. Generated Videos (WAN):</h2>
+            <h2>{visionDocument ? '11. Generated Videos (WAN):' : '10. Generated Videos (WAN):'}</h2>
             <div className={styles.videoGenerationResult}>
               {videoGenerationResult && (
                 <div className={styles.executionStats}>

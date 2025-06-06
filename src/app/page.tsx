@@ -550,6 +550,9 @@ export default function Home() {
           <Link href="/music-video-pipeline" className={styles.navButton}>
             🎵 Music Video Pipeline
           </Link>
+          <Link href="/no-music-video-pipeline" className={styles.navButton}>
+            🎬 No-Music Video Pipeline
+          </Link>
           <Link href="/test-music-analysis" className={styles.navButton}>
             🎼 Test Music Analysis
           </Link>

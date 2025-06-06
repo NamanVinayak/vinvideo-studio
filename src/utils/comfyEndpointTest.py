@@ -442,34 +442,51 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
         print(f"Failed to submit job: {response.text}")
         return None
 
-def load_prompt_engineer_output(filename="prompt_engineer_output.json"):
-    """Load prompts from the prompt engineer output file"""
+def load_prompt_engineer_output(filename=None):
+    """Load prompts from the prompt engineer output file - automatically finds the correct file"""
     try:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        prompt_path = os.path.join(script_dir, filename)
-        print(f"Looking for prompt engineer output at: {prompt_path}")
         
-        with open(prompt_path, 'r') as file:
-            data = json.load(file)
+        # If no filename specified, try files in priority order
+        if filename is None:
+            # Priority order: temp_prompts.json (current) -> prompt_engineer_output.json (legacy)
+            candidate_files = ["temp_prompts.json", "prompt_engineer_output.json"]
+        else:
+            candidate_files = [filename]
+        
+        for candidate in candidate_files:
+            prompt_path = os.path.join(script_dir, candidate)
+            print(f"Looking for prompts at: {prompt_path}")
             
-            # Expected format: array of strings like ["1: Alex...", "2: Alex..."]
-            if isinstance(data, list) and all(isinstance(item, str) for item in data):
-                return data
-            
-            # If wrapped in another structure, try to extract the array
-            if isinstance(data, dict):
-                for key in ['promptsOutput', 'prompts', 'output', 'data']:
-                    if key in data and isinstance(data[key], list):
-                        return data[key]
-            
-            print(f"Unexpected data format: {type(data)}")
-            return []
-    except FileNotFoundError:
-        print(f"Error: File {prompt_path} not found")
+            try:
+                with open(prompt_path, 'r') as file:
+                    data = json.load(file)
+                    
+                    # Expected format: array of strings like ["1: Alex...", "2: Alex..."]
+                    if isinstance(data, list) and all(isinstance(item, str) for item in data):
+                        print(f"✅ Successfully loaded {len(data)} prompts from {candidate}")
+                        return data
+                    
+                    # If wrapped in another structure, try to extract the array
+                    if isinstance(data, dict):
+                        for key in ['promptsOutput', 'prompts', 'output', 'data']:
+                            if key in data and isinstance(data[key], list):
+                                print(f"✅ Successfully loaded {len(data[key])} prompts from {candidate} (key: {key})")
+                                return data[key]
+                    
+                    print(f"⚠️ Unexpected data format in {candidate}: {type(data)}")
+                    continue
+                    
+            except FileNotFoundError:
+                print(f"⚠️ File {candidate} not found")
+                continue
+            except json.JSONDecodeError:
+                print(f"❌ File {candidate} contains invalid JSON")
+                continue
+        
+        print("❌ No valid prompt files found")
         return []
-    except json.JSONDecodeError:
-        print(f"Error: File {prompt_path} contains invalid JSON")
-        return []
+        
     except Exception as e:
         print(f"Error loading prompt engineer output: {e}")
         return []
@@ -516,10 +533,11 @@ def main():
             print(f"Error loading prompts file: {e}")
             return
     else:
+        # Use dynamic loading - automatically finds temp_prompts.json (current) or prompt_engineer_output.json (legacy)
         prompt_engineer_data = load_prompt_engineer_output()
         
         if not prompt_engineer_data:
-            print("No prompt engineer output found. Please save the prompt engineer output to 'prompt_engineer_output.json' in the utils directory.")
+            print("❌ No prompt engineer output found. Looking for 'temp_prompts.json' (current) or 'prompt_engineer_output.json' (legacy) in the utils directory.")
             
             # Offer manual input as fallback
             manual_input = input("Would you like to paste the prompt engineer output manually? (y/n): ").lower() == 'y'

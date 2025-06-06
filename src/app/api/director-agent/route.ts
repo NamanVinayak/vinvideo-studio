@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { producer_output, script } = body;
+    const { producer_output, script, visionDocument, enhancedMode } = body;
     
     if (producer_output === undefined || producer_output === null || !script) {
       return NextResponse.json({
@@ -28,9 +28,22 @@ export async function POST(request: Request) {
     console.log('Calling Director Agent with producer output and script...');
     console.log(`Producer output preview: ${JSON.stringify(producer_output).substring(0, 100)}...`);
     console.log(`Script preview: ${script.substring(0, 100)}...`);
+    console.log(`Vision Document available: ${!!visionDocument}`);
+    if (visionDocument) {
+      console.log(`Vision core concept: ${visionDocument.core_concept}`);
+    }
     
-    // Prepare the user content message
-    const userContent = `Here is the Producer's cut points output:
+    // Prepare the user content message with vision context
+    const visionContext = visionDocument && enhancedMode ? `
+🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
+Core Concept: "${visionDocument.core_concept}"
+Visual Style: "${visionDocument.visual_style}" 
+Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
+Color Philosophy: "${visionDocument.color_philosophy}"
+
+` : '';
+
+    const userContent = `${visionContext}Here is the Producer's cut points output:
 ${JSON.stringify(producer_output)}
 
 Here is the original video script with timing context:
