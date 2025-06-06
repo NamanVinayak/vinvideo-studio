@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { transcript, script } = body;
+    const { transcript, script, producer_instructions } = body;
     
     // Enhanced debugging for Producer Agent input
     console.log('🎬 PRODUCER AGENT - Debug Input:');
@@ -19,6 +19,8 @@ export async function POST(request: Request) {
     console.log('- script type:', typeof script);
     console.log('- script value:', script);
     console.log('- script length:', script ? script.length : 'N/A');
+    console.log('- producer_instructions:', producer_instructions ? 'PRESENT' : 'NOT_PRESENT');
+    console.log('- enhanced_mode:', !!producer_instructions);
     
     // More specific validation
     const hasValidTranscript = transcript && (Array.isArray(transcript) ? transcript.length > 0 : Object.keys(transcript).length > 0);
@@ -45,8 +47,25 @@ export async function POST(request: Request) {
     console.log(`Transcript preview: ${JSON.stringify(transcript).substring(0, 100)}...`);
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     
-    // Prepare the user content message
-    const userContent = `Here is the transcription from Whisper:
+    // Prepare enhanced user content with producer instructions
+    const enhancedInstructions = producer_instructions ? `
+🚀 ENHANCED PRODUCER GUIDANCE (Vision Agent Strategist):
+
+TARGET CUT TIMING: ${producer_instructions.target_cut_timing}
+
+PACING RULES:
+${producer_instructions.pacing_rules?.map(rule => `- ${rule}`).join('\n')}
+
+AUDIO ANALYSIS ENHANCEMENT: ${producer_instructions.audio_analysis_enhancement}
+
+INTELLIGENT CONSTRAINTS:
+${producer_instructions.intelligent_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+
+Use this strategic guidance to make smarter cut decisions while respecting the natural speech flow.
+
+` : '';
+
+    const userContent = `${enhancedInstructions}Here is the transcription from Whisper:
 ${JSON.stringify(transcript)}
 
 Here is the video script:

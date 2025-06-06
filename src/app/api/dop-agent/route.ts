@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, producer_output, director_output, visionDocument, enhancedMode } = body;
+    const { script, producer_output, director_output, visionDocument, enhancedMode, dop_instructions } = body;
     
     if (!script || producer_output === undefined || producer_output === null || 
         director_output === undefined || director_output === null) {
@@ -31,21 +31,47 @@ export async function POST(request: Request) {
     console.log(`Producer output preview: ${JSON.stringify(producer_output).substring(0, 100)}...`);
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
+    console.log(`DoP Instructions available: ${!!dop_instructions}`);
+    console.log(`Enhanced Mode: ${!!dop_instructions}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
+      console.log(`Detected artistic style: ${visionDocument.detected_artistic_style}`);
     }
     
-    // Prepare the user content message with vision context
+    // Prepare enhanced vision context with artistic style
     const visionContext = visionDocument && enhancedMode ? `
 🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
 Core Concept: "${visionDocument.core_concept}"
 Visual Style: "${visionDocument.visual_style}" 
 Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
 Color Philosophy: "${visionDocument.color_philosophy}"
+${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artistic Style: "${visionDocument.detected_artistic_style}"` : ''}
 
 ` : '';
 
-    const userContent = `${visionContext}Here are the inputs for cinematography planning:
+    const enhancedDoPGuidance = dop_instructions ? `
+🚀 ENHANCED DoP GUIDANCE (Vision Agent Strategist):
+
+MANDATORY CINEMATOGRAPHY:
+${dop_instructions.mandatory_cinematography?.map(req => `- ${req}`).join('\n')}
+
+TECHNICAL CONSTRAINTS:
+${dop_instructions.technical_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+
+LIGHTING PHILOSOPHY: ${dop_instructions.lighting_philosophy}
+
+MOVEMENT STYLE: ${dop_instructions.movement_style}
+
+COMPOSITION RULES:
+${dop_instructions.composition_rules?.map(rule => `- ${rule}`).join('\n')}
+
+ARTISTIC STYLE SUPPORT: ${dop_instructions.artistic_style_support}
+
+Use this strategic guidance to create cinematography that supports both the narrative and artistic vision.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedDoPGuidance}Here are the inputs for cinematography planning:
 
 ORIGINAL SCRIPT:
 "${script}"

@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, director_output, dop_output, num_images, visionDocument, enhancedMode } = body;
+    const { script, director_output, dop_output, num_images, visionDocument, enhancedMode, prompt_engineer_instructions } = body;
     
     if (!script || director_output === undefined || director_output === null || 
         dop_output === undefined || dop_output === null) {
@@ -29,16 +29,19 @@ export async function POST(request: Request) {
     console.log('Calling Prompt Engineer Agent...');
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
+    console.log(`Prompt Engineer Instructions available: ${!!prompt_engineer_instructions}`);
+    console.log(`Enhanced Mode: ${!!prompt_engineer_instructions}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
       console.log(`Vision visual style: ${visionDocument.visual_style}`);
+      console.log(`Detected artistic style: ${visionDocument.detected_artistic_style}`);
       console.log(`Enhanced mode: ${enhancedMode}`);
     }
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
     console.log(`DoP output preview: ${JSON.stringify(dop_output).substring(0, 100)}...`);
     console.log(`Number of images to generate: ${num_images || 'auto-detect from cuts'}`);
     
-    // Prepare the user content message with vision document context
+    // Prepare enhanced vision context with artistic style
     const visionContext = visionDocument && enhancedMode ? `
 🎨 CRITICAL VISION CONTEXT (MUST BE MAINTAINED):
 Core Concept: "${visionDocument.core_concept}"
@@ -47,10 +50,35 @@ Emotion Arc: ${visionDocument.emotion_arc?.join(' → ')}
 Pacing: ${visionDocument.pacing}
 Duration: ${visionDocument.duration} seconds
 Color Philosophy: "${visionDocument.color_philosophy}"
+${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artistic Style: "${visionDocument.detected_artistic_style}" - ALL IMAGES MUST FOLLOW THIS STYLE` : ''}
 
 ` : '';
 
-    const userContent = `${visionContext}Here are the inputs for FLUX image prompt generation:
+    const enhancedPromptEngineerGuidance = prompt_engineer_instructions ? `
+🚀 ENHANCED PROMPT ENGINEER GUIDANCE (Vision Agent Strategist):
+
+MANDATORY STYLE REQUIREMENTS:
+${prompt_engineer_instructions.mandatory_style?.map(req => `- ${req}`).join('\n')}
+
+VISUAL CONSISTENCY RULES:
+${prompt_engineer_instructions.visual_consistency_rules?.map(rule => `- ${rule}`).join('\n')}
+
+CHARACTER REQUIREMENTS: ${prompt_engineer_instructions.character_requirements || 'None specified'}
+
+SETTING DETAILS: ${prompt_engineer_instructions.setting_details}
+
+FORBIDDEN ELEMENTS:
+${prompt_engineer_instructions.forbidden_elements?.map(element => `- ${element}`).join('\n')}
+
+TECHNICAL SPECIFICATIONS: ${prompt_engineer_instructions.technical_specifications}
+
+ARTISTIC STYLE ENFORCEMENT: ${prompt_engineer_instructions.artistic_style_enforcement}
+
+CRITICAL: Use this guidance to ensure ALL generated images maintain perfect consistency and follow the detected artistic style requirements.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedPromptEngineerGuidance}Here are the inputs for FLUX image prompt generation:
 
 ORIGINAL SCRIPT:
 "${script}"
