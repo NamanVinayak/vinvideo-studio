@@ -1,0 +1,129 @@
+{
+  "execution_stats": {
+    "execution_time": "727ms",
+    "pipeline_ready": true,
+    "needs_clarification": false,
+    "pipeline_type": "audio_enhanced"
+  },
+  "validation_scores": {
+    "audio_visual_coherence": "NaN%",
+    "narration_quality": "NaN%", 
+    "concept_specificity": "NaN%",
+    "emotional_coherence": "NaN%",
+    "technical_completeness": "NaN%"
+  },
+  "vision_analysis": {
+    "core_concept": "Digital isolation's chilling grip, revealed through a neo-noir lens.",
+    "emotion_arc": [
+      "detachment",
+      "discomfort", 
+      "emptiness",
+      "tension",
+      "chilling realization"
+    ],
+    "visual_style": "cinematic",
+    "pacing": "dynamic",
+    "duration": 15,
+    "content_type": "concept_driven",
+    "visual_complexity": "complex",
+    "color_philosophy": "Desaturated teal-green shadows, piercing tungsten highlights, cold blue screen glow, and vibrant neon accents."
+  },
+  "audio_optimization": {
+    "vocal_style": "detached",
+    "audio_visual_sync": "tight",
+    "emphasis_points": [
+      "clammy skin",
+      "eyes empty", 
+      "miles apart",
+      "only the glow",
+      "consumed",
+      "digital dark"
+    ],
+    "natural_pauses": [
+      "after 'clammy skin'",
+      "after 'eyes empty'",
+      "after 'miles apart'", 
+      "after 'only the glow remains'",
+      "after 'consumed'"
+    ],
+    "concept_speakability": "excellent",
+    "vocal_performance_potential": "high",
+    "tts_friendliness": "optimized",
+    "recommended_voice": "A low-pitched, calm, and slightly melancholic voice with clear enunciation and a detached, almost robotic delivery."
+  },
+  "narration_script": "A cold blue light. It dances across clammy skin. Eyes, empty. They sit, side by side, yet miles apart. Drinks untouched, voices silenced. Only the glow remains. A silent world, consumed. Alone, together, in the digital dark.",
+  "agent_instructions": {
+    "producer_instructions": {
+      "target_cut_timing": "Starts with a sustained shot (2s), then rapid jump cuts (0.5-1s each), ending with a deliberate, revealing pull-back.",
+      "audio_analysis_enhancement": "Align the 'abrupt silence' in the audio with the final wide master shot, ensuring visual and auditory impact. Use natural speech pauses to punctuate the visual transitions, especially between the initial close-up and the two-shot.",
+      "pacing_rules": [
+        "Initial shot should hold to establish discomfort.",
+        "Accelerate cuts dramatically during the 'trance' sequence to convey pervasive, disorienting isolation.",
+        "The final wide shot should be sustained to allow the 'abrupt silence' to resonate."
+      ]
+    },
+    "director_instructions": {
+      "scene_direction_philosophy": "Emphasize the pervasive, chilling nature of digital disconnection. The bar is a stage for collective isolation, not social interaction. Focus on visual metaphors for emotional emptiness and the hypnotic pull of screens.",
+      "emotional_architecture": "Begin with subtle, unsettling discomfort (clammy skin, blue light), build to a sense of pervasive, disorienting emptiness through rapid cuts, and culminate in a stark, chilling realization of collective, silent isolation.",
+      "character_dynamics": "Characters are physically proximate but emotionally distant, absorbed by their devices. Their interactions are non-existent or broken, highlighting the paradox of being 'alone, together'.",
+      "visual_storytelling": "Utilize light (harsh blue, piercing tungsten, neon) as a primary narrative element, contrasting its artificial glow with the natural darkness. Employ framing that emphasizes barriers, negative space, and the hypnotic effect of screens. The rain-streaked window serves as a visual barrier and a source of atmospheric reflection.",
+      "pacing_and_rhythm": "A slow, unsettling opening to establish the mood, followed by a rapid, disorienting sequence of jump cuts to convey the widespread trance, concluding with a smooth, stylized pull-back that reveals the full, stark scope of the isolation.",
+      "environmental_integration": "The bar setting should feel sterile and oppressive, a modern cage rather than a social hub. The neon-drenched window and rain should enhance the neo-noir atmosphere, adding to the sense of urban decay and detachment."
+    },
+    "dop_instructions": {
+      "lighting_philosophy": "High-contrast, hard lighting. Dominant desaturated teal-green wash for ambient light, piercing tungsten highlights for accents and reflections. Harsh blue light emanating from phone screens as a key light source on faces. Neon light from outside should create strong color contrast and bokeh.",
+      "movement_style": "Initial shot static and tight. Mid-section features quick, disorienting cuts with subtle, unsettling handheld feel. Final shot is a smooth, deliberate, revealing dolly pull-back.",
+      "artistic_style_support": "Cinematography must fully embrace the neo-noir cyberpunk aesthetic through high-contrast lighting, a dominant teal-green and tungsten color palette, the use of harsh blue screen light, and atmospheric elements like rain and neon reflections. The visual language should feel gritty, cold, and technologically saturated."
+    },
+    "prompt_engineer_instructions": {
+      "character_requirements": "Anonymous individuals, diverse in appearance but uniformly absorbed by their phones. Faces should be 'ghost-lit' by screen glow, with 'empty' or glazed-over eyes. Skin should appear 'clammy' under the harsh light.",
+      "setting_details": "Dimly lit bar interior. Rain dripping down a window, with blurred neon lights visible outside creating reflective bokeh. Untouched drinks on tables. General atmosphere of a once-social space now devoid of genuine interaction.",
+      "technical_specs": "Images should convey high detail for close-ups (e.g., skin texture, phone screen details) and a strong atmospheric quality for wider shots (e.g., light rays, rain effects, depth of field).",
+      "artistic_style": "All generated images must strictly adhere to the neo-noir cyberpunk aesthetic, emphasizing digital alienation, urban decay, and a cold, technologically-driven atmosphere. The color palette and lighting must be consistent with this style."
+    }
+  },
+  "raw_response": {
+    "success": true,
+    "needs_clarification": false,
+    "stage1_vision_analysis": {
+      "vision_document": {
+        "core_concept": "Digital isolation's chilling grip, revealed through a neo-noir lens.",
+        "emotion_arc": [
+          "detachment",
+          "discomfort",
+          "emptiness", 
+          "tension",
+          "chilling realization"
+        ],
+        "pacing": "dynamic",
+        "visual_style": "cinematic",
+        "detected_artistic_style": "neo-noir cyberpunk aesthetic",
+        "duration": 15,
+        "content_classification": {
+          "type": "concept_driven"
+        },
+        "audio_mood_hints": [
+          "cold",
+          "detached",
+          "haunting",
+          "tense",
+          "atmospheric",
+          "abrupt silence"
+        ],
+        "visual_complexity": "complex",
+        "color_philosophy": "Desaturated teal-green shadows, piercing tungsten highlights, cold blue screen glow, and vibrant neon accents."
+      }
+    },
+    "validation": {
+      "audio_visual_coherence": 0.95,
+      "narration_quality_score": 0.9,
+      "concept_specificity_score": 0.98,
+      "emotional_coherence_score": 0.92,
+      "technical_completeness_score": 0.98,
+      "agent_instruction_quality": 0.95,
+      "artistic_style_detection_score": 0.95,
+      "issues": []
+    },
+    "pipeline_ready": true
+  }
+}

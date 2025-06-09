@@ -1,0 +1,93 @@
+{
+  "execution_stats": {
+    "execution_time": "959ms",
+    "delay_time": "ms"
+  },
+  "cut_points": [
+    {
+      "cut_number": 1,
+      "cut_time": 1.92,
+      "reason": "After 'light' - start of new sentence"
+    },
+    {
+      "cut_number": 2,
+      "cut_time": 3.04,
+      "reason": "After 'it' - new action"
+    },
+    {
+      "cut_number": 3,
+      "cut_time": 5.36,
+      "reason": "After 'skin' - new subject"
+    },
+    {
+      "cut_number": 4,
+      "cut_time": 6.64,
+      "reason": "After 'eyes' - new subject"
+    },
+    {
+      "cut_number": 5,
+      "cut_time": 8.88,
+      "reason": "After 'empty' - new sentence"
+    },
+    {
+      "cut_number": 6,
+      "cut_time": 10.72,
+      "reason": "After 'side' - new clause"
+    },
+    {
+      "cut_number": 7,
+      "cut_time": 12.88,
+      "reason": "After 'apart' - new sentence"
+    },
+    {
+      "cut_number": 8,
+      "cut_time": 15.2,
+      "reason": "After 'untouched' - new sentence"
+    },
+    {
+      "cut_number": 9,
+      "cut_time": 17.36,
+      "reason": "After 'silenced' - new sentence"
+    },
+    {
+      "cut_number": 10,
+      "cut_time": 18.96,
+      "reason": "After 'glow' - new clause"
+    },
+    {
+      "cut_number": 11,
+      "cut_time": 20.64,
+      "reason": "After 'remains' - new sentence"
+    },
+    {
+      "cut_number": 12,
+      "cut_time": 21.52,
+      "reason": "After 'world' - new clause"
+    },
+    {
+      "cut_number": 13,
+      "cut_time": 24.32,
+      "reason": "After 'consumed' - new sentence"
+    },
+    {
+      "cut_number": 14,
+      "cut_time": 25.36,
+      "reason": "After 'alone' - new clause"
+    },
+    {
+      "cut_number": 15,
+      "cut_time": 26.96,
+      "reason": "After 'digital' - final phrase"
+    },
+    {
+      "cut_number": 16,
+      "cut_time": 27.36,
+      "reason": "End of narration, transition to silence"
+    }
+  ],
+  "analysis": {
+    "total_cuts": 16,
+    "average_cut_duration": 1.71,
+    "cut_strategy": "Audio-driven based on natural speech pauses and sentence structure"
+  }
+}

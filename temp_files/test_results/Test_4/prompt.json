@@ -1,0 +1,16 @@
+{
+  "input_mode": "Vision Mode (Enhanced)",
+  "video_concept": "Generate a 30-second video of two people saying goodbye at a train station. Focus on the emotions during their last moments together, with a slow-motion close-up of one person as the train leaves. Use soft, natural lighting and a slight colour desaturation to convey melancholy. Settings: Make it photorealistic and details oriented All shots should be only 5 seconds long No Narration Only Background Music Use only ai generated videos",
+  "visual_style": "Cinematic",
+  "pacing": "Contemplative",
+  "duration_seconds": 30,
+  "content_type": "Storytelling",
+  "special_requirements": {
+    "shot_length": "5 seconds each",
+    "no_narration": true,
+    "background_music_only": true,
+    "photorealistic": true,
+    "details_oriented": true,
+    "ai_generated_videos_only": true
+  }
+}

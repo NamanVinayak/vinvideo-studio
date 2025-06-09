@@ -1,0 +1,13 @@
+{
+  "test_id": "Test_1",
+  "pipeline_mode": "Vision Mode (Enhanced)",
+  "pipeline_source": "test-tts",
+  "original_prompt": "This 15-second reel plunges the viewer into a cold, lonely world of digital isolation. We open with an extreme close-up of a thumb flicking through a phone screen, the harsh blue light dancing across clammy skin for the first two seconds. In the next beat, we snap to a two-shot of a couple seated side by side at a dimly lit bar—heads bowed, faces ghost-lit, eyes empty. Rapid jump cuts then reveal every patron lost in the same trance: drinks untouched, conversations silenced, only the glow of screens alive. As the pace accelerates, the camera pulls back on a stylized dolly, unveiling the entire bar bathed in desaturated teal-green shadows and piercing tungsten highlights, rain dripping down a neon-drenched window for reflective bokeh. Throughout, a haunting 15-second voiceover—cold and detached—underscores the growing tension, while a low, atmospheric hum and distant clinks fade out into abrupt silence on the final wide master shot, leaving only phones aglow in the darkness.",
+  "user_inputs": {
+    "concept": "Digital isolation neo-noir concept",
+    "style": "cinematic",
+    "pacing": "dynamic", 
+    "duration": 15,
+    "content_type": "concept_driven"
+  }
+}

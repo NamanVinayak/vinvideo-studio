@@ -1,0 +1,59 @@
+{
+  "project_metadata": {
+    "target_platform": "short-form video",
+    "content_type": "animated narrative",
+    "primary_concept": "Po's journey from loss to belonging through sumi-e-inspired visuals",
+    "entity_summary": [
+      {
+        "name": "Po",
+        "type": "Character",
+        "role_in_scene": "primary",
+        "entity_context": "Baby panda protagonist"
+      },
+      {
+        "name": "Mr. Ping",
+        "type": "Character",
+        "role_in_scene": "primary",
+        "entity_context": "Adoptive goose father"
+      },
+      {
+        "name": "Shadow",
+        "type": "Symbol",
+        "role_in_scene": "secondary",
+        "entity_context": "Menacing silhouette representing loss"
+      },
+      {
+        "name": "Noodle Shop",
+        "type": "Location",
+        "role_in_scene": "secondary",
+        "entity_context": "Humble beginnings sanctuary"
+      }
+    ]
+  },
+  "narrative_beats": [
+    {
+      "beat_no": 1,
+      "timecode_start": "0:00",
+      "est_duration_s": 1,
+      "script_phrase": "Long ago...",
+      "narrative_function": "mystery establishment",
+      "emotional_tone": "contemplative mystery",
+      "creative_vision": "Ancient scroll unfurling revealing misty mountains",
+      "audience_retention_strategy": "ink wash reveal effect",
+      "turning_point": false,
+      "entities": []
+    },
+    {
+      "beat_no": 2,
+      "timecode_start": "0:01",
+      "est_duration_s": 2,
+      "script_phrase": "in a peaceful village",
+      "narrative_function": "setting establishment",
+      "emotional_tone": "peaceful",
+      "creative_vision": "Serene valley with traditional architecture",
+      "audience_retention_strategy": "environmental transition",
+      "turning_point": false,
+      "entities": ["Village"]
+    }
+  ]
+}

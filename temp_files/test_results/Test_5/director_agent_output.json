@@ -1,0 +1,87 @@
+{
+  "note": "JSON PARSING ERROR OCCURRED - Response could not be parsed as JSON",
+  "project_metadata": {
+    "target_platform": "short-form video",
+    "content_type": "culinary tutorial",
+    "primary_concept": "Sensory journey of crafting perfect avocado toast",
+    "entity_summary": [
+      {
+        "name": "Avocado",
+        "type": "Ingredient",
+        "role_in_scene": "primary",
+        "entity_context": "Central ingredient being prepared"
+      },
+      {
+        "name": "Sea salt",
+        "type": "Ingredient",
+        "role_in_scene": "secondary",
+        "entity_context": "Seasoning element"
+      },
+      {
+        "name": "Chili flakes",
+        "type": "Ingredient",
+        "role_in_scene": "secondary",
+        "entity_context": "Flavor accent"
+      },
+      {
+        "name": "Sourdough",
+        "type": "Ingredient",
+        "role_in_scene": "primary",
+        "entity_context": "Toast base"
+      },
+      {
+        "name": "Olive oil",
+        "type": "Ingredient",
+        "role_in_scene": "secondary",
+        "entity_context": "Finishing drizzle"
+      },
+      {
+        "name": "Herbs",
+        "type": "Ingredient",
+        "role_in_scene": "secondary",
+        "entity_context": "Fresh garnish"
+      },
+      {
+        "name": "Lemon",
+        "type": "Ingredient",
+        "role_in_scene": "secondary",
+        "entity_context": "Acidic component"
+      },
+      {
+        "name": "Hands",
+        "type": "",
+        "role_in_scene": "",
+        "entity_context": "USER: please clarify"
+      }
+    ]
+  },
+  "narrative_beats": [
+    {
+      "beat_no": 1,
+      "timecode_start": "0:00",
+      "est_duration_s": 2,
+      "script_phrase": "In a world of complexity...",
+      "narrative_function": "setup",
+      "emotional_tone": "anticipation",
+      "creative_vision": "Extreme close-up of weathered hands cradling avocado against rustic wood backdrop",
+      "audience_retention_strategy": "Texture contrast hook",
+      "turning_point": false,
+      "entities": []
+    },
+    {
+      "beat_no": 2,
+      "timecode_start": "0:02.16",
+      "est_duration_s": 2,
+      "script_phrase": "...simplest pleasures bring joy",
+      "narrative_function": "setup",
+      "emotional_tone": "simplicity",
+      "creative_vision": "Overhead shot of ingredients arranged geometrically on marble surface",
+      "audience_retention_strategy": "Compositional intrigue",
+      "turning_point": false,
+      "entities": []
+    }
+  ],
+  "incomplete_response": true,
+  "missing_beats": "Beats 3-24 missing due to JSON parsing failure",
+  "requires_user_clarification": "Please clarify entity type and role for 'Hands' - are they presenter's hands? Chef's hands? Any specific demographic characteristics?"
+}

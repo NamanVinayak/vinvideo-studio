@@ -1,0 +1,148 @@
+{
+  "execution_stats": {
+    "execution_time": "574ms",
+    "delay_time": "ms"
+  },
+  "cut_points": [
+    {
+      "cut_number": 1,
+      "cut_time": 0.48,
+      "reason": "After 'a sudden'"
+    },
+    {
+      "cut_number": 2,
+      "cut_time": 2.4,
+      "reason": "After 'jarring'"
+    },
+    {
+      "cut_number": 3,
+      "cut_time": 3.04,
+      "reason": "After 'force'"
+    },
+    {
+      "cut_number": 4,
+      "cut_time": 4.32,
+      "reason": "After 'time'"
+    },
+    {
+      "cut_number": 5,
+      "cut_time": 5.68,
+      "reason": "After 'slows'"
+    },
+    {
+      "cut_number": 6,
+      "cut_time": 7.2,
+      "reason": "After 'a'"
+    },
+    {
+      "cut_number": 7,
+      "cut_time": 7.84,
+      "reason": "After 'hidden'"
+    },
+    {
+      "cut_number": 8,
+      "cut_time": 8.48,
+      "reason": "After 'universe'"
+    },
+    {
+      "cut_number": 9,
+      "cut_time": 8.96,
+      "reason": "After 'within'"
+    },
+    {
+      "cut_number": 10,
+      "cut_time": 10.72,
+      "reason": "After 'neurons'"
+    },
+    {
+      "cut_number": 11,
+      "cut_time": 11.28,
+      "reason": "After 'ignite'"
+    },
+    {
+      "cut_number": 12,
+      "cut_time": 12.8,
+      "reason": "After 'symphony'"
+    },
+    {
+      "cut_number": 13,
+      "cut_time": 13.44,
+      "reason": "After 'shock'"
+    },
+    {
+      "cut_number": 14,
+      "cut_time": 14.88,
+      "reason": "After 'resilience'"
+    },
+    {
+      "cut_number": 15,
+      "cut_time": 16.24,
+      "reason": "After 'inside'"
+    },
+    {
+      "cut_number": 16,
+      "cut_time": 17.04,
+      "reason": "After 'life'"
+    },
+    {
+      "cut_number": 17,
+      "cut_time": 18.08,
+      "reason": "After 'pulses'"
+    },
+    {
+      "cut_number": 18,
+      "cut_time": 19.28,
+      "reason": "After 'fragile'"
+    },
+    {
+      "cut_number": 19,
+      "cut_time": 20.48,
+      "reason": "After 'profound'"
+    },
+    {
+      "cut_number": 20,
+      "cut_time": 21.84,
+      "reason": "After 'then'"
+    },
+    {
+      "cut_number": 21,
+      "cut_time": 22.8,
+      "reason": "After 'return'"
+    },
+    {
+      "cut_number": 22,
+      "cut_time": 23.6,
+      "reason": "After 'world'"
+    },
+    {
+      "cut_number": 23,
+      "cut_time": 24.64,
+      "reason": "After 'forever'"
+    },
+    {
+      "cut_number": 24,
+      "cut_time": 25.28,
+      "reason": "After 'changed'"
+    },
+    {
+      "cut_number": 25,
+      "cut_time": 26.8,
+      "reason": "After 'unseen'"
+    },
+    {
+      "cut_number": 26,
+      "cut_time": 27.36,
+      "reason": "After 'dance'"
+    },
+    {
+      "cut_number": 27,
+      "cut_time": 27.84,
+      "reason": "After 'within'"
+    }
+  ],
+  "analysis": {
+    "total_cuts": 27,
+    "average_cut_duration": 1.03,
+    "cut_strategy": "Audio-driven based on natural speech pauses and sentence structure"
+  }
+}

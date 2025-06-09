@@ -1,0 +1,13 @@
+{
+  "test_id": "Test_2",
+  "pipeline_mode": "Vision Mode (Enhanced)",
+  "pipeline_source": "test-tts",
+  "original_prompt": "Hyper‑realistic 3‑D animation, 12‑15 s—open on an extreme close‑up of a cast‑iron pan whooshing toward camera (whip‑pan motion blur, tense ambient rumble); the pan smashes into the side of a silhouetted head, time dilates to super‑slow‑motion as sparks and metal flakes fly. In the same shot the camera \"ghosts\" through the skull, transitioning seamlessly to an internal macro view: bone flexes, cerebrospinal fluid ripples, shock‑wave rings propagate through pink‑grey tissue; neurons flash electric‑blue, synapses crackle, tiny blood vessels pulse scarlet as micro‑tears spider‑web across the cortex. The lens glides along the energy wave, following crimson blood cells tumbling in turbulent flow, then snap‑zooms back out through the exit path to real‑time—the character staggers, dazed, pan sliding from frame, ending on a drastic close‑up of their widened eyes under harsh, cinematic top‑light.",
+  "user_inputs": {
+    "concept": "Hyper-realistic 3D brain impact visualization",
+    "visual_style": "Cinematic",
+    "pacing": "Moderate", 
+    "duration": 15,
+    "content_type": "Abstract"
+  }
+}

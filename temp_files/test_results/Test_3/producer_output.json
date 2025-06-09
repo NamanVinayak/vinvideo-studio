@@ -1,0 +1,37 @@
+{
+  "execution_stats": {
+    "execution_time": "577ms",
+    "delay_time": "ms"
+  },
+  "cut_points": [
+    {"cut_number": 1, "cut_time": 0.96, "reason": "After 'ago'"},
+    {"cut_number": 2, "cut_time": 2.88, "reason": "After 'village'"},
+    {"cut_number": 3, "cut_time": 4.32, "reason": "After 'fell'"},
+    {"cut_number": 4, "cut_time": 7.52, "reason": "After 'alone'"},
+    {"cut_number": 5, "cut_time": 8.8, "reason": "After 'away'"},
+    {"cut_number": 6, "cut_time": 10.32, "reason": "After 'current'"},
+    {"cut_number": 7, "cut_time": 12.56, "reason": "After 'drifted'"},
+    {"cut_number": 8, "cut_time": 14.48, "reason": "After 'soul'"},
+    {"cut_number": 9, "cut_time": 15.6, "reason": "After 'a'"},
+    {"cut_number": 10, "cut_time": 17.28, "reason": "Character name 'Mr. Ping'"},
+    {"cut_number": 11, "cut_time": 18.08, "reason": "After 'him'"},
+    {"cut_number": 12, "cut_time": 19.76, "reason": "After 'his'"},
+    {"cut_number": 13, "cut_time": 20.64, "reason": "After 'shop'"},
+    {"cut_number": 14, "cut_time": 21.68, "reason": "After 'grew'"},
+    {"cut_number": 15, "cut_time": 22.88, "reason": "After 'loved'"},
+    {"cut_number": 16, "cut_time": 24.24, "reason": "After 'never'"},
+    {"cut_number": 17, "cut_time": 25.92, "reason": "After 'story'"},
+    {"cut_number": 18, "cut_time": 26.96, "reason": "After 'beginnings'"},
+    {"cut_number": 19, "cut_time": 27.84, "reason": "After 'even'"},
+    {"cut_number": 20, "cut_time": 29.2, "reason": "After 'quiet'"},
+    {"cut_number": 21, "cut_time": 30.4, "reason": "After 'strength'"},
+    {"cut_number": 22, "cut_time": 31.84, "reason": "After 'stirred'"},
+    {"cut_number": 23, "cut_time": 32.4, "reason": "After 'him'"},
+    {"cut_number": 24, "cut_time": 34.08, "reason": "After 'unfold'"},
+    {"cut_number": 25, "cut_time": 35.52, "reason": "After 'home'"},
+    {"cut_number": 26, "cut_time": 37.04, "reason": "After 'place'"},
+    {"cut_number": 27, "cut_time": 38.56, "reason": "After 'love'"},
+    {"cut_number": 28, "cut_time": 39.52, "reason": "After 'him'"},
+    {"cut_number": 29, "cut_time": 40.08, "reason": "End of sentence"}
+  ]
+}

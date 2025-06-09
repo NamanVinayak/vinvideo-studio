@@ -1,0 +1,60 @@
+{
+  "execution_stats": {
+    "execution_time": "1611ms",
+    "delay_time": "ms"
+  },
+  "project_metadata": {
+    "target_platform": "TikTok/Instagram Reels",
+    "content_type": "Scientific Art Film",
+    "primary_concept": "Mind's response to trauma through biological poetry",
+    "entity_summary": [
+      {
+        "name": "Silhouetted Head",
+        "type": "Human",
+        "role_in_scene": "primary",
+        "entity_context": "External focal point for impact visualization"
+      },
+      {
+        "name": "Cranial Bone",
+        "type": "Anatomical Structure",
+        "role_in_scene": "secondary",
+        "entity_context": "Protective barrier showing microfractures"
+      },
+      {
+        "name": "CSF Fluid",
+        "type": "Biological Fluid",
+        "role_in_scene": "primary",
+        "entity_context": "Shockwave transmission medium"
+      },
+      {
+        "name": "Neuron Network",
+        "type": "Biological Structure",
+        "role_in_scene": "primary",
+        "entity_context": "Electrical signal transmission system"
+      },
+      {
+        "name": "Blood Vessels",
+        "type": "Vascular System",
+        "role_in_scene": "secondary",
+        "entity_context": "Oxygen transport during crisis"
+      }
+    ]
+  },
+  "critical_errors": [
+    "JSON syntax errors detected in original output",
+    "Missing quotes around property values",
+    "Incorrect number formatting",
+    "Trailing commas",
+    "Improper array syntax",
+    "Missing colons between keys/values"
+  ],
+  "issues_noted": [
+    "Director agent produced malformed JSON output",
+    "Syntax errors prevented proper parsing",
+    "Need to reconstruct complete 27-beat structure",
+    "Original output was incomplete due to formatting errors"
+  ],
+  "status": "FAILED - JSON parsing error",
+  "expected_beats": 27,
+  "actual_beats_generated": "Unknown due to parsing failure"
+}

@@ -1,0 +1,53 @@
+{
+  "execution_stats": {
+    "execution_time": "1075ms",
+    "delay_time": "ms"
+  },
+  "parsing_status": "JSON_PARSING_ERROR",
+  "error_message": "Warning: Response could not be parsed as JSON",
+  "partial_response": {
+    "project_metadata": {
+      "target_platform": "cinematic short-form",
+      "content_type": "emotional narrative",
+      "primary_concept": "Poignant farewell through restrained cinematic realism",
+      "entity_summary": [
+        {
+          "name": "Departing Individual",
+          "type": "Person",
+          "role_in_scene": "primary",
+          "entity_context": "Person leaving on train, containing emotional vulnerability"
+        },
+        {
+          "name": "Remaining Individual",
+          "type": "Person",
+          "role_in_scene": "primary",
+          "entity_context": "Person staying behind, showing quiet despair"
+        },
+        {
+          "name": "Train",
+          "type": "Object",
+          "role_in_scene": "secondary",
+          "entity_context": "Symbol of inevitable separation"
+        }
+      ]
+    },
+    "narrative_beats": [
+      {
+        "beat_no": 1,
+        "timecode_start": "0:00",
+        "est_duration_s": 2,
+        "script_phrase": "In the quiet hum of the station...",
+        "narrative_function": "environmental establishment",
+        "emotional_tone": "melancholic anticipation",
+        "creative_vision": "Wide station shot framing two figures centered in architecture",
+        "audience_retention_strategy": "Mystery through negative space composition",
+        "turning_point": false,
+        "entities": []
+      },
+      "ERROR_TRUNCATION_NOTE: Beat generation was truncated due to token limits before reaching Beat 12 (cut_time=28.16)",
+      "INCOMPLETE_BEATS: Only 11 beats generated instead of required 12"
+    ]
+  },
+  "fallback_used": true,
+  "downstream_impact": "DoP Agent likely received incomplete Director data"
+}
