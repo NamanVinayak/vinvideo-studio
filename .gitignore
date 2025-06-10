@@ -68,3 +68,5 @@ flux_dev_example.*
 # Test results
 /test_results/
 /test_results/**/*
+/temp_files/test_results/
+/temp_files/test_results/**/*
