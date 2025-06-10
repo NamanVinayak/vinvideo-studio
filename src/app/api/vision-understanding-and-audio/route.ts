@@ -28,11 +28,13 @@ export async function POST(request: Request) {
       pacing, 
       duration, 
       contentType, 
-      folderId 
+      folderId,
+      voiceName 
     } = body;
     
     console.log('🎯 CORRECT ENDPOINT CALLED: /api/vision-understanding-and-audio');
     console.log(`📊 Mode: ${useVisionMode ? 'VISION' : 'SCRIPT'}`);
+    console.log(`🎤 Voice: ${voiceName || 'Enceladus (default)'}`);
     console.log(`📝 Concept: ${concept || 'N/A'}`);
     console.log(`📄 Script: ${script || 'N/A'}`);
     
@@ -188,7 +190,7 @@ export async function POST(request: Request) {
     console.log('Step 3: Converting to speech with Google Gemini TTS...');
     const ttsStartTime = Date.now();
     
-    const audioUrl = await textToSpeech(formattedScript, folderId);
+    const audioUrl = await textToSpeech(formattedScript, folderId, voiceName);
     
     const ttsTime = ((Date.now() - ttsStartTime) / 1000).toFixed(2);
     console.log(`Audio generation completed in ${ttsTime}s. URL: ${audioUrl}`);

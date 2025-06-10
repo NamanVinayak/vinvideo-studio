@@ -24,11 +24,13 @@ function getFallbackAudio(reason: string): string {
  * Convert text to speech using Google Gemini TTS service
  * @param text The script text to convert to speech
  * @param folderName Optional folder name to save the audio in (should be a folder in public directory)
+ * @param voiceName Optional voice name (Enceladus, Puck, Kore, Charon). Defaults to Enceladus
  * @returns URL to the generated audio file
  */
-export async function textToSpeech(text: string, folderName?: string): Promise<string> {
+export async function textToSpeech(text: string, folderName?: string, voiceName?: string): Promise<string> {
   try {
-    console.log('Making TTS API call to Google Gemini using official SDK...');
+    const selectedVoice = voiceName || 'Enceladus';
+    console.log(`Making TTS API call to Google Gemini using official SDK with voice: ${selectedVoice}...`);
     
     // Get the Google AI API key
     const googleApiKey = process.env.GOOGLE_AI_API_KEY;
@@ -57,7 +59,7 @@ ${text}`;
           responseModalities: ['AUDIO'],
           speechConfig: {
             voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Enceladus' },
+              prebuiltVoiceConfig: { voiceName: selectedVoice },
             },
           },
         },

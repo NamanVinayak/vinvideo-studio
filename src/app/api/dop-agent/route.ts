@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { DOP_SYSTEM_MESSAGE } from '@/agents/dop';
+import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 
 /**
  * DoP Agent endpoint to generate cinematography directions
@@ -100,8 +101,6 @@ Please analyze these inputs and output your cinematography directions as a JSON 
       max_tokens: 25000,          // Increased for enhanced cinematography instructions
       temperature: 0.35,          // Higher creativity for cinematographic artistry
       top_p: 0.5,                // More diverse visual choices and creative options
-      frequency_penalty: 0.3,     // Prevent repetitive shot patterns
-      presence_penalty: 0.1,      // Allow technical terms to repeat naturally
       stream: false
     };
 
@@ -169,22 +168,58 @@ Please analyze these inputs and output your cinematography directions as a JSON 
       // Try to parse the cleaned JSON response
       const dopOutput = JSON.parse(cleanedResponse);
       
+      // Auto-save the response
+      const sessionId = body.sessionId || await generateSessionId();
+      await saveApiResponse(
+        'dop',
+        dopOutput,
+        dopResponse,
+        {
+          apiSource: 'openrouter',
+          model: 'google/gemini-2.5-flash-preview-05-20',
+          executionTime,
+          tokenUsage: result.usage
+        },
+        sessionId
+      );
+      
       return NextResponse.json({
         success: true,
         dopOutput,
         executionTime,
         rawResponse: dopResponse,
-        usage: result.usage // Token usage from OpenRouter
+        usage: result.usage, // Token usage from OpenRouter
+        sessionId
       });
     } catch (parseError) {
-      // If JSON parsing fails, return the raw response
+      // If JSON parsing fails, still save and pass the raw response
       console.error('Failed to parse DoP response as JSON:', parseError);
+      console.log('DoP raw response (first 500 chars):', dopResponse.substring(0, 500));
+      
+      // Still save the raw response for debugging
+      const sessionId = body.sessionId || await generateSessionId();
+      await saveApiResponse(
+        'dop-parse-error',
+        { error: parseError instanceof Error ? parseError.message : 'Parse error', rawLength: dopResponse.length },
+        dopResponse,
+        {
+          apiSource: 'openrouter',
+          model: 'google/gemini-2.5-flash-preview-05-20',
+          executionTime,
+          tokenUsage: result.usage
+        },
+        sessionId
+      );
+      
+      // CRITICAL: Pass raw response as dopOutput so next agent can use it
       return NextResponse.json({
         success: true,
+        dopOutput: dopResponse, // Pass raw response as dopOutput
         rawResponse: dopResponse,
         executionTime,
-        warning: 'Response could not be parsed as JSON',
-        usage: result.usage
+        warning: 'Response could not be parsed as JSON, but raw response passed to next agent',
+        usage: result.usage,
+        sessionId
       });
     }
 

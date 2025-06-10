@@ -1,5 +1,57 @@
 import { NextResponse } from 'next/server';
 import { FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineer';
+import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
+
+// Manual prompt extraction when JSON parsing fails
+function extractPromptsFromRawText(rawText: string, expectedCount?: number): string[] {
+  const prompts: string[] = [];
+  
+  // Try to extract quoted strings (most common format)
+  const quotedMatches = rawText.match(/"([^"]{50,})"/g);
+  if (quotedMatches) {
+    quotedMatches.forEach(match => {
+      const prompt = match.slice(1, -1); // Remove quotes
+      if (prompt.length > 50) { // Only meaningful prompts
+        prompts.push(prompt);
+      }
+    });
+  }
+  
+  // If no quoted strings, try line-by-line extraction
+  if (prompts.length === 0) {
+    const lines = rawText.split('\n');
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      // Look for numbered prompts or descriptive lines
+      if (trimmed.match(/^\d+:?\s+/) || trimmed.length > 100) {
+        prompts.push(trimmed.replace(/^\d+:?\s*/, ''));
+      }
+    });
+  }
+  
+  // If still no prompts, split by common delimiters
+  if (prompts.length === 0) {
+    const sections = rawText.split(/[,\n]{2,}|\]\s*,\s*\[/);
+    sections.forEach(section => {
+      const cleaned = section.trim().replace(/^[\[\]"'\s]+|[\[\]"'\s]+$/g, '');
+      if (cleaned.length > 50) {
+        prompts.push(cleaned);
+      }
+    });
+  }
+  
+  // Ensure we have at least one prompt
+  if (prompts.length === 0) {
+    prompts.push("cinematic shot, high detail, professional lighting, 16:9 8K");
+  }
+  
+  // Limit to expected count if provided
+  if (expectedCount && prompts.length > expectedCount) {
+    return prompts.slice(0, expectedCount);
+  }
+  
+  return prompts;
+}
 
 /**
  * Prompt Engineer Agent endpoint to generate image prompts for FLUX
@@ -111,8 +163,6 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
       max_tokens: 25000,          // Increased for enhanced prompt generation with gaze instructions
       temperature: 0.45,          // High creativity for detailed visual descriptions
       top_p: 0.7,                // Wide creative vocabulary for visual elements
-      frequency_penalty: 0.4,     // Encourage varied descriptive language
-      presence_penalty: 0.2,      // Promote diverse visual concepts
       stream: false
     };
 
@@ -194,9 +244,29 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         fixedResponse = fixedResponse.replace(/([^\\])"([^"]*?[^\\])"(?=\s*[,}\]])/g, '$1"$2"');
         
         // Try to extract JSON if it's wrapped in text
-        const jsonMatch = fixedResponse.match(/\{[\s\S]*\}/);
+        const jsonMatch = fixedResponse.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
         if (jsonMatch) {
           fixedResponse = jsonMatch[0];
+        }
+        
+        // Handle truncated arrays - if it looks like an incomplete array, try to close it
+        if (fixedResponse.startsWith('[') && !fixedResponse.endsWith(']')) {
+          // Find the last complete string entry and close the array there
+          const lastCompleteEntry = fixedResponse.lastIndexOf('"');
+          if (lastCompleteEntry > 0) {
+            // Check if we're in the middle of a string - if so, go back to previous complete entry
+            const textAfterLastQuote = fixedResponse.substring(lastCompleteEntry + 1);
+            if (textAfterLastQuote.includes(',') || textAfterLastQuote.trim() === '') {
+              fixedResponse = fixedResponse.substring(0, lastCompleteEntry + 1) + ']';
+            } else {
+              // We're in middle of a string, find the previous complete entry
+              const beforeLastQuote = fixedResponse.substring(0, lastCompleteEntry);
+              const previousQuote = beforeLastQuote.lastIndexOf('"');
+              if (previousQuote > 0) {
+                fixedResponse = fixedResponse.substring(0, previousQuote + 1) + ']';
+              }
+            }
+          }
         }
         
         try {
@@ -225,23 +295,63 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         });
       }
       
+      // Auto-save the response
+      const sessionId = body.sessionId || await generateSessionId();
+      await saveApiResponse(
+        'prompt-engineer',
+        promptsOutput,
+        promptResponse,
+        {
+          apiSource: 'openrouter',
+          model: 'google/gemini-2.5-flash-preview-05-20',
+          executionTime,
+          tokenUsage: result.usage
+        },
+        sessionId
+      );
+      
       return NextResponse.json({
         success: true,
         promptsOutput,
         numPrompts: Array.isArray(promptsOutput) ? promptsOutput.length : 0,
         executionTime,
         rawResponse: promptResponse,
-        usage: result.usage // Token usage from OpenRouter
+        usage: result.usage, // Token usage from OpenRouter
+        sessionId
       });
     } catch (parseError) {
       // If JSON parsing fails, return the raw response
       console.error('Failed to parse Prompt Engineer response as JSON:', parseError);
+      
+      // Still save the raw response for debugging
+      const sessionId = body.sessionId || await generateSessionId();
+      await saveApiResponse(
+        'prompt-engineer-error',
+        { error: parseError instanceof Error ? parseError.message : 'Parse error' },
+        promptResponse,
+        {
+          apiSource: 'openrouter',
+          model: 'google/gemini-2.5-flash-preview-05-20',
+          executionTime,
+          tokenUsage: result.usage
+        },
+        sessionId
+      );
+      
+      // CRITICAL: Extract prompts manually when JSON fails
+      console.log('Attempting manual prompt extraction...');
+      const manuallyExtractedPrompts = extractPromptsFromRawText(promptResponse, num_images);
+      console.log(`Manual extraction found ${manuallyExtractedPrompts.length} prompts`);
+      
       return NextResponse.json({
         success: true,
+        promptsOutput: manuallyExtractedPrompts, // Always provide promptsOutput for FLUX
+        numPrompts: manuallyExtractedPrompts.length,
         rawResponse: promptResponse,
         executionTime,
-        warning: 'Response could not be parsed as JSON',
-        usage: result.usage
+        warning: `Response could not be parsed as JSON. Extracted ${manuallyExtractedPrompts.length} prompts manually.`,
+        usage: result.usage,
+        sessionId
       });
     }
 

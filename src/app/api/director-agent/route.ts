@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { DIRECTOR_SYSTEM_MESSAGE } from '@/agents/director';
+import { passThroughRawJson } from '@/utils/passThroughRawJson';
+import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 
 /**
  * Director Agent endpoint to generate creative vision and story beats
@@ -91,8 +93,6 @@ Please analyze this and output your creative vision as JSON exactly as specified
       max_tokens: 25000,          // Increased for enhanced instructions and detailed beats
       temperature: 0.5,           // Balanced creativity for DeepSeek R1
       top_p: 0.8,                // More diverse creative options
-      frequency_penalty: 0.2,     // Encourage varied creative language
-      presence_penalty: 0.1,      // Light penalty for repetitive concepts
       stream: false
     };
 
@@ -145,48 +145,45 @@ Please analyze this and output your creative vision as JSON exactly as specified
       }, { status: 500 });
     }
 
-    // Process the response (SAME LOGIC AS BEFORE)
-    try {
-      // Clean the response by removing markdown code blocks
-      let cleanedResponse = directorResponse.trim();
-      
-      // Remove markdown code blocks if present
-      if (cleanedResponse.startsWith('```json') && cleanedResponse.endsWith('```')) {
-        cleanedResponse = cleanedResponse.slice(7, -3).trim();
-      } else if (cleanedResponse.startsWith('```') && cleanedResponse.endsWith('```')) {
-        cleanedResponse = cleanedResponse.slice(3, -3).trim();
+    // Process the response using passThroughRawJson
+    const processedResponse = passThroughRawJson(directorResponse, 'Director Agent');
+    
+    // Validate no identical creative visions if we have structured data
+    if (processedResponse.structuredData && processedResponse.structuredData.narrative_beats) {
+      const beats = processedResponse.structuredData.narrative_beats as any[];
+      const visions = beats.map((beat: any) => beat.creative_vision);
+      const uniqueVisions = new Set(visions);
+      if (visions.length !== uniqueVisions.size) {
+        console.warn('Director produced identical creative visions - this will cause repeated images');
       }
-      
-      // Try to parse the cleaned JSON response
-      const directorOutput = JSON.parse(cleanedResponse);
-      
-      // Validate no identical creative visions
-      if (directorOutput.narrative_beats) {
-        const visions = directorOutput.narrative_beats.map((beat: any) => beat.creative_vision);
-        const uniqueVisions = new Set(visions);
-        if (visions.length !== uniqueVisions.size) {
-          console.warn('Director produced identical creative visions - this will cause repeated images');
-        }
-      }
-      
-      return NextResponse.json({
-        success: true,
-        directorOutput,
-        executionTime,
-        rawResponse: directorResponse,
-        usage: result.usage // Token usage from OpenRouter
-      });
-    } catch (parseError) {
-      // If JSON parsing fails, return the raw response
-      console.error('Failed to parse director response as JSON:', parseError);
-      return NextResponse.json({
-        success: true,
-        rawResponse: directorResponse,
-        executionTime,
-        warning: 'Response could not be parsed as JSON',
-        usage: result.usage
-      });
     }
+    
+    // Auto-save the response
+    const sessionId = body.sessionId || await generateSessionId();
+    await saveApiResponse(
+      'director',
+      processedResponse.structuredData,
+      processedResponse.rawContent,
+      {
+        apiSource: 'openrouter',
+        model: 'deepseek/deepseek-r1-distill-llama-70b',
+        executionTime,
+        tokenUsage: result.usage
+      },
+      sessionId
+    );
+    
+    // Always return success with raw content preserved
+    return NextResponse.json({
+      success: true,
+      directorOutput: processedResponse.structuredData,
+      executionTime,
+      rawResponse: processedResponse.rawContent,
+      parsingStatus: processedResponse.parsingStatus,
+      usage: result.usage,
+      sessionId,
+      ...(processedResponse.errorDetails && { parseWarning: processedResponse.errorDetails })
+    });
   } catch (error: unknown) {
     console.error('Error in director-agent endpoint:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';

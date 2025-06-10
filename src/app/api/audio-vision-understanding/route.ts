@@ -77,8 +77,6 @@ export async function POST(request: Request) {
       max_tokens: 12000,          // Increased for enhanced agent instructions output
       temperature: 0.3,           // Slightly higher for creative audio concepts
       top_p: 0.5,                 // Balanced for audio-visual creativity
-      frequency_penalty: 0.3,     // Encourage variety in language
-      presence_penalty: 0.2,      // Some repetition okay for audio rhythm
       stream: false
     };
 

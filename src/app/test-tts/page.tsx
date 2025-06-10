@@ -212,6 +212,9 @@ export default function TestTTS() {
     { name: 'Generate Videos (WAN)', status: 'pending' }
   ]);
   
+  // Session tracking for organized output storage
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  
   // Results from each step
   const [visionDocument, setVisionDocument] = useState<VisionDocument | null>(null); // NEW: Vision result
   const [visionAgentResult, setVisionAgentResult] = useState<Record<string, unknown> | null>(null); // NEW: Raw vision agent result
@@ -347,6 +350,9 @@ export default function TestTTS() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // NEW: Reset sessionId for new workflow run
+    setSessionId(null);
     
     // Validate input based on mode
     if (useVisionMode) {
@@ -568,7 +574,9 @@ export default function TestTTS() {
         },
         body: JSON.stringify({ 
           audioUrl: generatedAudioUrl,
-          projectFolder: projectFolder
+          projectFolder: projectFolder,
+          // NEW: Pass sessionId for organized output storage
+          ...(sessionId && { sessionId })
         }),
       });
 
@@ -578,6 +586,12 @@ export default function TestTTS() {
       }
 
       const transcribeData = await transcribeResponse.json();
+      
+      // NEW: Capture sessionId from first agent response (transcription)
+      if (!sessionId && transcribeData.sessionId) {
+        setSessionId(transcribeData.sessionId);
+        console.log('📁 Session ID captured from transcription:', transcribeData.sessionId);
+      }
       
       // Debug: Check transcription response structure
       console.log('📝 TRANSCRIPTION RESPONSE DEBUG:');
@@ -629,7 +643,7 @@ export default function TestTTS() {
       console.log('- producer_instructions available:', !!producerInstructions);
       console.log('- producer_instructions content:', producerInstructions);
       
-      const producerResponse = await fetch('/api/producer-agent', {
+      const producerResponse = await fetch('/api/vision-enhanced-producer-agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -647,7 +661,10 @@ export default function TestTTS() {
           ...(currentVisionDocument && {
             visionDocument: currentVisionDocument,
             enhancedMode: true
-          })
+          }),
+          
+          // NEW: Pass sessionId for organized output storage
+          ...(sessionId && { sessionId })
         }),
       });
 
@@ -658,6 +675,12 @@ export default function TestTTS() {
 
       const producerData = await producerResponse.json();
       setProducerResult(producerData);
+      
+      // NEW: Capture sessionId from producer if not already captured
+      if (!sessionId && producerData.sessionId) {
+        setSessionId(producerData.sessionId);
+        console.log('📁 Session ID captured from producer:', producerData.sessionId);
+      }
       
       // Save Producer Agent output
       await saveAgentOutput('producer', producerData, producerData.rawResponse);
@@ -720,7 +743,10 @@ export default function TestTTS() {
           ...(currentVisionDocument && {
             visionDocument: currentVisionDocument,
             enhancedMode: true
-          })
+          }),
+          
+          // NEW: Pass sessionId for organized output storage
+          ...(sessionId && { sessionId })
         }),
       });
 
@@ -801,7 +827,10 @@ export default function TestTTS() {
           ...(currentVisionDocument && {
             visionDocument: currentVisionDocument,
             enhancedMode: true
-          })
+          }),
+          
+          // NEW: Pass sessionId for organized output storage
+          ...(sessionId && { sessionId })
         }),
       });
 
@@ -902,7 +931,10 @@ export default function TestTTS() {
           ...(currentVisionDocument && {
             visionDocument: currentVisionDocument,
             enhancedMode: true
-          })
+          }),
+          
+          // NEW: Pass sessionId for organized output storage
+          ...(sessionId && { sessionId })
         }),
       });
 
@@ -1122,6 +1154,9 @@ export default function TestTTS() {
       // Mark remaining steps as completed (skipped for testing)
       updateStepStatus(9, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });
       updateStepStatus(10, 'completed', { skipped: true, reason: 'Video Generation step commented out for testing' });
+      
+      // Stop the main timer when workflow completes successfully
+      setLoading(false);
 
       // COMMENTED OUT FOR TESTING - Step 10: Review Images using QWEN VL Agent
       /*

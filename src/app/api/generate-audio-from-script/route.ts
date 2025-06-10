@@ -10,10 +10,11 @@ import path from 'path';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { narrationScript, folderId } = body;
+    const { narrationScript, folderId, voiceName } = body;
     
     console.log('🎵 AUDIO GENERATION ENDPOINT CALLED');
     console.log(`📂 Folder: ${folderId}`);
+    console.log(`🎤 Voice: ${voiceName || 'Enceladus (default)'}`);
     console.log(`📝 Script preview: ${narrationScript?.substring(0, 100)}...`);
     
     if (!narrationScript || typeof narrationScript !== 'string') {
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
     console.log('Step 2: Converting to speech with Google Gemini TTS...');
     const ttsStartTime = Date.now();
     
-    const audioUrl = await textToSpeech(formattedScript, folderId);
+    const audioUrl = await textToSpeech(formattedScript, folderId, voiceName);
     
     const ttsTime = ((Date.now() - ttsStartTime) / 1000).toFixed(2);
     console.log(`Audio generation completed in ${ttsTime}s. URL: ${audioUrl}`);

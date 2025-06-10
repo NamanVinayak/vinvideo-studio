@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
+import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 
 const execAsync = promisify(exec);
 
@@ -110,12 +111,26 @@ export async function POST(request: Request) {
     
     console.log('Transcription completed successfully');
     
+    // Auto-save the transcription response
+    const sessionId = body.sessionId || await generateSessionId();
+    await saveApiResponse(
+      'audio-transcription',
+      transcriptionData,
+      stdout,
+      {
+        apiSource: 'runpod',
+        model: 'nvidia-parakeet'
+      },
+      sessionId
+    );
+    
     return NextResponse.json({
       success: true,
       transcription: transcriptionData,
       transcript: transcriptionData.transcript,
       word_timestamps: transcriptionData.word_timestamps,
       outputPath: resultPath,
+      sessionId,
       stdout,
       stderr
     });
