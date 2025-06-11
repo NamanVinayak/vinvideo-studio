@@ -31,17 +31,58 @@ export async function POST(request: Request) {
     }
     
     console.log('Calling Music-Video Prompt Engineer...');
-    console.log(`Processing ${directorBeats.length} beats for FLUX prompt generation`);
+    
+    // Handle raw director response fallback from Music Director
+    let processedDirectorBeats = directorBeats;
+    let beatCount = 0;
+    
+    if (directorBeats?.raw_director_response) {
+      console.log('🔄 Prompt Engineer: Handling raw director response fallback');
+      // Extract beats from raw response or create fallback beats
+      processedDirectorBeats = extractBeatsFromRawResponse(directorBeats.raw_director_response);
+      beatCount = processedDirectorBeats.length;
+      console.log(`📝 Extracted ${beatCount} beats from raw director response`);
+    } else if (Array.isArray(directorBeats)) {
+      processedDirectorBeats = directorBeats;
+      beatCount = directorBeats.length;
+      console.log(`📝 Using parsed director beats: ${beatCount} beats`);
+    } else if (directorBeats?.visual_beats && Array.isArray(directorBeats.visual_beats)) {
+      // Handle structured director output with visual_beats array
+      processedDirectorBeats = directorBeats.visual_beats;
+      beatCount = directorBeats.visual_beats.length;
+      console.log(`📝 Using structured director visual beats: ${beatCount} beats`);
+    } else {
+      console.log('⚠️ Invalid director beats format, creating fallback beats');
+      
+      // Try to determine beat count from DoP specs or default to reasonable count
+      let fallbackCount = 8; // Default
+      if (dopSpecs?.cinematographic_shots?.length) {
+        fallbackCount = dopSpecs.cinematographic_shots.length;
+        console.log(`📐 Using DoP shots count for fallback: ${fallbackCount}`);
+      } else if (userVisionDocument?.duration) {
+        // Estimate based on duration and pacing
+        const duration = userVisionDocument.duration;
+        const pacing = userVisionDocument.pacing || 'moderate';
+        const avgCutLength = pacing === 'contemplative' ? 6 : pacing === 'dynamic' ? 3 : 4.5;
+        fallbackCount = Math.max(4, Math.min(20, Math.round(duration / avgCutLength)));
+        console.log(`⏱️ Estimated fallback count from duration (${duration}s, ${pacing}): ${fallbackCount}`);
+      }
+      
+      processedDirectorBeats = createFallbackBeats(fallbackCount, userVisionDocument);
+      beatCount = fallbackCount;
+    }
+    
+    console.log(`Processing ${beatCount} beats for FLUX prompt generation`);
     
     // Prepare the user content in format expected by existing FLUX system
-    const fluxInput = prepareFluxInput(userVisionDocument, directorBeats, dopSpecs, contentClassification);
+    const fluxInput = prepareFluxInput(userVisionDocument, processedDirectorBeats, dopSpecs, contentClassification);
     
     // Add explicit instruction for the correct number of prompts
-    const promptCountInstruction = `\n\nIMPORTANT: Generate exactly ${directorBeats.length} FLUX prompts, one for each director beat provided. Do not generate 8 prompts - generate ${directorBeats.length} prompts to match the ${directorBeats.length} visual beats from the director.`;
+    const promptCountInstruction = `\n\nIMPORTANT: Generate exactly ${beatCount} FLUX prompts, one for each director beat provided. Generate ${beatCount} prompts to match the ${beatCount} visual beats from the director.`;
 
     // Create the request payload using existing FLUX system
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-flash-preview-05-20:thinking",
       messages: [
         {
           role: "system",
@@ -52,7 +93,7 @@ export async function POST(request: Request) {
           content: fluxInput + promptCountInstruction
         }
       ],
-      max_tokens: 25000,          // Increased for enhanced prompt generation with gaze instructions
+      max_tokens: 32000,          // Increased for complete FLUX prompt generation
       temperature: 0.1,           // Low creativity for consistent FLUX prompts
       top_p: 0.3,                // Focused on FLUX best practices
       frequency_penalty: 0.2,     // Encourage prompt variety
@@ -158,6 +199,91 @@ export async function POST(request: Request) {
       error: errorMessage
     }, { status: 500 });
   }
+}
+
+/**
+ * Extract beats from raw director response text
+ */
+function extractBeatsFromRawResponse(rawResponse: string): any[] {
+  try {
+    const beats: any[] = [];
+    const lines = rawResponse.split('\n');
+    let currentBeat: any = null;
+    let beatIndex = 0;
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Look for beat indicators
+      if (trimmed.match(/beat[_\s]*\d+|visual[_\s]*beat|cut[_\s]*\d+/i)) {
+        if (currentBeat) {
+          beats.push(currentBeat);
+        }
+        currentBeat = {
+          beat_no: beatIndex++,
+          creative_vision: 'Music-synchronized visual',
+          emotional_approach: 'contemplative',
+          cognitive_hook: 'engaging_visual',
+          musical_context: { cut_reason: 'music_synchronized_cut' },
+          content_analysis: { subject_diversity_strategy: 'varied_subjects' }
+        };
+      }
+      
+      // Extract creative vision from the line
+      if (currentBeat && trimmed.length > 10 && !trimmed.match(/^\d+[\.\:\-\s]/)) {
+        if (trimmed.toLowerCase().includes('vision') || trimmed.toLowerCase().includes('concept')) {
+          currentBeat.creative_vision = trimmed.substring(0, 100);
+        }
+      }
+    }
+    
+    if (currentBeat) {
+      beats.push(currentBeat);
+    }
+    
+    // If we didn't extract enough beats, create fallback beats
+    if (beats.length < 4) {
+      return createFallbackBeats(Math.max(beats.length, 6)); // Use extracted count or minimum 6 - no vision doc available here
+    }
+    
+    return beats;
+    
+  } catch (error) {
+    console.error('Error extracting beats from raw response:', error);
+    return createFallbackBeats(6); // Conservative fallback - no vision doc available here
+  }
+}
+
+/**
+ * Create fallback beats when director response is unusable
+ */
+function createFallbackBeats(count: number, visionDocument?: any): any[] {
+  const beats: any[] = [];
+  
+  // Extract user's actual requirements from vision document
+  const coreConcept = visionDocument?.core_concept || visionDocument?.coreConcept || 'cinematic visual sequence';
+  const pacing = visionDocument?.pacing || 'moderate';
+  const visualStyle = visionDocument?.visual_style || visionDocument?.visualStyle || 'cinematic';
+  const emotionArc = visionDocument?.emotion_arc || visionDocument?.emotionArc || ['peaceful', 'engaging'];
+  
+  // Generate dynamic shot types based on cinematographic principles
+  const shotTypes = ['establishing', 'medium', 'close-up', 'wide', 'profile', 'detail', 'atmospheric', 'resolution'];
+  
+  for (let i = 0; i < count; i++) {
+    const shotType = shotTypes[i % shotTypes.length];
+    const emotion = emotionArc[Math.floor((i / count) * emotionArc.length)] || 'neutral';
+    
+    beats.push({
+      beat_no: i + 1,
+      creative_vision: `${shotType} shot focusing on ${coreConcept} with ${visualStyle} style and ${emotion} emotional tone`,
+      emotional_approach: pacing,
+      cognitive_hook: 'engaging_visual',
+      musical_context: { cut_reason: 'music_synchronized_cut' },
+      content_analysis: { subject_diversity_strategy: 'varied_subjects' }
+    });
+  }
+  
+  return beats;
 }
 
 /**

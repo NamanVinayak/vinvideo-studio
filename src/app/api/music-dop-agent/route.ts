@@ -15,11 +15,23 @@ export async function POST(request: Request) {
       contentClassification 
     } = body;
     
-    // Validate required inputs
-    if (!directorVisualBeats || !musicAnalysis || !visionDocument) {
+    // Validate required inputs - allow raw director response fallback
+    if (!visionDocument || !musicAnalysis) {
       return NextResponse.json({ 
-        error: 'Director visual beats, music analysis, and vision document are required' 
+        error: 'Music analysis and vision document are required' 
       }, { status: 400 });
+    }
+    
+    if (!directorVisualBeats) {
+      return NextResponse.json({ 
+        error: 'Director visual beats are required' 
+      }, { status: 400 });
+    }
+    
+    // Handle raw director response fallback
+    const isRawDirectorResponse = directorVisualBeats?.raw_director_response;
+    if (isRawDirectorResponse) {
+      console.log('🔄 DoP Agent: Handling raw director response fallback');
     }
 
     // Get API key from environment variables
@@ -31,13 +43,31 @@ export async function POST(request: Request) {
     }
     
     console.log('Calling Music-Aware DoP Agent...');
-    console.log(`Processing ${directorVisualBeats.length} visual beats for cinematography`);
+    
+    // Extract visual beats count properly
+    let visualBeatsCount = 0;
+    if (directorVisualBeats?.visual_beats?.length) {
+      visualBeatsCount = directorVisualBeats.visual_beats.length;
+    } else if (Array.isArray(directorVisualBeats)) {
+      visualBeatsCount = directorVisualBeats.length;
+    } else if (directorVisualBeats?.raw_director_response) {
+      // For raw responses, we'll let the LLM figure out the count
+      visualBeatsCount = 'unknown';
+    }
+    
+    console.log(`Processing ${visualBeatsCount} visual beats for cinematography`);
     
     // Prepare the user content message with all required context
     const userContent = `MUSIC VIDEO PIPELINE - STAGE 5: MUSIC-AWARE CINEMATOGRAPHY
 
+${isRawDirectorResponse ? `
+DIRECTOR VISUAL BEATS (Raw Response - Parse and Extract):
+${directorVisualBeats.raw_director_response}
+
+IMPORTANT: The director's response above contains visual beats but may have JSON syntax errors. 
+Parse the content to extract the visual beat information and create proper cinematography specs.` : `
 DIRECTOR VISUAL BEATS (Music-Synchronized):
-${JSON.stringify(directorVisualBeats, null, 2)}
+${JSON.stringify(directorVisualBeats, null, 2)}`}
 
 MUSIC ANALYSIS (For Rhythm Synchronization):
 ${JSON.stringify(musicAnalysis, null, 2)}
@@ -48,7 +78,7 @@ ${JSON.stringify(visionDocument, null, 2)}
 CONTENT CLASSIFICATION (Cinematographic Approach):
 ${JSON.stringify(contentClassification || { type: 'auto_detect' }, null, 2)}
 
-TASK: Create music-synchronized cinematography for each visual beat. For each beat you must:
+TASK: Create music-synchronized cinematography for each visual beat. ${isRawDirectorResponse ? 'First extract the visual beats from the raw director response, then create cinematography specs for each beat.' : 'For each beat you must:'}
 
 1. MUSICAL RHYTHM INTEGRATION:
    - Sync camera movement timing with beat structure (downbeats, phrase boundaries)
@@ -75,7 +105,7 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-flash-preview-05-20:thinking",
       messages: [
         {
           role: "system",
@@ -86,7 +116,7 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
           content: userContent
         }
       ],
-      max_tokens: 25000,          // Increased for enhanced cinematography instructions
+      max_tokens: 32000,          // Increased for complete cinematography specs
       temperature: 0.2,           // Low creativity - focus on technical precision
       top_p: 0.4,                // Focused on cinematographic best practices
       frequency_penalty: 0.3,     // Encourage shot variety and prevent repetitive specs
@@ -136,11 +166,11 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
     }
 
     // Process the response using robust multi-strategy parsing
-    const parseResult = parseCinematographyFromResponse(dopResponse, directorVisualBeats.length);
+    const parseResult = parseCinematographyFromResponse(dopResponse, typeof visualBeatsCount === 'number' ? visualBeatsCount : 0);
     
     if (parseResult.success) {
       const cinematographySpecs = parseResult.cinematography;
-      const expectedShots = directorVisualBeats.length;
+      const expectedShots = typeof visualBeatsCount === 'number' ? visualBeatsCount : 0;
       const actualShots = cinematographySpecs.cinematographic_shots ? cinematographySpecs.cinematographic_shots.length : 0;
       
       if (actualShots !== expectedShots) {

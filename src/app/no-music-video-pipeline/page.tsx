@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
 
@@ -30,6 +31,14 @@ interface NoMusicVideoState {
 }
 
 export default function NoMusicVideoPipelinePage() {
+  const searchParams = useSearchParams();
+  const conversationMode = searchParams?.get('conversationMode') === 'true';
+  const urlConcept = searchParams?.get('concept');
+  const urlStyle = searchParams?.get('style');
+  const urlPacing = searchParams?.get('pacing');
+  const urlDuration = searchParams?.get('duration');
+  const urlContentType = searchParams?.get('contentType');
+  
   // Execution flags to prevent infinite loops
   const [stageExecutionFlags, setStageExecutionFlags] = useState({
     stage2Running: false,
@@ -540,11 +549,11 @@ export default function NoMusicVideoPipelinePage() {
 
   // FORM SUBMISSION
   const [formData, setFormData] = useState({
-    concept: '',
-    style: 'cinematic',
-    pacing: 'dynamic',
-    duration: 30,
-    contentType: 'general'
+    concept: urlConcept || '',
+    style: urlStyle || 'cinematic',
+    pacing: urlPacing || 'dynamic',
+    duration: urlDuration ? parseInt(urlDuration) : 30,
+    contentType: urlContentType || 'general'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

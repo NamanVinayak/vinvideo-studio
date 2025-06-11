@@ -59,7 +59,8 @@ This project implements a sophisticated AI-powered video generation platform usi
 ### LLM Integration
 - Uses OpenRouter as the primary LLM gateway
 - Model selection is configured in `/src/config/llm-models.ts`
-- Different models for different agents (DeepSeek R1, Gemini 2.5, Claude 3.5)
+- **Performance Optimized**: Using `deepseek/deepseek-r1-distill-llama-8b` for faster responses
+- Different models for different agents (DeepSeek R1 Distill, Gemini 2.5, Claude 3.5)
 - Implements retry logic with exponential backoff
 
 ### External Service Integrations

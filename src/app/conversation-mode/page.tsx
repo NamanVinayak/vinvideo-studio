@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
+import VideoTypeSelector from './components/VideoTypeSelector';
+import PipelineProgress from './components/PipelineProgress';
 
 interface Message {
   id: string;
@@ -11,8 +13,45 @@ interface Message {
   timestamp: Date;
 }
 
+interface ExtractedRequirements {
+  hasMusic: boolean | null;
+  hasNarration: boolean | null;
+  duration: number | null;
+  style: string | null;
+  pacing: string | null;
+  artisticStyle: string | null;
+  concept: string | null;
+}
+
+interface PipelineStage {
+  name: string;
+  agent: string;
+  status: 'pending' | 'running' | 'completed' | 'error';
+  duration?: number;
+}
+
+interface PipelineState {
+  isRunning: boolean;
+  pipeline: string | null;
+  stages: PipelineStage[];
+  currentStage: string | null;
+  generatedImages: string[];
+  imageGenerationProgress: {
+    currentIndex: number;
+    totalImages: number;
+    percentage: number;
+    isGenerating: boolean;
+    message: string;
+  };
+  error: string | null;
+  sessionId: string | null;
+}
+
 export default function ConversationMode() {
   const router = useRouter();
+  const [showVideoTypeSelector, setShowVideoTypeSelector] = useState(true);
+  const [selectedVideoType, setSelectedVideoType] = useState<'music_only' | 'voiceover_music' | 'pure_visuals' | null>(null);
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -23,10 +62,391 @@ export default function ConversationMode() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [canGenerateScript, setCanGenerateScript] = useState(false);
-  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
-  const [generatedScript, setGeneratedScript] = useState<string>('');
-  const [scriptGenerated, setScriptGenerated] = useState(false);
+  const [canProceed, setCanProceed] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
+  const [agentResponses, setAgentResponses] = useState<Record<string, any>>({});
+
+  // Image generation monitoring function
+  const startImageGenerationMonitoring = (folderId: string, expectedCount: number) => {
+    setPipelineState(prev => ({
+      ...prev,
+      imageGenerationProgress: {
+        currentIndex: 0,
+        totalImages: expectedCount,
+        percentage: 0,
+        isGenerating: true,
+        message: `🎨 Generating ${expectedCount} images...`
+      }
+    }));
+
+    const monitorInterval = setInterval(async () => {
+      try {
+        // Check for newly generated images in the public directory
+        const response = await fetch('/api/scan-generated-images', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderId })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const newImages = data.images || [];
+          
+          setPipelineState(prev => {
+            const currentImages = prev.generatedImages;
+            const addedImages = newImages.filter((img: string) => !currentImages.includes(img));
+            
+            if (addedImages.length > 0) {
+              const updatedImages = [...currentImages, ...addedImages];
+              const progress = Math.min(100, (updatedImages.length / expectedCount) * 100);
+              
+              console.log(`🖼️ Found ${addedImages.length} new images (${updatedImages.length}/${expectedCount})`);
+              
+              return {
+                ...prev,
+                generatedImages: updatedImages,
+                imageGenerationProgress: {
+                  currentIndex: updatedImages.length,
+                  totalImages: expectedCount,
+                  percentage: progress,
+                  isGenerating: updatedImages.length < expectedCount,
+                  message: updatedImages.length >= expectedCount 
+                    ? `✅ Generated all ${expectedCount} images!`
+                    : `🎨 Generated ${updatedImages.length}/${expectedCount} images...`
+                }
+              };
+            }
+            
+            return prev;
+          });
+        }
+      } catch (error) {
+        console.error('Error monitoring image generation:', error);
+      }
+    }, 2000); // Check every 2 seconds
+
+    // Clear monitoring after 10 minutes (failsafe)
+    setTimeout(() => {
+      clearInterval(monitorInterval);
+      setPipelineState(prev => ({
+        ...prev,
+        imageGenerationProgress: {
+          ...prev.imageGenerationProgress,
+          isGenerating: false,
+          message: prev.generatedImages.length > 0 
+            ? `✅ Generated ${prev.generatedImages.length} images`
+            : '⚠️ Image generation monitoring timeout'
+        }
+      }));
+    }, 600000);
+  };
+
+  const [extractedRequirements, setExtractedRequirements] = useState<ExtractedRequirements>({
+    hasMusic: null,
+    hasNarration: null,
+    duration: null,
+    style: null,
+    pacing: null,
+    artisticStyle: null,
+    concept: null
+  });
+  
+  // Music upload state
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFileName, setAudioFileName] = useState<string>('');
+  const [musicUploadError, setMusicUploadError] = useState<string | null>(null);
+  
+  // Pipeline execution state
+  const [pipelineState, setPipelineState] = useState<PipelineState>({
+    isRunning: false,
+    pipeline: null,
+    stages: [],
+    currentStage: null,
+    generatedImages: [],
+    imageGenerationProgress: {
+      currentIndex: 0,
+      totalImages: 0,
+      percentage: 0,
+      isGenerating: false,
+      message: ''
+    },
+    error: null,
+    sessionId: null
+  });
+
+  const handleVideoTypeSelect = (type: 'music_only' | 'voiceover_music' | 'pure_visuals') => {
+    setSelectedVideoType(type);
+    setShowVideoTypeSelector(false);
+    
+    // Update requirements based on selection
+    const updatedRequirements = { ...extractedRequirements };
+    
+    switch (type) {
+      case 'music_only':
+        updatedRequirements.hasMusic = true;
+        updatedRequirements.hasNarration = false;
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: "Great! Let's create an amazing music video. Tell me about your concept and the music you'll be using.",
+          timestamp: new Date()
+        }]);
+        break;
+      case 'voiceover_music':
+        updatedRequirements.hasMusic = true;
+        updatedRequirements.hasNarration = true;
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: "Perfect! We'll create a narrated video with background music. What story would you like to tell?",
+          timestamp: new Date()
+        }]);
+        break;
+      case 'pure_visuals':
+        updatedRequirements.hasMusic = false;
+        updatedRequirements.hasNarration = false;
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: "Excellent choice! Let's create a powerful visual story without audio. What concept do you have in mind?",
+          timestamp: new Date()
+        }]);
+        break;
+    }
+    
+    setExtractedRequirements(updatedRequirements);
+  };
+
+  // Add state for music analysis
+  const [musicAnalysis, setMusicAnalysis] = useState<any>(null);
+  const [isAnalyzingMusic, setIsAnalyzingMusic] = useState(false);
+
+  const handleAudioFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/mpeg', 'audio/mp4', 'audio/aac'];
+      if (!allowedTypes.includes(file.type)) {
+        setMusicUploadError(`Unsupported file type: ${file.type}. Please use MP3, WAV, MP4, or AAC files.`);
+        return;
+      }
+      
+      // Validate file size (max 50MB)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (file.size > maxSize) {
+        setMusicUploadError(`File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Maximum size is 50MB.`);
+        return;
+      }
+
+      setAudioFile(file);
+      setAudioFileName(file.name);
+      setMusicUploadError(null);
+      setIsAnalyzingMusic(true);
+      
+      try {
+        // Analyze the music file on the client-side
+        console.log('🎵 Starting client-side music analysis...');
+        const analysis = await analyzeAudioFileClientSide(file);
+        setMusicAnalysis(analysis);
+        console.log('✅ Music analysis complete:', analysis);
+        
+        // Update requirements to show music is available
+        setExtractedRequirements(prev => ({ ...prev, hasMusic: true }));
+        
+      } catch (error) {
+        console.error('❌ Music analysis failed:', error);
+        setMusicUploadError('Failed to analyze audio file. Please try a different file.');
+        setAudioFile(null);
+        setAudioFileName('');
+      } finally {
+        setIsAnalyzingMusic(false);
+      }
+    }
+  };
+
+  // Client-side music analysis function
+  const analyzeAudioFileClientSide = async (file: File) => {
+    console.log(`Analyzing ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)...`);
+    
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Load and decode audio file
+    const arrayBuffer = await file.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+    const duration = audioBuffer.duration;
+    const sampleRate = audioBuffer.sampleRate;
+    const channelData = audioBuffer.getChannelData(0);
+    
+    console.log(`Audio properties: ${duration.toFixed(1)}s, ${sampleRate}Hz`);
+    
+    // Perform basic analysis
+    const bpm = estimateBPM(channelData, sampleRate);
+    const beats = generateBeatsFromBPM(bpm, duration);
+    const downbeats = generateDownbeatsFromBeats(beats);
+    const intensityCurve = calculateIntensityCurve(channelData, sampleRate);
+    const naturalCutPoints = findNaturalCutPoints(intensityCurve, duration);
+    
+    // Close audio context to free resources
+    audioContext.close();
+    
+    return {
+      trackMetadata: {
+        source: 'upload',
+        title: file.name,
+        duration: duration
+      },
+      musicAnalysis: {
+        bpm: bpm,
+        beats: beats,
+        downbeats: downbeats,
+        sections: {
+          intro: [0, Math.min(15, duration * 0.1)],
+          main: [Math.min(15, duration * 0.1), duration * 0.85],
+          outro: [duration * 0.85, duration]
+        },
+        intensityCurve: intensityCurve,
+        emotionalPeaks: findEmotionalPeaks(intensityCurve, duration),
+        phraseBoundaries: generatePhraseBoundaries(duration),
+        naturalCutPoints: naturalCutPoints,
+        totalDuration: duration
+      }
+    };
+  };
+
+  // Simple BPM estimation using autocorrelation
+  const estimateBPM = (audioData: Float32Array, sampleRate: number): number => {
+    const windowSize = Math.floor(sampleRate * 2); // 2-second windows
+    const numWindows = Math.floor(audioData.length / windowSize);
+    const bpmEstimates: number[] = [];
+    
+    for (let i = 0; i < Math.min(numWindows, 5); i++) {
+      const start = i * windowSize;
+      const window = audioData.slice(start, start + windowSize);
+      const bpm = analyzeWindowForBPM(window, sampleRate);
+      if (bpm > 60 && bpm < 200) {
+        bpmEstimates.push(bpm);
+      }
+    }
+    
+    // Return median BPM or default
+    if (bpmEstimates.length === 0) return 120;
+    bpmEstimates.sort((a, b) => a - b);
+    return bpmEstimates[Math.floor(bpmEstimates.length / 2)];
+  };
+
+  const analyzeWindowForBPM = (window: Float32Array, sampleRate: number): number => {
+    // Simple energy-based beat detection
+    const hopSize = 512;
+    const energyValues: number[] = [];
+    
+    for (let i = 0; i < window.length - hopSize; i += hopSize) {
+      const segment = window.slice(i, i + hopSize);
+      const energy = segment.reduce((sum, val) => sum + val * val, 0) / segment.length;
+      energyValues.push(energy);
+    }
+    
+    // Find peaks in energy
+    const peaks: number[] = [];
+    const threshold = Math.max(...energyValues) * 0.6;
+    
+    for (let i = 1; i < energyValues.length - 1; i++) {
+      if (energyValues[i] > energyValues[i-1] && 
+          energyValues[i] > energyValues[i+1] && 
+          energyValues[i] > threshold) {
+        peaks.push(i);
+      }
+    }
+    
+    if (peaks.length < 2) return 120;
+    
+    // Calculate average interval between peaks
+    const intervals = [];
+    for (let i = 1; i < peaks.length; i++) {
+      intervals.push(peaks[i] - peaks[i-1]);
+    }
+    
+    const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const timePerHop = hopSize / sampleRate;
+    const beatInterval = avgInterval * timePerHop;
+    
+    return Math.round(60 / beatInterval);
+  };
+
+  const generateBeatsFromBPM = (bpm: number, duration: number): number[] => {
+    const beatInterval = 60 / bpm;
+    const beats: number[] = [];
+    for (let time = 0; time < duration; time += beatInterval) {
+      beats.push(time);
+    }
+    return beats;
+  };
+
+  const generateDownbeatsFromBeats = (beats: number[]): number[] => {
+    return beats.filter((_, index) => index % 4 === 0);
+  };
+
+  const calculateIntensityCurve = (audioData: Float32Array, sampleRate: number): number[] => {
+    const windowSize = Math.floor(sampleRate * 0.1); // 100ms windows
+    const curve: number[] = [];
+    
+    for (let i = 0; i < audioData.length; i += windowSize) {
+      const window = audioData.slice(i, Math.min(i + windowSize, audioData.length));
+      const rms = Math.sqrt(window.reduce((sum, val) => sum + val * val, 0) / window.length);
+      curve.push(rms);
+    }
+    
+    return curve;
+  };
+
+  const findNaturalCutPoints = (intensityCurve: number[], duration: number): number[] => {
+    const cutPoints: number[] = [];
+    const timePerPoint = duration / intensityCurve.length;
+    
+    // Find local minima as potential cut points
+    for (let i = 1; i < intensityCurve.length - 1; i++) {
+      if (intensityCurve[i] < intensityCurve[i-1] && 
+          intensityCurve[i] < intensityCurve[i+1] &&
+          intensityCurve[i] < 0.1) {
+        cutPoints.push(i * timePerPoint);
+      }
+    }
+    
+    return cutPoints;
+  };
+
+  const findEmotionalPeaks = (intensityCurve: number[], duration: number): number[] => {
+    const peaks: number[] = [];
+    const timePerPoint = duration / intensityCurve.length;
+    const threshold = Math.max(...intensityCurve) * 0.8;
+    
+    for (let i = 1; i < intensityCurve.length - 1; i++) {
+      if (intensityCurve[i] > intensityCurve[i-1] && 
+          intensityCurve[i] > intensityCurve[i+1] && 
+          intensityCurve[i] > threshold) {
+        peaks.push(i * timePerPoint);
+      }
+    }
+    
+    return peaks;
+  };
+
+  const generatePhraseBoundaries = (duration: number): number[] => {
+    const boundaries: number[] = [];
+    const phraseLength = 8; // 8-second phrases
+    for (let time = 0; time < duration; time += phraseLength) {
+      boundaries.push(time);
+    }
+    return boundaries;
+  };
+
+  const clearAudioFile = () => {
+    setAudioFile(null);
+    setAudioFileName('');
+    setMusicUploadError(null);
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -52,7 +472,12 @@ export default function ConversationMode() {
           messages: [...messages, userMessage].map(msg => ({
             role: msg.role,
             content: msg.content
-          }))
+          })),
+          context: {
+            videoType: selectedVideoType,
+            hasMusic: extractedRequirements.hasMusic,
+            hasNarration: extractedRequirements.hasNarration
+          }
         }),
       });
 
@@ -71,12 +496,15 @@ export default function ConversationMode() {
 
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Enable Generate Script button after 2+ user messages (3+ total exchanges)
+      // Enable Ready to Proceed button after 1 user message
       const userMessageCount = [...messages, userMessage].filter(m => m.role === 'user').length;
       console.log('User message count:', userMessageCount);
-      if (userMessageCount >= 2) {
-        setCanGenerateScript(true);
+      if (userMessageCount >= 1) {
+        setCanProceed(true);
       }
+      
+      // Extract requirements from conversation in real-time
+      extractRequirementsFromConversation([...messages, userMessage, assistantMessage]);
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -92,81 +520,742 @@ export default function ConversationMode() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const handleGenerateScript = async () => {
-    if (!canGenerateScript) return;
+  // Auto-resize textarea as user types
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputMessage(e.target.value);
     
-    setIsGeneratingScript(true);
+    // Reset height to auto to get the correct scrollHeight
+    e.target.style.height = 'auto';
+    
+    // Set the height to match content, with min and max constraints
+    const scrollHeight = e.target.scrollHeight;
+    const minHeight = 52; // ~2 lines
+    const maxHeight = 200; // ~8 lines
+    
+    e.target.style.height = `${Math.min(Math.max(scrollHeight, minHeight), maxHeight)}px`;
+  };
+
+  // Reset textarea height after sending message
+  useEffect(() => {
+    if (!inputMessage) {
+      const textarea = document.querySelector(`.${styles.messageInput}`) as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.style.height = 'auto';
+      }
+    }
+  }, [inputMessage]);
+
+  const extractRequirementsFromConversation = (conversationMessages: Message[]) => {
+    const fullText = conversationMessages.map(m => m.content).join(' ').toLowerCase();
+    
+    // Extract duration
+    const durationMatch = fullText.match(/(\d+)\s*(second|seconds|sec|s)/);
+    if (durationMatch) {
+      setExtractedRequirements(prev => ({ ...prev, duration: parseInt(durationMatch[1]) }));
+    }
+    
+    // Extract style
+    if (fullText.includes('cinematic')) setExtractedRequirements(prev => ({ ...prev, style: 'cinematic' }));
+    else if (fullText.includes('documentary')) setExtractedRequirements(prev => ({ ...prev, style: 'documentary' }));
+    else if (fullText.includes('artistic')) setExtractedRequirements(prev => ({ ...prev, style: 'artistic' }));
+    else if (fullText.includes('minimal')) setExtractedRequirements(prev => ({ ...prev, style: 'minimal' }));
+    
+    // Extract pacing
+    if (fullText.includes('fast') || fullText.includes('quick')) setExtractedRequirements(prev => ({ ...prev, pacing: 'fast' }));
+    else if (fullText.includes('slow') || fullText.includes('contemplative')) setExtractedRequirements(prev => ({ ...prev, pacing: 'contemplative' }));
+    else if (fullText.includes('moderate')) setExtractedRequirements(prev => ({ ...prev, pacing: 'moderate' }));
+    else if (fullText.includes('dynamic')) setExtractedRequirements(prev => ({ ...prev, pacing: 'dynamic' }));
+    
+    // Extract music/narration indicators
+    if (fullText.includes('music') || fullText.includes('song') || fullText.includes('track')) {
+      setExtractedRequirements(prev => ({ ...prev, hasMusic: true }));
+    }
+    if (fullText.includes('narration') || fullText.includes('voiceover') || fullText.includes('explain')) {
+      setExtractedRequirements(prev => ({ ...prev, hasNarration: true }));
+    }
+    if (fullText.includes('no music') || fullText.includes('silent')) {
+      setExtractedRequirements(prev => ({ ...prev, hasMusic: false }));
+    }
+    if (fullText.includes('no words') || fullText.includes('no narration')) {
+      setExtractedRequirements(prev => ({ ...prev, hasNarration: false }));
+    }
+  };
+
+  const handleReadyToProceed = async () => {
+    if (!canProceed) return;
+    
+    setIsAnalyzing(true);
     
     try {
-      // Extract the full conversation
-      const conversationText = messages
-        .map(msg => `${msg.role}: ${msg.content}`)
-        .join('\n\n');
-
-      // Call our conversation-to-script API
-      const response = await fetch('/api/conversation-to-script', {
+      // For music only and pure visuals, we can route directly
+      if (selectedVideoType === 'music_only') {
+        const startMessage: Message = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `🎬 Great! Starting to create your music video. I'll show you the progress below...`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, startMessage]);
+        
+        // Extract concept from conversation
+        const concept = messages
+          .filter(m => m.role === 'user')
+          .map(m => m.content)
+          .join(' ');
+        
+        // TEMPORARY: Add debug link for music video
+        const debugLink = `/music-video-pipeline?concept=${encodeURIComponent(concept)}&style=${extractedRequirements.style || 'cinematic'}&pacing=${extractedRequirements.pacing || 'dynamic'}&duration=${extractedRequirements.duration || 60}&contentType=abstract_thematic&musicPreference=auto`;
+        const debugMessage: Message = {
+          id: Date.now().toString() + '-debug',
+          role: 'assistant',
+          content: `🔧 [TEMPORARY DEBUG] Direct pipeline page: <a href="${debugLink}" target="_blank" style="color: #667eea; text-decoration: underline;">Open Music Video Pipeline</a>`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, debugMessage]);
+        
+        executePipeline('MUSIC_VIDEO', {
+          concept,
+          style: extractedRequirements.style || 'cinematic',
+          pacing: extractedRequirements.pacing || 'dynamic',
+          duration: extractedRequirements.duration || 60,
+          contentType: 'abstract_thematic',
+          musicPreference: musicAnalysis ? 'upload' : 'auto',
+          preAnalyzedMusic: musicAnalysis  // Pass the client-side analyzed music data
+        });
+        
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      if (selectedVideoType === 'pure_visuals') {
+        const startMessage: Message = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `🎬 Perfect! Starting to create your visual story. I'll show you the progress below...`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, startMessage]);
+        
+        // Extract concept from conversation
+        const concept = messages
+          .filter(m => m.role === 'user')
+          .map(m => m.content)
+          .join(' ');
+        
+        // TEMPORARY: Add debug link for no-music video
+        const debugLink = `/no-music-video-pipeline?concept=${encodeURIComponent(concept)}&style=${extractedRequirements.style || 'artistic'}&pacing=${extractedRequirements.pacing || 'contemplative'}&duration=${extractedRequirements.duration || 30}&contentType=abstract`;
+        const debugMessage: Message = {
+          id: Date.now().toString() + '-debug',
+          role: 'assistant',
+          content: `🔧 [TEMPORARY DEBUG] Direct pipeline page: <a href="${debugLink}" target="_blank" style="color: #667eea; text-decoration: underline;">Open No-Music Video Pipeline</a>`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, debugMessage]);
+        
+        executePipeline('NO_MUSIC_VIDEO', {
+          concept,
+          style: extractedRequirements.style || 'artistic',
+          pacing: extractedRequirements.pacing || 'contemplative',
+          duration: extractedRequirements.duration || 30,
+          contentType: 'abstract'
+        });
+        
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      // For voiceover_music, we need the router to determine SCRIPT_MODE vs VISION_ENHANCED
+      const response = await fetch('/api/pipeline-router-enhanced', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          conversation: conversationText
+          conversation: messages,
+          userRequirements: extractedRequirements,
+          context: {
+            videoType: selectedVideoType,
+            preSelectedNarration: true
+          }
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate script from conversation');
+        throw new Error('Failed to analyze conversation');
       }
 
-      const data = await response.json();
-      setGeneratedScript(data.script);
-      setScriptGenerated(true);
+      const routingData = await response.json();
+      
+      console.log('Routing data received:', routingData);
+      
+      // Instead of navigating, execute the pipeline
+      const routing_decision = routingData.routing_decision || routingData.routingDecision;
+      
+      if (!routing_decision) {
+        throw new Error('No routing decision in response');
+      }
+      
+      // Add a message about starting the process
+      const startMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `🎬 Great! I understand your requirements. Starting to create your ${
+          routing_decision.pipeline === 'SCRIPT_MODE' ? 'video from your script' :
+          routing_decision.pipeline === 'VISION_ENHANCED' ? 'narrated video from your concept' :
+          'video'
+        }. I'll show you the progress below...`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, startMessage]);
+      
+      // TEMPORARY: Add debug link based on pipeline type
+      let debugLink = '';
+      if (routing_decision.pipeline === 'SCRIPT_MODE' || routing_decision.pipeline === 'VISION_ENHANCED') {
+        debugLink = `/test-tts?${new URLSearchParams(routing_decision.parameters).toString()}`;
+      }
+      
+      if (debugLink) {
+        const debugMessage: Message = {
+          id: Date.now().toString() + '-debug',
+          role: 'assistant',
+          content: `🔧 [TEMPORARY DEBUG] Direct pipeline page: <a href="${debugLink}" target="_blank" style="color: #667eea; text-decoration: underline;">Open ${routing_decision.pipeline} Pipeline</a>`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, debugMessage]);
+      }
+      
+      // Start pipeline execution
+      executePipeline(routing_decision.pipeline, routing_decision.parameters);
       
     } catch (error) {
-      console.error('Error generating script:', error);
-      // Add error message to conversation
+      console.error('Error analyzing conversation:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "Sorry, I had trouble generating the script. Please try again.",
+        content: "Sorry, I had trouble analyzing your requirements. Please try again.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsGeneratingScript(false);
+      setIsAnalyzing(false);
     }
   };
 
-  const handleGenerateVideo = async () => {
-    if (!scriptGenerated || !generatedScript) return;
+  const getPipelineStages = (pipeline: string) => {
+    const stageMap = {
+      SCRIPT_MODE: [
+        { name: 'format_script', agent: 'Script Formatter', status: 'pending' as const },
+        { name: 'generate_audio', agent: 'TTS Engine', status: 'pending' as const },
+        { name: 'transcribe_audio', agent: 'Transcription', status: 'pending' as const },
+        { name: 'generate_cuts', agent: 'Producer Agent', status: 'pending' as const },
+        { name: 'generate_vision', agent: 'Director Agent', status: 'pending' as const },
+        { name: 'generate_cinematography', agent: 'DoP Agent', status: 'pending' as const },
+        { name: 'generate_prompts', agent: 'Prompt Engineer', status: 'pending' as const },
+        { name: 'generate_images', agent: 'Image Generator', status: 'pending' as const }
+      ],
+      VISION_ENHANCED: [
+        { name: 'vision_understanding', agent: 'Vision Agent', status: 'pending' as const },
+        { name: 'generate_audio', agent: 'TTS Engine', status: 'pending' as const },
+        { name: 'transcribe_audio', agent: 'Transcription', status: 'pending' as const },
+        { name: 'generate_cuts', agent: 'Producer Agent', status: 'pending' as const },
+        { name: 'generate_vision', agent: 'Director Agent', status: 'pending' as const },
+        { name: 'generate_cinematography', agent: 'DoP Agent', status: 'pending' as const },
+        { name: 'generate_prompts', agent: 'Prompt Engineer', status: 'pending' as const },
+        { name: 'generate_images', agent: 'Image Generator', status: 'pending' as const }
+      ],
+      MUSIC_VIDEO: [
+        { name: 'vision_understanding', agent: 'Vision Agent', status: 'pending' as const },
+        { name: 'music_analysis', agent: 'Music Analyzer + Producer', status: 'pending' as const },
+        { name: 'music_director', agent: 'Music Director', status: 'pending' as const },
+        { name: 'music_dop', agent: 'Music DoP', status: 'pending' as const },
+        { name: 'music_prompts', agent: 'Music Prompt Engineer', status: 'pending' as const },
+        { name: 'generate_images', agent: 'Image Generator', status: 'pending' as const }
+      ],
+      NO_MUSIC_VIDEO: [
+        { name: 'vision_understanding', agent: 'Vision Agent', status: 'pending' as const },
+        { name: 'no_music_director', agent: 'Director', status: 'pending' as const },
+        { name: 'no_music_dop', agent: 'DoP', status: 'pending' as const },
+        { name: 'no_music_prompts', agent: 'Prompt Engineer', status: 'pending' as const },
+        { name: 'generate_images', agent: 'Image Generator', status: 'pending' as const }
+      ]
+    };
+    
+    return stageMap[pipeline as keyof typeof stageMap] || [];
+  };
+
+  const executePipeline = async (pipeline: string, parameters: any) => {
+    const sessionId = `session-${Date.now()}`;
+    
+    // Get pipeline stages
+    const pipelineStages = getPipelineStages(pipeline);
+    
+    // Clear previous debug data and initialize pipeline state
+    setAgentResponses({});
+    setPipelineState({
+      isRunning: true,
+      pipeline,
+      stages: pipelineStages,
+      currentStage: pipelineStages[0]?.name || null,
+      generatedImages: [],
+      imageGenerationProgress: {
+        currentIndex: 0,
+        totalImages: 0,
+        percentage: 0,
+        isGenerating: false,
+        message: ''
+      },
+      error: null,
+      sessionId
+    });
     
     try {
-      // Navigate to test-tts with the generated script
-      const searchParams = new URLSearchParams({
-        conversationMode: 'true',
-        script: encodeURIComponent(generatedScript)
-      });
+      // Create project folder
+      const folderId = `${pipeline.toLowerCase()}-${Date.now()}`;
+      parameters.folderId = folderId;
+      parameters.sessionId = sessionId;
       
-      router.push(`/test-tts?${searchParams.toString()}`);
+      // Execute each stage sequentially and update UI in real-time
+      const results: Record<string, any> = {};
+      
+      for (let i = 0; i < pipelineStages.length; i++) {
+        const stage = pipelineStages[i];
+        
+        // Mark current stage as running
+        setPipelineState(prev => ({
+          ...prev,
+          currentStage: stage.name,
+          stages: prev.stages.map((s, index) => 
+            index === i 
+              ? { ...s, status: 'running' }
+              : index < i 
+                ? { ...s, status: 'completed' }
+                : s
+          )
+        }));
+        
+        console.log(`🚀 Starting stage: ${stage.name}`);
+        
+        // Execute the individual stage
+        try {
+          const stageResult = await executeIndividualStage(stage, parameters, results);
+          results[stage.name] = stageResult;
+          
+          // Store agent response for debug mode
+          console.log('Storing agent response, debug mode:', debugMode);
+          if (debugMode) {
+            setAgentResponses(prev => {
+              const newResponses = {
+                ...prev,
+                [stage.name]: {
+                  agent: stage.agent,
+                  timestamp: new Date().toISOString(),
+                  request: prepareStageRequestBody(stage.name, parameters, results),
+                  response: stageResult,
+                  executionTime: stageResult.executionTime || 0
+                }
+              };
+              console.log('Updated agent responses:', newResponses);
+              return newResponses;
+            });
+          }
+          
+          // Mark stage as completed
+          setPipelineState(prev => ({
+            ...prev,
+            stages: prev.stages.map((s, index) => 
+              index === i 
+                ? { ...s, status: 'completed', duration: 25000 + Math.random() * 10000 }
+                : s
+            )
+          }));
+          
+          console.log(`✅ Completed stage: ${stage.name}`);
+          
+          // Handle image generation stage specifically
+          if (stage.name === 'generate_images') {
+            if (stageResult.stage7_image_generation?.generated_images) {
+              const generatedImages = stageResult.stage7_image_generation.generated_images;
+              setPipelineState(prev => ({
+                ...prev,
+                generatedImages: generatedImages,
+                imageGenerationProgress: {
+                  currentIndex: generatedImages.length,
+                  totalImages: generatedImages.length,
+                  percentage: 100,
+                  isGenerating: false,
+                  message: `✅ Generated ${generatedImages.length} images successfully`
+                }
+              }));
+            } else {
+              // Get expected image count from previous stage results
+              const promptsResult = results.music_prompts || results.no_music_prompts;
+              const expectedImageCount = promptsResult?.stage6_prompt_engineer_output?.flux_prompts?.length || 
+                                       promptsResult?.stage6_prompt_engineer_output?.prompts_output?.length ||
+                                       8; // fallback
+              
+              // Start real-time image monitoring
+              console.log(`🎨 Starting real-time image generation monitoring for ${expectedImageCount} images...`);
+              startImageGenerationMonitoring(parameters.folderId, expectedImageCount);
+            }
+          }
+          
+        } catch (stageError) {
+          console.error(`❌ Stage ${stage.name} failed:`, stageError);
+          
+          // Mark stage as error and stop pipeline
+          setPipelineState(prev => ({
+            ...prev,
+            isRunning: false,
+            error: `Stage ${stage.name} failed`,
+            stages: prev.stages.map((s, index) => 
+              index === i 
+                ? { ...s, status: 'error' }
+                : s
+            )
+          }));
+          
+          const errorMessage: Message = {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: `❌ Stage "${stage.agent}" failed. ${stageError instanceof Error ? stageError.message : 'Unknown error'}`,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          return;
+        }
+      }
+      
+      // All stages completed successfully
+      const completeMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '✨ Your video has been generated successfully! The images are ready and can be converted to video.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, completeMessage]);
+      
+      setPipelineState(prev => ({
+        ...prev,
+        isRunning: false
+      }));
+      
     } catch (error) {
-      console.error('Error navigating to video generation:', error);
+      console.error('Pipeline execution error:', error);
+      
+      setPipelineState(prev => ({
+        ...prev,
+        isRunning: false,
+        error: 'Pipeline execution failed'
+      }));
+      
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '❌ Sorry, there was an error generating your video. Please try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
+
+  const executeIndividualStage = async (stage: PipelineStage, parameters: any, previousResults: any) => {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    
+    // Map stage names to API endpoints
+    const endpointMap: Record<string, string> = {
+      'vision_understanding': '/api/vision-understanding', // Music video pipeline uses music-optimized vision (no TTS)
+      'music_analysis': '/api/music-analysis',
+      'music_producer': '/api/music-producer-agent',
+      'music_director': '/api/music-director-agent',
+      'music_dop': '/api/music-dop-agent',
+      'music_prompts': '/api/music-prompt-engineer-agent',
+      'generate_images': '/api/generate-images', // Now uses ComfyUI Python script integration
+      'no_music_director': '/api/no-music-director-agent',
+      'no_music_dop': '/api/no-music-dop-agent',
+      'no_music_prompts': '/api/no-music-prompt-engineer-agent'
+    };
+    
+    const endpoint = endpointMap[stage.name];
+    if (!endpoint) {
+      throw new Error(`No endpoint mapping for stage: ${stage.name}`);
+    }
+    
+    // Prepare request body based on stage requirements
+    const requestBody = prepareStageRequestBody(stage.name, parameters, previousResults);
+    
+    console.log(`📤 Calling ${endpoint}`, { requestBody: Object.keys(requestBody) });
+    
+    // Execute the API call
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`${stage.agent} failed: ${error}`);
+    }
+    
+    return response.json();
+  };
+
+  const prepareStageRequestBody = (stageName: string, parameters: any, previousResults: any): any => {
+    switch (stageName) {
+      case 'vision_understanding':
+        return {
+          userInput: parameters.concept,
+          additionalContext: {
+            stylePreferences: {
+              pacing: parameters.pacing || 'moderate',
+              visualStyle: parameters.style || 'cinematic',
+              duration: parameters.duration || 60
+            },
+            technicalRequirements: {
+              contentType: parameters.contentType || 'music_video'
+            },
+            musicContext: {
+              willHaveMusic: true,
+              musicStyle: 'background_sync',
+              noTtsRequired: true
+            }
+          },
+          folderId: parameters.folderId
+        };
+        
+      case 'music_analysis':
+        // Handle client-side analyzed music data
+        const preAnalyzedMusic = parameters.preAnalyzedMusic;
+        const actualMusicPreference = preAnalyzedMusic ? 'upload' : parameters.musicPreference || 'auto';
+          
+        console.log('🎵 MUSIC_ANALYSIS REQUEST PREPARATION:');
+        console.log(`- Music preference: ${actualMusicPreference}`);
+        console.log(`- Has pre-analyzed music: ${!!preAnalyzedMusic}`);
+        console.log(`- Music title: ${preAnalyzedMusic?.trackMetadata?.title || 'N/A'}`);
+        console.log(`- Music BPM: ${preAnalyzedMusic?.musicAnalysis?.bpm || 'N/A'}`);
+        
+        const requestBody = {
+          visionDocument: previousResults.vision_understanding,
+          audioFile: null, // No need to send file, we have analysis
+          musicPreference: actualMusicPreference,
+          preAnalyzedMusic: preAnalyzedMusic,
+          // Add some debug info
+          originalUserInput: { concept: parameters.concept },
+          rawVisionAnalysis: previousResults.vision_understanding
+        };
+        
+        console.log('🎵 Full music analysis request body:', JSON.stringify(requestBody, null, 2));
+        
+        return requestBody;
+        
+      case 'music_director':
+        // Music director needs vision document and music analysis (which includes producer results)
+        const visionResultForMusicDirector = previousResults.vision_understanding;
+        const musicAnalysisResult = previousResults.music_analysis;
+        
+        let visionDocForMusicDirector = null;
+        
+        // Get vision document
+        if (visionResultForMusicDirector?.visionDocument) {
+          visionDocForMusicDirector = visionResultForMusicDirector.visionDocument;
+        } else if (visionResultForMusicDirector?.stage1_vision_analysis?.vision_document) {
+          visionDocForMusicDirector = visionResultForMusicDirector.stage1_vision_analysis.vision_document;
+        } else if (visionResultForMusicDirector?.vision_document) {
+          visionDocForMusicDirector = visionResultForMusicDirector.vision_document;
+        }
+        
+        console.log('🎬 MUSIC_DIRECTOR REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForMusicDirector}`);
+        console.log(`- Music analysis found: ${!!musicAnalysisResult}`);
+        console.log(`- Producer cuts in analysis: ${!!musicAnalysisResult?.stage3_producer_output}`);
+        
+        return {
+          userVisionDocument: visionDocForMusicDirector,
+          musicAnalysis: musicAnalysisResult?.stage2_music_analysis?.musicAnalysis,
+          producerCutPoints: musicAnalysisResult?.stage3_producer_output?.cutPoints || musicAnalysisResult?.stage3_producer_output?.cut_points,
+          contentClassification: { type: 'music_video' },
+          folderId: parameters.folderId
+        };
+        
+      case 'music_dop':
+        // Music DoP needs vision document, director beats, and music analysis
+        const visionResultForMusicDop = previousResults.vision_understanding;
+        const musicDirectorResult = previousResults.music_director;
+        const musicAnalysisForDop = previousResults.music_analysis;
+        
+        let visionDocForMusicDop = null;
+        
+        // Get vision document
+        if (visionResultForMusicDop?.visionDocument) {
+          visionDocForMusicDop = visionResultForMusicDop.visionDocument;
+        } else if (visionResultForMusicDop?.stage1_vision_analysis?.vision_document) {
+          visionDocForMusicDop = visionResultForMusicDop.stage1_vision_analysis.vision_document;
+        } else if (visionResultForMusicDop?.vision_document) {
+          visionDocForMusicDop = visionResultForMusicDop.vision_document;
+        }
+        
+        // Handle both parsed JSON and raw response fallback from Music Director
+        let directorBeats = null;
+        if (musicDirectorResult?.stage4_director_output?.visual_beats) {
+          directorBeats = musicDirectorResult.stage4_director_output.visual_beats;
+        } else if (musicDirectorResult?.stage4_director_output?.raw_director_response) {
+          // Raw response fallback - pass the raw text to DoP agent
+          directorBeats = {
+            raw_director_response: musicDirectorResult.stage4_director_output.raw_director_response,
+            parsing_note: "Director response contains visual beats in raw format"
+          };
+        } else {
+          directorBeats = musicDirectorResult?.visual_beats || musicDirectorResult?.visualBeats || musicDirectorResult;
+        }
+        
+        console.log('🎬 MUSIC_DOP REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForMusicDop}`);
+        console.log(`- Director beats found: ${!!directorBeats}`);
+        console.log(`- Music analysis found: ${!!musicAnalysisForDop}`);
+        console.log(`- Using fallback strategy: ${!!musicDirectorResult?.fallback_used}`);
+        
+        return {
+          visionDocument: visionDocForMusicDop,
+          directorVisualBeats: directorBeats,
+          musicAnalysis: musicAnalysisForDop?.stage2_music_analysis?.musicAnalysis || musicAnalysisForDop?.musicAnalysis,
+          contentClassification: { type: 'music_video' },
+          folderId: parameters.folderId
+        };
+        
+      case 'music_prompts':
+        // Music Prompt Engineer needs vision document, director beats, and DoP specs
+        const visionResultForMusicPrompts = previousResults.vision_understanding;
+        const musicDirectorForPrompts = previousResults.music_director;
+        const musicDopResult = previousResults.music_dop;
+        
+        let visionDocForMusicPrompts = null;
+        
+        // Get vision document
+        if (visionResultForMusicPrompts?.visionDocument) {
+          visionDocForMusicPrompts = visionResultForMusicPrompts.visionDocument;
+        } else if (visionResultForMusicPrompts?.stage1_vision_analysis?.vision_document) {
+          visionDocForMusicPrompts = visionResultForMusicPrompts.stage1_vision_analysis.vision_document;
+        } else if (visionResultForMusicPrompts?.vision_document) {
+          visionDocForMusicPrompts = visionResultForMusicPrompts.vision_document;
+        }
+        
+        // Handle director beats (might be raw response)
+        let directorBeatsForPrompts = null;
+        if (musicDirectorForPrompts?.stage4_director_output?.visual_beats) {
+          directorBeatsForPrompts = musicDirectorForPrompts.stage4_director_output.visual_beats;
+        } else if (musicDirectorForPrompts?.stage4_director_output?.raw_director_response) {
+          // Pass raw response for prompt engineer to parse
+          directorBeatsForPrompts = {
+            raw_director_response: musicDirectorForPrompts.stage4_director_output.raw_director_response,
+            parsing_note: "Director response in raw format for prompt engineer parsing"
+          };
+        } else {
+          directorBeatsForPrompts = musicDirectorForPrompts?.visual_beats || musicDirectorForPrompts?.visualBeats || musicDirectorForPrompts;
+        }
+        
+        // Handle DoP specs
+        let dopSpecs = null;
+        if (musicDopResult?.stage5_dop_output?.cinematographic_shots) {
+          dopSpecs = musicDopResult.stage5_dop_output.cinematographic_shots;
+        } else if (musicDopResult?.cinematographic_shots) {
+          dopSpecs = musicDopResult.cinematographic_shots;
+        } else {
+          dopSpecs = musicDopResult;
+        }
+        
+        console.log('🎨 MUSIC_PROMPTS REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForMusicPrompts}`);
+        console.log(`- Director beats found: ${!!directorBeatsForPrompts}`);
+        console.log(`- DoP specs found: ${!!dopSpecs}`);
+        console.log(`- Using director fallback: ${!!musicDirectorForPrompts?.fallback_used}`);
+        
+        return {
+          userVisionDocument: visionDocForMusicPrompts,
+          directorBeats: directorBeatsForPrompts,
+          dopSpecs: dopSpecs,
+          contentClassification: { type: 'music_video' },
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_images':
+        // Image Generation needs prompt engineer output
+        const musicPromptResult = previousResults.music_prompts;
+        const noMusicPromptResult = previousResults.no_music_prompts;
+        
+        let promptsOutput = null;
+        
+        // Get prompts from either music or no-music prompt engineer
+        if (musicPromptResult?.stage6_prompt_engineer_output?.flux_prompts) {
+          promptsOutput = musicPromptResult.stage6_prompt_engineer_output.flux_prompts;
+        } else if (musicPromptResult?.stage6_prompt_engineer_output?.prompts_output) {
+          promptsOutput = musicPromptResult.stage6_prompt_engineer_output.prompts_output;
+        } else if (musicPromptResult?.prompts_output) {
+          promptsOutput = musicPromptResult.prompts_output;
+        } else if (noMusicPromptResult?.stage4_prompt_engineer_output?.prompts_output) {
+          promptsOutput = noMusicPromptResult.stage4_prompt_engineer_output.prompts_output;
+        } else if (noMusicPromptResult?.prompts_output) {
+          promptsOutput = noMusicPromptResult.prompts_output;
+        }
+        
+        console.log('🎨 IMAGE_GENERATION REQUEST PREPARATION:');
+        console.log(`- Music prompt result structure:`, Object.keys(musicPromptResult || {}));
+        console.log(`- Checking stage6_prompt_engineer_output:`, !!musicPromptResult?.stage6_prompt_engineer_output);
+        console.log(`- Checking direct prompts_output:`, !!musicPromptResult?.prompts_output);
+        console.log(`- Full music prompt result:`, musicPromptResult);
+        console.log(`- Prompts found: ${!!promptsOutput}`);
+        console.log(`- Prompt count: ${promptsOutput?.length || 0}`);
+        console.log(`- Folder ID: ${parameters.folderId}`);
+        
+        return {
+          promptsOutput: promptsOutput,
+          folderId: parameters.folderId,
+          pipeline: pipelineState.pipeline
+        };
+        
+      default:
+        // For other stages, pass all parameters and previous results
+        return { ...parameters, ...previousResults };
+    }
+  };
+
+  // Poll for pipeline updates (in production, use WebSockets)
+  useEffect(() => {
+    if (!pipelineState.isRunning || !pipelineState.sessionId) return;
+    
+    // For now, just show that pipeline is running without fake progress
+    // In production, this would poll a real status endpoint
+    console.log('Pipeline is running, would poll for real updates here...');
+    
+  }, [pipelineState.isRunning, pipelineState.sessionId]);
 
   return (
     <div className={styles.container}>
+      {showVideoTypeSelector && (
+        <VideoTypeSelector onSelect={handleVideoTypeSelect} />
+      )}
+      
       <div className={styles.header}>
         <h1 className={styles.title}>VinVideo</h1>
         <nav className={styles.nav}>
           <a href="/" className={styles.navLink}>Home</a>
           <a href="/test-tts" className={styles.navLink}>Script Mode</a>
+          <button 
+            onClick={() => {
+              console.log('Debug toggle clicked, current:', debugMode);
+              setDebugMode(!debugMode);
+            }}
+            className={`${styles.debugToggle} ${debugMode ? styles.active : ''}`}
+            title="Toggle debug mode to see agent responses"
+          >
+            {debugMode ? '🔍 Debug: ON' : '👁️ Debug: OFF'}
+          </button>
         </nav>
       </div>
 
@@ -179,9 +1268,10 @@ export default function ConversationMode() {
                 message.role === 'user' ? styles.userMessage : styles.assistantMessage
               }`}
             >
-              <div className={styles.messageContent}>
-                {message.content}
-              </div>
+              <div 
+                className={styles.messageContent}
+                dangerouslySetInnerHTML={{ __html: message.content }}
+              />
             </div>
           ))}
           {isLoading && (
@@ -195,55 +1285,191 @@ export default function ConversationMode() {
               </div>
             </div>
           )}
+          
+          {/* Show pipeline progress when running */}
+          {pipelineState.isRunning && pipelineState.pipeline && (
+            <PipelineProgress
+              pipeline={pipelineState.pipeline}
+              stages={pipelineState.stages}
+              currentStage={pipelineState.currentStage || undefined}
+              generatedImages={pipelineState.generatedImages}
+              imageGenerationProgress={pipelineState.imageGenerationProgress}
+            />
+          )}
+          
+          {/* Debug Mode Indicator */}
+          {debugMode && (
+            <div className={styles.debugIndicator}>
+              🔍 Debug mode is active - Agent responses will be captured (Total: {Object.keys(agentResponses).length})
+            </div>
+          )}
+          
+          {/* Debug Mode: Show Agent Responses */}
+          {debugMode && Object.keys(agentResponses).length > 0 && (
+            <div className={styles.debugPanel}>
+              <div className={styles.debugHeader}>
+                <h3 className={styles.debugTitle}>🔍 Agent Responses Debug Panel</h3>
+                <button 
+                  onClick={() => setAgentResponses({})}
+                  className={styles.clearDebugButton}
+                  title="Clear debug data"
+                >
+                  🗑️ Clear
+                </button>
+              </div>
+              {Object.entries(agentResponses).map(([stageName, data]) => (
+                <div key={stageName} className={styles.agentResponse}>
+                  <div className={styles.agentHeader}>
+                    <h4>{data.agent} ({stageName})</h4>
+                    <span className={styles.timestamp}>
+                      {new Date(data.timestamp).toLocaleTimeString()} • {data.executionTime}ms
+                    </span>
+                  </div>
+                  
+                  <div className={styles.responseDetails}>
+                    <div className={styles.responseSection}>
+                      <h5>📤 Request Data:</h5>
+                      <pre className={styles.jsonDisplay}>
+                        {JSON.stringify(data.request, null, 2)}
+                      </pre>
+                    </div>
+                    
+                    <div className={styles.responseSection}>
+                      <h5>📥 Response Data:</h5>
+                      <pre className={styles.jsonDisplay}>
+                        {JSON.stringify(data.response, null, 2)}
+                      </pre>
+                    </div>
+                    
+                    {data.response.rawResponse && (
+                      <div className={styles.responseSection}>
+                        <h5>🔤 Raw LLM Response:</h5>
+                        <pre className={styles.rawResponse}>
+                          {data.response.rawResponse}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className={styles.inputContainer}>
+          {/* Music Upload Section - Show when music_only or voiceover_music is selected */}
+          {(selectedVideoType === 'music_only' || selectedVideoType === 'voiceover_music') && (
+            <div className={`${styles.musicUploadSection} ${musicAnalysis ? styles.minimized : ''}`}>
+              <div className={styles.musicUploadHeader}>
+                <span>🎵 Music Upload (Optional)</span>
+                {audioFile && (
+                  <button 
+                    onClick={clearAudioFile}
+                    className={styles.clearButton}
+                    title="Remove uploaded file"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              
+              {!audioFile ? (
+                <div className={styles.fileUploadArea}>
+                  <input
+                    type="file"
+                    id="audioFile"
+                    accept="audio/mp3,audio/wav,audio/mpeg,audio/mp4,audio/aac"
+                    onChange={handleAudioFileChange}
+                    className={styles.fileInput}
+                    disabled={pipelineState.isRunning || isAnalyzingMusic}
+                  />
+                  <label htmlFor="audioFile" className={styles.fileInputLabel}>
+                    📁 Choose Audio File
+                  </label>
+                  <div className={styles.fileInputHint}>
+                    Supports MP3, WAV, MP4, AAC (max 50MB)
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.uploadedFile}>
+                  {isAnalyzingMusic ? (
+                    <div className={styles.analyzingMusic}>
+                      <span>🎵 Analyzing {audioFileName}...</span>
+                      <div className={styles.loadingDots}>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </div>
+                  ) : musicAnalysis ? (
+                    <div className={styles.analyzedMusic}>
+                      <span className={styles.fileName}>✅ {audioFileName}</span>
+                      <span className={styles.fileSize}>
+                        ({(audioFile.size / 1024 / 1024).toFixed(1)}MB)
+                      </span>
+                      <div className={styles.musicAnalysisInfo}>
+                        🎵 {musicAnalysis.musicAnalysis.bpm} BPM • {musicAnalysis.trackMetadata.duration.toFixed(1)}s
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadedFile}>
+                      <span className={styles.fileName}>✅ {audioFileName}</span>
+                      <span className={styles.fileSize}>
+                        ({(audioFile.size / 1024 / 1024).toFixed(1)}MB)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {musicUploadError && (
+                <div className={styles.uploadError}>
+                  {musicUploadError}
+                </div>
+              )}
+            </div>
+          )}
+          
           <div className={styles.inputWrapper}>
             <textarea
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder={pipelineState.isRunning ? "Pipeline is running..." : "Type a message..."}
               className={styles.messageInput}
               rows={1}
-              disabled={isLoading}
+              disabled={isLoading || pipelineState.isRunning}
             />
             <button
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
+              disabled={!inputMessage.trim() || isLoading || pipelineState.isRunning}
               className={styles.sendButton}
             >
               Send
             </button>
           </div>
           
-          {canGenerateScript && !scriptGenerated && (
+          {canProceed && !pipelineState.isRunning && (
             <button
-              onClick={handleGenerateScript}
-              disabled={isGeneratingScript}
-              className={styles.generateScriptButton}
+              onClick={handleReadyToProceed}
+              disabled={isAnalyzing}
+              className={styles.proceedButton}
             >
-              {isGeneratingScript ? 'Generating Script...' : 'Generate Script'}
+              {isAnalyzing ? 'Analyzing Requirements...' : '✓ I\'m Ready - Analyze My Requirements'}
             </button>
           )}
           
-          {/* Debug info - remove later */}
-          <div style={{color: '#666', fontSize: '12px', marginTop: '0.5rem'}}>
-            Debug: canGenerateScript={canGenerateScript.toString()}, scriptGenerated={scriptGenerated.toString()}, userMessages={messages.filter(m => m.role === 'user').length}
-          </div>
-          
-          {scriptGenerated && (
-            <div className={styles.scriptContainer}>
-              <h3>Generated Script:</h3>
-              <div className={styles.scriptPreview}>
-                {generatedScript}
+          {/* Requirements detection display */}
+          {Object.keys(extractedRequirements).some(key => extractedRequirements[key as keyof ExtractedRequirements] !== null) && (
+            <div className={styles.requirementsDisplay}>
+              <div className={styles.requirementsTitle}>Detected Requirements:</div>
+              <div className={styles.requirementsList}>
+                {extractedRequirements.duration && <span className={styles.requirementTag}>Duration: {extractedRequirements.duration}s</span>}
+                {extractedRequirements.style && <span className={styles.requirementTag}>Style: {extractedRequirements.style}</span>}
+                {extractedRequirements.pacing && <span className={styles.requirementTag}>Pacing: {extractedRequirements.pacing}</span>}
+                {extractedRequirements.hasMusic !== null && <span className={styles.requirementTag}>Music: {extractedRequirements.hasMusic ? 'Yes' : 'No'}</span>}
+                {extractedRequirements.hasNarration !== null && <span className={styles.requirementTag}>Narration: {extractedRequirements.hasNarration ? 'Yes' : 'No'}</span>}
               </div>
-              <button
-                onClick={handleGenerateVideo}
-                className={styles.generateVideoButton}
-              >
-                Generate Video
-              </button>
             </div>
           )}
         </div>

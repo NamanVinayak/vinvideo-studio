@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
 
@@ -31,6 +32,15 @@ interface MusicVideoState {
 }
 
 export default function MusicVideoPipelinePage() {
+  const searchParams = useSearchParams();
+  const conversationMode = searchParams?.get('conversationMode') === 'true';
+  const urlConcept = searchParams?.get('concept');
+  const urlContentType = searchParams?.get('contentType');
+  const urlPacing = searchParams?.get('pacing');
+  const urlStyle = searchParams?.get('style');
+  const urlDuration = searchParams?.get('duration');
+  const urlMusicPreference = searchParams?.get('musicPreference');
+  
   const [state, setState] = useState<MusicVideoState>({
     stage: 1,
     visionDocument: null,
@@ -152,12 +162,12 @@ export default function MusicVideoPipelinePage() {
   };
 
   const [formData, setFormData] = useState({
-    concept: '',
-    pacing: 'moderate',
-    style: 'cinematic',
-    duration: 30,
-    musicPreference: 'auto',
-    contentType: 'abstract_thematic'
+    concept: urlConcept || '',
+    pacing: urlPacing || 'moderate',
+    style: urlStyle || 'cinematic',
+    duration: urlDuration ? parseInt(urlDuration) : 30,
+    musicPreference: urlMusicPreference || 'auto',
+    contentType: urlContentType || 'abstract_thematic'
   });
 
   const [audioFile, setAudioFile] = useState<File | null>(null);

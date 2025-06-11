@@ -128,7 +128,10 @@ export async function POST(request: Request) {
         // Fallback if producer fails
         error: producerResult.error || 'Producer analysis failed',
         segmentSelection: { startTime: 0, endTime: targetDuration, duration: targetDuration },
-        cutStrategy: { totalCuts: 8, averageCutLength: targetDuration / 8 },
+        cutStrategy: { 
+          totalCuts: Math.max(4, Math.min(20, Math.round(targetDuration / 5))), // Dynamic based on duration
+          averageCutLength: Math.round(targetDuration / Math.max(4, Math.min(20, Math.round(targetDuration / 5))) * 10) / 10
+        },
         cutPoints: []
       },
       pipeline_ready: {
@@ -259,9 +262,12 @@ async function callIntelligentProducer(
       creative_brief: `Create an intelligent cutting strategy for a ${targetDuration}s music video with the concept: "${visionDocument.core_concept}". The video has ${visionDocument.pacing} pacing and ${visionDocument.visual_style} visual style. Consider both musical structure and emotional narrative.`
     };
 
-    console.log('Calling Intelligent Producer Agent with comprehensive musical and story context...');
+    console.log('Calling Intelligent Producer Agent with optimized context...');
+    console.log(`🎬 Producer processing: ${targetDuration}s video with ${visionDocument.pacing} pacing`);
+    console.log(`⏱️ Producer LLM call starting at ${new Date().toISOString()}`);
 
-    const openRouterService = createOpenRouterService('deepseek/deepseek-r1');
+    // Use Gemini 2.5 Flash for producer agent - large context + fast performance
+    const openRouterService = createOpenRouterService('google/gemini-2.5-flash-preview-05-20:thinking');
     
     const result = await openRouterService.chat({
       messages: [
@@ -271,24 +277,42 @@ async function callIntelligentProducer(
         },
         {
           role: 'user',
-          content: `Please analyze this musical and creative context and make intelligent producer decisions about segment selection and cut points:
+          content: `MUSIC VIDEO PRODUCER ANALYSIS - Create intelligent cut strategy
 
-${JSON.stringify(producerInput, null, 2)}`
+CORE CONCEPT: "${visionDocument.core_concept}"
+TARGET DURATION: ${targetDuration}s
+PACING: ${visionDocument.stage1_vision_analysis?.vision_document?.pacing || visionDocument.pacing || 'moderate'}
+VISUAL STYLE: ${visionDocument.stage1_vision_analysis?.vision_document?.visual_style || visionDocument.visual_style || 'cinematic'}
+
+MUSIC ANALYSIS:
+- BPM: ${musicAnalysis.musicAnalysis.bpm}
+- Total Duration: ${musicAnalysis.musicAnalysis.totalDuration}s
+- Beat Count: ${musicAnalysis.musicAnalysis.beats?.length || 0}
+- Downbeats: ${musicAnalysis.musicAnalysis.downbeats?.length || 0}
+- Natural Cut Points: ${musicAnalysis.musicAnalysis.naturalCutPoints?.length || 0}
+
+EMOTIONAL ARC: ${JSON.stringify(visionDocument.emotion_arc || visionDocument.emotionArc)}
+
+Create intelligent producer decisions for cut points and segment selection.`
         }
       ],
-      temperature: 0.7,
-      max_tokens: 4000
+      temperature: 0.7,  // Gemini works better with higher temperature
+      max_tokens: 8000   // Increased for complete responses
     });
 
     const executionTime = Date.now() - startTime;
+    console.log(`⏱️ Producer LLM call completed at ${new Date().toISOString()}`);
+    console.log(`🚀 Producer agent execution time: ${executionTime}ms (${(executionTime/1000).toFixed(1)}s)`);
 
     if (result.choices && result.choices.length > 0) {
       const responseContent = result.choices[0].message.content;
-      console.log('Raw Producer response length:', responseContent.length);
+      console.log('Raw Producer response length:', responseContent?.length || 0);
+      console.log('Raw Producer response preview:', responseContent?.substring(0, 200) || 'EMPTY RESPONSE');
+      console.log('Full result structure:', JSON.stringify(result, null, 2));
       
       try {
         // Try multiple JSON extraction methods
-        let producerDecisions = await tryParseProducerResponse(responseContent);
+        let producerDecisions = await tryParseProducerResponse(responseContent, targetDuration);
         
         // If parsing succeeded, validate structure
         if (!producerDecisions || !producerDecisions.cut_points) {
@@ -351,7 +375,7 @@ ${JSON.stringify(producerInput, null, 2)}`
 /**
  * Try multiple methods to parse Producer response
  */
-async function tryParseProducerResponse(responseContent: string) {
+async function tryParseProducerResponse(responseContent: string, targetDuration: number = 60) {
   const cleanedResponse = cleanJsonResponse(responseContent);
   
   // Method 1: Direct parsing
@@ -392,8 +416,8 @@ async function tryParseProducerResponse(responseContent: string) {
       return {
         success: true,
         cut_points: cutPoints,
-        segment_selection: { start_time: 0, end_time: 60, duration: 60 },
-        cut_strategy: { total_cuts: cutPoints.length, average_cut_length: 60 / cutPoints.length }
+        segment_selection: { start_time: 0, end_time: targetDuration, duration: targetDuration },
+        cut_strategy: { total_cuts: cutPoints.length, average_cut_length: targetDuration / cutPoints.length }
       };
     }
   } catch (e4) {

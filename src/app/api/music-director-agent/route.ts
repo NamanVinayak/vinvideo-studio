@@ -75,7 +75,7 @@ Generate the complete visual beat sequence as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-flash-preview-05-20:thinking",
       messages: [
         {
           role: "system",
@@ -86,7 +86,7 @@ Generate the complete visual beat sequence as JSON only.`;
           content: userContent
         }
       ],
-      max_tokens: 25000,          // Increased for enhanced instructions and detailed beats
+      max_tokens: 32000,          // Increased for complete beat generation
       temperature: 0.15,          // Slight creativity while maintaining musical alignment
       top_p: 0.5,                // Consider multiple creative approaches
       frequency_penalty: 0.2,     // Prevent repetitive concepts
@@ -135,6 +135,9 @@ Generate the complete visual beat sequence as JSON only.`;
 
     // Extract the response content
     const directorResponse = result.choices[0]?.message?.content;
+    
+    console.log('Raw Director response length:', directorResponse?.length || 0);
+    console.log('Raw Director response preview:', directorResponse?.substring(0, 300) || 'EMPTY RESPONSE');
     
     if (!directorResponse) {
       return NextResponse.json({
@@ -191,7 +194,7 @@ Generate the complete visual beat sequence as JSON only.`;
       
       // Validate beat count matches cut points
       const expectedBeats = producerCutPoints.length;
-      const actualBeats = visualBeats.visual_beats ? visualBeats.visual_beats.length : 0;
+      const actualBeats = visualBeats.stage4_director_output?.visual_beats ? visualBeats.stage4_director_output.visual_beats.length : 0;
       
       if (actualBeats !== expectedBeats) {
         console.warn(`Beat count mismatch: expected ${expectedBeats}, got ${actualBeats}`);
@@ -199,7 +202,7 @@ Generate the complete visual beat sequence as JSON only.`;
 
       return NextResponse.json({
         success: true,
-        stage4_director_output: visualBeats,
+        stage4_director_output: visualBeats.stage4_director_output || visualBeats,
         executionTime,
         validation: {
           expectedBeats,
@@ -213,12 +216,29 @@ Generate the complete visual beat sequence as JSON only.`;
       
     } catch (parseError) {
       console.error('Failed to parse music director response as JSON:', parseError);
+      console.log('🔄 Using RAW RESPONSE FALLBACK strategy - passing raw text to next stage');
+      
+      // FALLBACK STRATEGY: Pass raw response with structured wrapper
+      // The next LLM agent can understand the content even with syntax errors
       return NextResponse.json({
         success: true,
-        rawResponse: directorResponse,
+        stage4_director_output: {
+          raw_director_response: directorResponse,
+          parsing_note: "JSON parsing failed, but content is available for next LLM agent",
+          visual_beats: [], // Empty array as fallback
+          content_available: true
+        },
         executionTime,
-        warning: 'Response could not be parsed as JSON',
-        usage: result.usage
+        validation: {
+          expectedBeats: producerCutPoints.length,
+          actualBeats: 0,
+          beatCountMatch: false,
+          musicalSyncEnabled: true,
+          parsing_strategy: "Raw Response Fallback"
+        },
+        rawResponse: directorResponse,
+        usage: result.usage,
+        fallback_used: true
       });
     }
 

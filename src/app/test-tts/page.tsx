@@ -176,6 +176,12 @@ export default function TestTTS() {
   const conversationMode = searchParams?.get('conversationMode') === 'true';
   const conversationData = searchParams?.get('conversation');
   const preGeneratedScript = searchParams?.get('script');
+  const urlUseVisionMode = searchParams?.get('useVisionMode') === 'true';
+  const urlConcept = searchParams?.get('concept');
+  const urlStyle = searchParams?.get('style') as VisionFormData['style'] | null;
+  const urlPacing = searchParams?.get('pacing') as VisionFormData['pacing'] | null;
+  const urlDuration = searchParams?.get('duration');
+  const urlContentType = searchParams?.get('contentType') as VisionFormData['contentType'] | null;
   
   const [script, setScript] = useState<string>('Have you ever been alone at night and heard something outside your door?');
   const [loading, setLoading] = useState<boolean>(false);
@@ -187,14 +193,14 @@ export default function TestTTS() {
   const [loadingDots, setLoadingDots] = useState<string>('');
   const [runId, setRunId] = useState<string | null>(null);
   
-  // NEW: Vision form state
-  const [useVisionMode, setUseVisionMode] = useState<boolean>(false);
+  // NEW: Vision form state (with URL parameter defaults)
+  const [useVisionMode, setUseVisionMode] = useState<boolean>(urlUseVisionMode);
   const [visionFormData, setVisionFormData] = useState<VisionFormData>({
-    concept: '',
-    style: 'cinematic',
-    pacing: 'moderate',
-    duration: 30,
-    contentType: 'general'
+    concept: urlConcept || '',
+    style: urlStyle || 'cinematic',
+    pacing: urlPacing || 'moderate',
+    duration: urlDuration ? parseInt(urlDuration) : 30,
+    contentType: urlContentType || 'general'
   });
 
   // Workflow state (UPDATED: Separated vision understanding from audio generation)

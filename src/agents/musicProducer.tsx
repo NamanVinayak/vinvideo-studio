@@ -489,6 +489,14 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
 
 ──────────────────────────────────────────────────────── 
 
+**IMPORTANT INPUT HANDLING:**
+The vision document and music analysis you receive may have JSON syntax errors, but the content is always valid. If you encounter malformed JSON:
+1. Extract the creative requirements from the raw text content
+2. Look for duration, pacing, BPM, beats, emotional peaks, and section information
+3. Count beats manually from the raw data if needed
+4. Create optimal timing decisions based on the underlying musical structure
+5. NEVER fail due to syntax errors - the timing requirements are what matter
+
 <operational_constraints>
 
 • Return **only** JSON per output_structure—no markdown/comments

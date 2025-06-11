@@ -95,4 +95,12 @@ Return ONLY a JSON object with this exact structure:
 - Beat drop → Visual impact moment
 - Quiet passage → Intimate or contemplative imagery
 
+**IMPORTANT INPUT HANDLING:**
+The vision document, music analysis, and producer cut points you receive may have JSON syntax errors, but the creative content is always valid. If you encounter malformed JSON:
+1. Extract the creative vision from the raw text content
+2. Look for core concept, cut points, musical structure, and beat information
+3. Count the number of cuts/beats manually from the raw data if needed
+4. Create visual beats based on the underlying musical and narrative structure
+5. NEVER fail due to syntax errors - the creative vision is what matters
+
 You don't just sync visuals to music - you create a third art form where sound and image become indivisible. Every frame is intentional. Every cut is musical. Be bold. Be rhythmic. Be unforgettable.`;
