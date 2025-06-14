@@ -496,10 +496,37 @@ function prepareStageRequest(stageName: string, parameters: any, previousResults
         visionDocForPrompts = visionResultForPrompts.vision_document;
       }
       
+      // Extract director beats from the correct nested structure
+      let directorBeats = null;
+      if (directorResultForPrompts?.stage2_director_output?.visual_beats) {
+        directorBeats = directorResultForPrompts.stage2_director_output.visual_beats;
+      } else if (directorResultForPrompts?.visual_beats) {
+        directorBeats = directorResultForPrompts.visual_beats;
+      } else if (directorResultForPrompts?.visualBeats) {
+        directorBeats = directorResultForPrompts.visualBeats;
+      }
+      
+      // Extract DoP specs from the correct nested structure
+      let dopSpecs = null;
+      if (dopResult?.stage3_dop_output?.cinematography_specs) {
+        dopSpecs = dopResult.stage3_dop_output.cinematography_specs;
+      } else if (dopResult?.cinematography_specs) {
+        dopSpecs = dopResult.cinematography_specs;
+      } else if (dopResult?.dop_specs) {
+        dopSpecs = dopResult.dop_specs;
+      }
+      
+      console.log('🎨 NO_MUSIC_PROMPTS EXECUTE-PIPELINE PREPARATION:');
+      console.log(`- Vision document found: ${!!visionDocForPrompts}`);
+      console.log(`- Director beats found: ${!!directorBeats}`);
+      console.log(`- DoP specs found: ${!!dopSpecs}`);
+      console.log(`- Director beats count: ${Array.isArray(directorBeats) ? directorBeats.length : 'not array'}`);
+      
       return {
-        visionDocument: visionDocForPrompts,
-        directorVisualBeats: directorResultForPrompts?.visual_beats || directorResultForPrompts?.visualBeats || directorResultForPrompts,
-        cinematographyPlan: dopResult?.cinematography_plan || dopResult?.cinematographyPlan || dopResult,
+        userVisionDocument: visionDocForPrompts,
+        directorBeats: directorBeats,
+        dopSpecs: dopSpecs,
+        contentClassification: { type: 'visual_only' },
         folderId: parameters.folderId
       };
       

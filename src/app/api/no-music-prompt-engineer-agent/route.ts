@@ -15,6 +15,17 @@ export async function POST(request: Request) {
       contentClassification 
     } = body;
     
+    console.log('🔍 NO-MUSIC-PROMPT-ENGINEER RECEIVED DATA:');
+    console.log(`- Request body keys: ${Object.keys(body).join(', ')}`);
+    console.log(`- userVisionDocument present: ${!!userVisionDocument}`);
+    console.log(`- userVisionDocument type: ${typeof userVisionDocument}`);
+    console.log(`- directorBeats present: ${!!directorBeats}`);
+    console.log(`- directorBeats type: ${typeof directorBeats}`);
+    console.log(`- directorBeats is array: ${Array.isArray(directorBeats)}`);
+    console.log(`- dopSpecs present: ${!!dopSpecs}`);
+    console.log(`- dopSpecs type: ${typeof dopSpecs}`);
+    console.log(`- Full body:`, JSON.stringify(body, null, 2));
+    
     // Validate required inputs
     if (!userVisionDocument || !directorBeats || !dopSpecs) {
       return NextResponse.json({ 

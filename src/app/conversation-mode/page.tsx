@@ -1079,7 +1079,9 @@ export default function ConversationMode() {
     }
     
     // Prepare request body based on stage requirements
+    console.log(`🚨🚨 EXECUTING STAGE: ${stage.name} 🚨🚨`);
     const requestBody = prepareStageRequestBody(stage.name, parameters, previousResults);
+    console.log(`🚨🚨 REQUEST BODY PREPARED FOR: ${stage.name} 🚨🚨`);
     
     const fullUrl = `${baseUrl}${endpoint}`;
     console.log(`📤 Calling ${fullUrl}`, { 
@@ -1119,6 +1121,9 @@ export default function ConversationMode() {
   };
 
   const prepareStageRequestBody = (stageName: string, parameters: any, previousResults: any): any => {
+    console.log(`🎯 STAGE NAME DEBUG: "${stageName}" (length: ${stageName.length})`);
+    console.log(`📋 Previous results keys:`, Object.keys(previousResults || {}));
+    
     switch (stageName) {
       case 'vision_understanding':
         // Configure vision understanding based on USER'S ACTUAL SELECTION, not pipeline name
@@ -1238,6 +1243,31 @@ export default function ConversationMode() {
         console.log('🎵 Full music analysis request body:', JSON.stringify(requestBody, null, 2));
         
         return requestBody;
+        
+      case 'no_music_director':
+        // No-music director needs vision document from vision understanding
+        const visionResultForNoMusicDirector = previousResults.vision_understanding;
+        
+        let visionDocForNoMusicDirector = null;
+        
+        // Get vision document using same logic as music director
+        if (visionResultForNoMusicDirector?.visionDocument) {
+          visionDocForNoMusicDirector = visionResultForNoMusicDirector.visionDocument;
+        } else if (visionResultForNoMusicDirector?.stage1_vision_analysis?.vision_document) {
+          visionDocForNoMusicDirector = visionResultForNoMusicDirector.stage1_vision_analysis.vision_document;
+        } else if (visionResultForNoMusicDirector?.vision_document) {
+          visionDocForNoMusicDirector = visionResultForNoMusicDirector.vision_document;
+        }
+        
+        console.log('🎬 NO_MUSIC_DIRECTOR REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForNoMusicDirector}`);
+        console.log(`- Vision concept: ${visionDocForNoMusicDirector?.core_concept || 'N/A'}`);
+        
+        return {
+          userVisionDocument: visionDocForNoMusicDirector,
+          contentClassification: { type: 'visual_only' },
+          folderId: parameters.folderId
+        };
         
       case 'music_director':
         // Music director needs vision document and music analysis (which includes producer results)
@@ -1368,6 +1398,112 @@ export default function ConversationMode() {
           folderId: parameters.folderId
         };
         
+      case 'no_music_dop': {
+        // DoP agent needs both the vision document and director's visual beats
+        const visionResultForNoMusicDop = previousResults.vision_understanding;
+        const directorResult = previousResults.no_music_director;
+        
+        let visionDocForNoMusicDop = null;
+        
+        // Get vision document using same logic as director
+        if (visionResultForNoMusicDop?.stage1_vision_analysis?.vision_document) {
+          visionDocForNoMusicDop = visionResultForNoMusicDop.stage1_vision_analysis.vision_document;
+        } else if (visionResultForNoMusicDop?.visionDocument) {
+          visionDocForNoMusicDop = visionResultForNoMusicDop.visionDocument;
+        } else if (visionResultForNoMusicDop?.vision_document) {
+          visionDocForNoMusicDop = visionResultForNoMusicDop.vision_document;
+        }
+        
+        // Extract visual beats from the correct nested structure
+        let directorVisualBeats = null;
+        if (directorResult?.stage2_director_output?.visual_beats) {
+          directorVisualBeats = directorResult.stage2_director_output.visual_beats;
+        } else if (directorResult?.visual_beats) {
+          directorVisualBeats = directorResult.visual_beats;
+        } else if (directorResult?.visualBeats) {
+          directorVisualBeats = directorResult.visualBeats;
+        }
+        
+        console.log('🎬 NO_MUSIC_DOP REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForNoMusicDop}`);
+        console.log(`- Director result found: ${!!directorResult}`);
+        console.log(`- Director visual beats: ${!!directorVisualBeats}`);
+        console.log(`- Director visual beats count: ${Array.isArray(directorVisualBeats) ? directorVisualBeats.length : 'not array'}`);
+        
+        return {
+          visionDocument: visionDocForNoMusicDop,
+          directorVisualBeats: directorVisualBeats,
+          folderId: parameters.folderId
+        };
+      }
+      
+      case 'no_music_prompts': {
+        // Prompt engineer needs vision document, director beats, and DoP cinematography
+        const visionResultForNoMusicPrompts = previousResults.vision_understanding;
+        const directorResultForPrompts = previousResults.no_music_director;
+        const dopResult = previousResults.no_music_dop;
+        
+        let visionDocForNoMusicPrompts = null;
+        
+        // Get vision document
+        if (visionResultForNoMusicPrompts?.stage1_vision_analysis?.vision_document) {
+          visionDocForNoMusicPrompts = visionResultForNoMusicPrompts.stage1_vision_analysis.vision_document;
+        } else if (visionResultForNoMusicPrompts?.visionDocument) {
+          visionDocForNoMusicPrompts = visionResultForNoMusicPrompts.visionDocument;
+        } else if (visionResultForNoMusicPrompts?.vision_document) {
+          visionDocForNoMusicPrompts = visionResultForNoMusicPrompts.vision_document;
+        }
+        
+        // Extract director beats
+        let directorBeatsForNoMusicPrompts = null;
+        if (directorResultForPrompts?.stage2_director_output?.visual_beats) {
+          directorBeatsForNoMusicPrompts = directorResultForPrompts.stage2_director_output.visual_beats;
+        } else if (directorResultForPrompts?.visual_beats) {
+          directorBeatsForNoMusicPrompts = directorResultForPrompts.visual_beats;
+        } else if (directorResultForPrompts?.visualBeats) {
+          directorBeatsForNoMusicPrompts = directorResultForPrompts.visualBeats;
+        }
+        
+        // Extract DoP specs - the agent expects the cinematographic_shots array
+        let dopSpecsForNoMusicPrompts = null;
+        if (dopResult?.stage3_dop_output?.cinematographic_shots) {
+          dopSpecsForNoMusicPrompts = dopResult.stage3_dop_output.cinematographic_shots;
+        } else if (dopResult?.cinematographic_shots) {
+          dopSpecsForNoMusicPrompts = dopResult.cinematographic_shots;
+        } else if (dopResult?.stage3_dop_output) {
+          // If no cinematographic_shots found, use entire stage3_dop_output
+          dopSpecsForNoMusicPrompts = dopResult.stage3_dop_output;
+        } else if (dopResult?.cinematography_specs) {
+          dopSpecsForNoMusicPrompts = dopResult.cinematography_specs;
+        } else {
+          // Fallback: use the entire dopResult
+          dopSpecsForNoMusicPrompts = dopResult;
+        }
+        
+        console.log('🎨 NO_MUSIC_PROMPTS REQUEST PREPARATION:');
+        console.log(`- Vision document found: ${!!visionDocForNoMusicPrompts}`);
+        console.log(`- Director beats found: ${!!directorBeatsForNoMusicPrompts}`);
+        console.log(`- DoP specs found: ${!!dopSpecsForNoMusicPrompts}`);
+        console.log(`- Director beats count: ${Array.isArray(directorBeatsForNoMusicPrompts) ? directorBeatsForNoMusicPrompts.length : 'not array'}`);
+        console.log(`- Director result structure:`, Object.keys(directorResultForPrompts || {}));
+        console.log(`- DoP result structure:`, Object.keys(dopResult || {}));
+        console.log(`- Raw vision doc:`, !!visionDocForNoMusicPrompts ? 'has core_concept' : 'null');
+        console.log(`- Raw director beats:`, directorBeatsForNoMusicPrompts);
+        console.log(`- Raw DoP specs:`, dopSpecsForNoMusicPrompts);
+        
+        const requestBody = {
+          userVisionDocument: visionDocForNoMusicPrompts,
+          directorBeats: directorBeatsForNoMusicPrompts,
+          dopSpecs: dopSpecsForNoMusicPrompts,
+          contentClassification: { type: 'visual_only' },
+          folderId: parameters.folderId
+        };
+        
+        console.log('🎨 Final NO_MUSIC_PROMPTS request body:', JSON.stringify(requestBody, null, 2));
+        
+        return requestBody;
+      }
+        
       case 'generate_images':
         console.log('🚨🖼️ GENERATE_IMAGES CASE HIT - UNIFIED HANDLER 🚨');
         
@@ -1409,6 +1545,7 @@ export default function ConversationMode() {
                                musicPromptResult?.stage6_prompt_engineer_output?.flux_prompts ||
                                musicPromptResult?.stage6_prompt_engineer_output?.prompts_output ||
                                musicPromptResult?.prompts_output ||
+                               noMusicPromptResult?.stage4_prompt_engineer_output?.flux_prompts ||
                                noMusicPromptResult?.stage4_prompt_engineer_output?.prompts_output ||
                                noMusicPromptResult?.prompts_output ||
                                null;
