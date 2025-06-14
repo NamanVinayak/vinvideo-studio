@@ -127,6 +127,7 @@ interface VisionDocument {
   audio_mood_hints: string[]; // Changed from music_mood_hints
   visual_complexity: 'simple' | 'moderate' | 'complex';
   color_philosophy: string;
+  detected_artistic_style?: string;
   // NEW: Audio-specific optimization fields
   narration_optimization?: {
     vocal_style: 'dramatic' | 'conversational' | 'mysterious' | 'inspiring' | 'intimate';
@@ -268,15 +269,34 @@ export default function TestTTS() {
 
   // Handle conversation mode analysis
   useEffect(() => {
-    if (conversationMode && preGeneratedScript && !conversationAnalyzed) {
-      // Script is already generated from conversation mode
-      setScript(decodeURIComponent(preGeneratedScript));
-      setConversationAnalyzed(true);
-    } else if (conversationMode && conversationData && !conversationAnalyzed) {
-      // Fallback: analyze conversation (legacy support)
-      analyzeConversationAndGenerateScript();
+    const params = new URLSearchParams(window.location.search);
+    const conversationMode = params.get('conversationMode') === 'true';
+    const preGeneratedScript = params.get('preGeneratedScript');
+    const scriptParam = params.get('script');
+    const useScriptMode = params.get('useScriptMode') === 'true';
+    const conversationData = params.get('conversationData');
+    
+    if (conversationMode) {
+      if (preGeneratedScript) {
+        const decodedScript = decodeURIComponent(preGeneratedScript);
+        setScript(decodedScript);
+        setConversationAnalyzed(true);
+        setUseVisionMode(false);
+      } else if (scriptParam) {
+        // Handle extracted script from conversation mode
+        const decodedScript = decodeURIComponent(scriptParam);
+        setScript(decodedScript);
+        setConversationAnalyzed(true);
+        setUseVisionMode(false);
+        console.log('📝 Using extracted script from conversation:', decodedScript.substring(0, 50) + '...');
+      } else if (useScriptMode) {
+        // Force script mode even without script
+        setUseVisionMode(false);
+      } else if (conversationData) {
+        analyzeConversationAndGenerateScript();
+      }
     }
-  }, [conversationMode, conversationData, preGeneratedScript, conversationAnalyzed]);
+  }, []);
 
   const analyzeConversationAndGenerateScript = async () => {
     if (!conversationData) return;
@@ -822,7 +842,7 @@ export default function TestTTS() {
         hasVisionDocument: !!currentVisionDocument,
         visionConcept: currentVisionDocument?.core_concept,
         hasDopInstructions: !!dopInstructions,
-        detectedArtisticStyle: currentVisionDocument?.detected_artistic_style
+        detectedArtisticStyle: (currentVisionDocument as any)?.detected_artistic_style
       });
       
       const dopResponse = await fetch('/api/dop-agent', {
@@ -925,7 +945,7 @@ export default function TestTTS() {
         visionConcept: currentVisionDocument?.core_concept,
         visualStyle: currentVisionDocument?.visual_style,
         hasPromptEngineerInstructions: !!promptEngineerInstructions,
-        detectedArtisticStyle: currentVisionDocument?.detected_artistic_style
+        detectedArtisticStyle: (currentVisionDocument as any)?.detected_artistic_style
       });
       
       const promptEngineerResponse = await fetch('/api/prompt-engineer-agent', {
@@ -1636,44 +1656,44 @@ export default function TestTTS() {
                     <h3>Execution Stats:</h3>
                     <div className={styles.statsGrid}>
                       <div>
-                        <strong>Execution Time:</strong> {visionAgentResult.executionTime as number}ms
+                        <strong>Execution Time:</strong> {(visionAgentResult as any).executionTime as number}ms
                       </div>
                       <div>
-                        <strong>Pipeline Ready:</strong> {visionAgentResult.pipeline_ready ? '✅ Yes' : '❌ No'}
+                        <strong>Pipeline Ready:</strong> {(visionAgentResult as any).pipeline_ready ? '✅ Yes' : '❌ No'}
                       </div>
                       <div>
-                        <strong>Needs Clarification:</strong> {visionAgentResult.needs_clarification ? '⚠️ Yes' : '✅ No'}
+                        <strong>Needs Clarification:</strong> {(visionAgentResult as any).needs_clarification ? '⚠️ Yes' : '✅ No'}
                       </div>
                       <div>
-                        <strong>Pipeline Type:</strong> {(visionAgentResult.pipeline_type as string) || 'audio_enhanced'}
+                        <strong>Pipeline Type:</strong> {((visionAgentResult as any).pipeline_type as string) || 'audio_enhanced'}
                       </div>
                     </div>
                   </div>
 
-                  {visionAgentResult.validation && (
+                  {(visionAgentResult as any).validation && (
                     <div className={styles.validationStats}>
                       <h3>Validation Scores:</h3>
                       <div className={styles.statsGrid}>
                         <div>
-                          <strong>Audio-Visual Coherence:</strong> {((visionAgentResult.validation as Record<string, unknown>).audio_visual_coherence as number * 100).toFixed(1)}%
+                          <strong>Audio-Visual Coherence:</strong> {(((visionAgentResult as any).validation as Record<string, unknown>).audio_visual_coherence as number * 100).toFixed(1)}%
                         </div>
                         <div>
-                          <strong>Narration Quality:</strong> {((visionAgentResult.validation as Record<string, unknown>).narration_quality_score as number * 100).toFixed(1)}%
+                          <strong>Narration Quality:</strong> {(((visionAgentResult as any).validation as Record<string, unknown>).narration_quality_score as number * 100).toFixed(1)}%
                         </div>
                         <div>
-                          <strong>Concept Specificity:</strong> {((visionAgentResult.validation as Record<string, unknown>).concept_specificity_score as number * 100).toFixed(1)}%
+                          <strong>Concept Specificity:</strong> {(((visionAgentResult as any).validation as Record<string, unknown>).concept_specificity_score as number * 100).toFixed(1)}%
                         </div>
                         <div>
-                          <strong>Emotional Coherence:</strong> {((visionAgentResult.validation as Record<string, unknown>).emotional_coherence_score as number * 100).toFixed(1)}%
+                          <strong>Emotional Coherence:</strong> {(((visionAgentResult as any).validation as Record<string, unknown>).emotional_coherence_score as number * 100).toFixed(1)}%
                         </div>
                         <div>
-                          <strong>Technical Completeness:</strong> {((visionAgentResult.validation as Record<string, unknown>).technical_completeness_score as number * 100).toFixed(1)}%
+                          <strong>Technical Completeness:</strong> {(((visionAgentResult as any).validation as Record<string, unknown>).technical_completeness_score as number * 100).toFixed(1)}%
                         </div>
                       </div>
-                      {visionAgentResult.validation.issues && visionAgentResult.validation.issues.length > 0 && (
+                      {(visionAgentResult as any).validation.issues && (visionAgentResult as any).validation.issues.length > 0 && (
                         <div className={styles.validationIssues}>
                           <h4>Issues:</h4>
-                          {visionAgentResult.validation.issues.map((issue, index) => (
+                          {(visionAgentResult as any).validation.issues.map((issue: any, index: any) => (
                             <div key={index} className={styles.issueItem}>
                               ⚠️ {issue}
                             </div>
@@ -1683,43 +1703,43 @@ export default function TestTTS() {
                     </div>
                   )}
 
-                  {visionAgentResult.stage1_vision_analysis?.audio_optimization && (
+                  {(visionAgentResult as any).stage1_vision_analysis?.audio_optimization && (
                     <div className={styles.audioOptimizationRaw}>
                       <h3>Audio Optimization Analysis:</h3>
                       <div className={styles.statsGrid}>
                         <div>
-                          <strong>Concept Speakability:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.concept_speakability}
+                          <strong>Concept Speakability:</strong> {(visionAgentResult as any).stage1_vision_analysis.audio_optimization.concept_speakability}
                         </div>
                         <div>
-                          <strong>Vocal Performance Potential:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.vocal_performance_potential}
+                          <strong>Vocal Performance Potential:</strong> {(visionAgentResult as any).stage1_vision_analysis.audio_optimization.vocal_performance_potential}
                         </div>
                         <div>
-                          <strong>TTS Friendliness:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.tts_friendliness}
+                          <strong>TTS Friendliness:</strong> {(visionAgentResult as any).stage1_vision_analysis.audio_optimization.tts_friendliness}
                         </div>
                         <div>
-                          <strong>Recommended Voice:</strong> {visionAgentResult.stage1_vision_analysis.audio_optimization.recommended_voice_characteristics}
+                          <strong>Recommended Voice:</strong> {(visionAgentResult as any).stage1_vision_analysis.audio_optimization.recommended_voice_characteristics}
                         </div>
                       </div>
                     </div>
                   )}
 
                   {/* NEW: Agent-Specific Instructions Display */}
-                  {visionAgentResult.stage1_vision_analysis?.agent_instructions && (
+                  {(visionAgentResult as any).stage1_vision_analysis?.agent_instructions && (
                     <div className={styles.agentInstructions}>
                       <h3>🎭 Agent-Specific Instructions from Vision Agent:</h3>
                       
                       {/* Producer Instructions */}
-                      {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions && (
+                      {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions && (
                         <div className={styles.agentInstructionSection}>
                           <h4>📽️ Producer Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
-                            <div><strong>Target Cut Timing:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing}</div>
-                            <div><strong>Audio Analysis Enhancement:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement}</div>
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules && (
+                            <div><strong>Target Cut Timing:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing}</div>
+                            <div><strong>Audio Analysis Enhancement:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules && (
                               <div>
                                 <strong>Pacing Rules:</strong>
                                 <ul>
-                                  {visionAgentResult.stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules.map((rule, index) => (
+                                  {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules.map((rule: any, index: any) => (
                                     <li key={index}>{rule}</li>
                                   ))}
                                 </ul>
@@ -1730,66 +1750,66 @@ export default function TestTTS() {
                       )}
 
                       {/* Director Instructions */}
-                      {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions && (
+                      {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions && (
                         <div className={styles.agentInstructionSection}>
                           <h4>🎬 Director Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy && (
-                              <div><strong>Scene Direction Philosophy:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy && (
+                              <div><strong>Scene Direction Philosophy:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.scene_direction_philosophy}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture && (
-                              <div><strong>Emotional Architecture:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture && (
+                              <div><strong>Emotional Architecture:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.emotional_architecture}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics && (
-                              <div><strong>Character Dynamics:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics && (
+                              <div><strong>Character Dynamics:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.character_relationship_dynamics}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery && (
-                              <div><strong>Visual Storytelling:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery && (
+                              <div><strong>Visual Storytelling:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.visual_storytelling_mastery}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance && (
-                              <div><strong>Pacing & Rhythm:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance && (
+                              <div><strong>Pacing & Rhythm:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.pacing_and_rhythm_guidance}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration && (
-                              <div><strong>Environmental Integration:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration && (
+                              <div><strong>Environmental Integration:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.director_instructions.environmental_integration}</div>
                             )}
                           </div>
                         </div>
                       )}
 
                       {/* DoP Instructions */}
-                      {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions && (
+                      {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions && (
                         <div className={styles.agentInstructionSection}>
                           <h4>📹 DoP Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy && (
-                              <div><strong>Lighting Philosophy:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy && (
+                              <div><strong>Lighting Philosophy:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.movement_style && (
-                              <div><strong>Movement Style:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.movement_style}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style && (
+                              <div><strong>Movement Style:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support && (
-                              <div><strong>Artistic Style Support:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support && (
+                              <div><strong>Artistic Style Support:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support}</div>
                             )}
                           </div>
                         </div>
                       )}
 
                       {/* Prompt Engineer Instructions */}
-                      {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions && (
+                      {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions && (
                         <div className={styles.agentInstructionSection}>
                           <h4>✍️ Prompt Engineer Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements && (
-                              <div><strong>Character Requirements:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements && (
+                              <div><strong>Character Requirements:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.character_requirements}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details && (
-                              <div><strong>Setting Details:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details && (
+                              <div><strong>Setting Details:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.setting_details}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications && (
-                              <div><strong>Technical Specs:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications && (
+                              <div><strong>Technical Specs:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.technical_specifications}</div>
                             )}
-                            {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement && (
-                              <div><strong>Artistic Style:</strong> {visionAgentResult.stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement}</div>
+                            {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement && (
+                              <div><strong>Artistic Style:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.prompt_engineer_instructions.artistic_style_enforcement}</div>
                             )}
                           </div>
                         </div>
@@ -1797,20 +1817,20 @@ export default function TestTTS() {
                     </div>
                   )}
 
-                  {visionAgentResult.rawResponse && (
+                  {(visionAgentResult as any).rawResponse && (
                     <div className={styles.rawResponse}>
                       <h3>Raw Agent Response:</h3>
                       <pre className={styles.rawResponseText}>
-                        {visionAgentResult.rawResponse}
+                        {(visionAgentResult as any).rawResponse}
                       </pre>
                     </div>
                   )}
                 </>
               )}
 
-              {!visionAgentResult.success && visionAgentResult.error && (
+              {!(visionAgentResult as any).success && (visionAgentResult as any).error && (
                 <div className={styles.visionAgentError}>
-                  <strong>Vision Agent Error:</strong> {visionAgentResult.error}
+                  <strong>Vision Agent Error:</strong> {(visionAgentResult as any).error}
                 </div>
               )}
             </div>

@@ -1,5 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const SCRIPT_CHECK_SYSTEM_MESSAGE = `You are a script detection specialist. Analyze the conversation and determine if the user has provided a complete script.
+
+Look for:
+- Explicit mentions like "here is my script", "script:", "narration:", etc.
+- Complete narrative text that could be used as-is for voiceover
+- Quoted text meant to be spoken
+- Text that follows script indicators
+
+If you find a complete script, extract it EXACTLY as provided without any modifications.
+
+Return JSON with this structure:
+{
+  "hasProvidedScript": boolean,
+  "extractedScript": "the exact script if found, null otherwise",
+  "confidence": 0.0 to 1.0
+}`;
+
 const CONVERSATION_ANALYSIS_SYSTEM_MESSAGE = `You are a creative video production analyst specialized in extracting key creative elements from user conversations to feed into a sophisticated AI video production pipeline.
 
 Your role is NOT to write a final script, but to analyze the conversation and determine what creative direction and content should be provided to the Director and Producer agents in our pipeline.
@@ -52,6 +69,41 @@ export async function POST(request: NextRequest) {
         { error: 'Conversation text is required' },
         { status: 400 }
       );
+    }
+
+    // First, check if user provided a script
+    const checkResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
+        'X-Title': 'VinVideo Connected'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          { role: 'system', content: SCRIPT_CHECK_SYSTEM_MESSAGE },
+          { role: 'user', content: conversation }
+        ],
+        temperature: 0.1,
+        max_tokens: 500,
+        response_format: { type: "json_object" }
+      }),
+    });
+
+    if (checkResponse.ok) {
+      const checkData = await checkResponse.json();
+      const result = JSON.parse(checkData.choices[0].message.content);
+      
+      if (result.hasProvidedScript && result.confidence > 0.7) {
+        console.log('✅ User provided script detected, returning it directly');
+        return NextResponse.json({
+          script: result.extractedScript,
+          usage: checkData.usage,
+          mode: 'extracted'
+        });
+      }
     }
 
     // Use OpenRouter with Qwen for conversation analysis

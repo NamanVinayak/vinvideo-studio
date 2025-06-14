@@ -37,16 +37,13 @@ export async function POST(request: Request) {
  */
 async function formatScriptForTTS(script: string): Promise<string> {
   try {
-    console.log('Formatting script with Google Gemini...');
+    console.log('Formatting script with OpenRouter...');
     
-    const googleApiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleApiKey) {
-      console.error('Google AI API key is not configured');
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
+      console.error('OpenRouter API key is not configured');
       return script;
     }
-
-    const genAI = new GoogleGenerativeAI(googleApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const prompt = `You are a professional voice scriptwriter and prompt engineer specialized in formatting content for text-to-speech (TTS) systems. Your primary objective is to transform the provided script so that it is perfectly optimized for natural, expressive vocal delivery without adding any new narrative or context.
 
@@ -83,21 +80,45 @@ Transformation Only:
 Please format this script for TTS:
 
 ${script}`;
-    
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const formattedScript = response.text();
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterApiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:3000',
+        'X-Title': 'VinVideo Connected'
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-flash-1.5',
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 1500,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenRouter API error:', response.status, errorData);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const formattedScript = data.choices[0].message.content;
     
     if (!formattedScript) {
-      console.warn('Gemini did not return a formatted script, using original script instead');
+      console.warn('OpenRouter did not return a formatted script, using original script instead');
       return script;
     }
     
     console.log('Script formatted successfully. Sample:', formattedScript.substring(0, 100) + '...');
     return formattedScript;
   } catch (error) {
-    console.error('Error formatting script with Gemini:', error);
+    console.error('Error formatting script with OpenRouter:', error);
     // Return original script if formatting fails
     return script;
   }
-} 
+}

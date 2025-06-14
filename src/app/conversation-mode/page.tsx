@@ -688,14 +688,80 @@ export default function ConversationMode() {
       // For voiceover_music, user explicitly wants NARRATED content
       // Only use SCRIPT_MODE if user provided a complete script, otherwise VISION_ENHANCED
       const conversationText = messages.map(m => m.content).join(' ').toLowerCase();
-      const hasCompleteScript = conversationText.includes('here is my script') || 
-                               conversationText.includes('here\'s my script') ||
-                               conversationText.includes('script:');
+
+      // Enhanced script detection patterns
+      const scriptIndicators = [
+        'here is my script', 'here\'s my script', 'script:', 'my script is',
+        'the script:', 'narration:', 'voiceover:', 'here\'s what to say',
+        'please use this script', 'use this text:', 'here is the narration',
+        'here\'s the narration', 'the narration is', 'use this narration'
+      ];
+
+      // Check if any indicator is present
+      const hasCompleteScript = scriptIndicators.some(indicator => 
+        conversationText.includes(indicator)
+      );
+
+      // Extract the actual script content
+      let extractedScript = null;
+      if (hasCompleteScript) {
+        // Get full text with original case
+        const fullText = messages.map(m => m.content).join('\n');
+        
+        for (const indicator of scriptIndicators) {
+          const lowerIndex = conversationText.indexOf(indicator);
+          if (lowerIndex !== -1) {
+            // Find the indicator in original case text
+            const originalIndex = fullText.toLowerCase().indexOf(indicator);
+            const afterIndicator = fullText.substring(originalIndex + indicator.length);
+            
+            // Clean and extract script
+            let script = afterIndicator
+              .trim()
+              .replace(/^[:\s-]+/, ''); // Remove leading colons, spaces, dashes
+            
+            // Extract until double newline or end
+            const doubleNewlineIndex = script.indexOf('\n\n');
+            if (doubleNewlineIndex > 0) {
+              script = script.substring(0, doubleNewlineIndex);
+            }
+            
+            // Validate minimum length (at least 20 words)
+            if (script.split(/\s+/).length >= 20) {
+              extractedScript = script.trim();
+              console.log('✅ Extracted script:', extractedScript);
+              break;
+            }
+          }
+        }
+        
+        // If no script extracted with indicators, check for quoted text
+        if (!extractedScript) {
+          const quotePatterns = [
+            /"([^"]+)"/, // Double quotes
+            /'([^']+)'/, // Single quotes
+            /"([^"]+)"/, // Smart quotes
+            /'([^']+)'/, // Smart single quotes
+          ];
+          
+          for (const pattern of quotePatterns) {
+            const match = fullText.match(pattern);
+            if (match && match[1] && match[1].split(/\s+/).length >= 20) {
+              extractedScript = match[1].trim();
+              console.log('✅ Extracted quoted script:', extractedScript);
+              break;
+            }
+          }
+        }
+      }
+
+      console.log('Script detection result:', { hasCompleteScript, extractedScript });
       
       const selectedPipeline = hasCompleteScript ? 'SCRIPT_MODE' : 'VISION_ENHANCED';
       
       console.log(`🎤 User selected voiceover_music → routing to ${selectedPipeline}`);
       console.log(`📝 Has complete script: ${hasCompleteScript}`);
+      console.log(`📝 Extracted script: ${extractedScript ? extractedScript.substring(0, 50) + '...' : 'None'}`);
       
       // Extract concept from conversation
       const concept = messages
@@ -715,7 +781,9 @@ export default function ConversationMode() {
       setMessages(prev => [...prev, startMessage]);
       
       // TEMPORARY: Add debug link
-      const debugLink = `/test-tts?concept=${encodeURIComponent(concept)}&style=${extractedRequirements.style || 'cinematic'}&pacing=${extractedRequirements.pacing || 'moderate'}&duration=${extractedRequirements.duration || 30}&conversationMode=true&useVisionMode=true`;
+      const debugLink = extractedScript 
+        ? `/test-tts?script=${encodeURIComponent(extractedScript)}&conversationMode=true&useScriptMode=true&duration=${extractedRequirements.duration || 30}`
+        : `/test-tts?concept=${encodeURIComponent(concept)}&style=${extractedRequirements.style || 'cinematic'}&pacing=${extractedRequirements.pacing || 'moderate'}&duration=${extractedRequirements.duration || 30}&conversationMode=true&useVisionMode=true`;
       const debugMessage: Message = {
         id: Date.now().toString() + '-debug',
         role: 'assistant',
@@ -731,8 +799,9 @@ export default function ConversationMode() {
         pacing: extractedRequirements.pacing || 'moderate',
         duration: extractedRequirements.duration || 30,
         conversationMode: 'true',
-        useVisionMode: 'true',
-        script: hasCompleteScript ? concept : undefined  // Only pass script if explicitly provided
+        useVisionMode: extractedScript ? 'false' : 'true',
+        useScriptMode: extractedScript ? 'true' : 'false',
+        script: extractedScript || (hasCompleteScript ? concept : undefined)
       });
       
     } catch (error) {
@@ -1367,10 +1436,17 @@ export default function ConversationMode() {
         
       // TTS/Audio pipeline stages
       case 'format_script':
-        // Script formatting needs the vision document or user script
+        // Script formatting needs the extracted script or vision document
         const visionDoc = previousResults.vision_understanding?.stage1_vision_analysis?.vision_document;
+        console.log('🎭 Format script - available inputs:', {
+          paramScript: !!parameters.script,
+          visionNarration: !!visionDoc?.narration_script,
+          visionConcept: !!visionDoc?.core_concept,
+          concept: !!parameters.concept
+        });
+        
         return {
-          script: parameters.script || visionDoc?.core_concept || parameters.concept,
+          script: parameters.script || visionDoc?.narration_script || visionDoc?.core_concept || parameters.concept,
           folderId: parameters.folderId
         };
         

@@ -61,9 +61,15 @@ next-env.d.ts
 # Generated content
 /public/generated-*
 /public/script-*
+/public/run-*/
+/public/vision_enhanced-*/
+/public/music_video-*/
+/public/no_music_video-*/
+/public/old/
 *_transcription.json
 generated_image.*
 flux_dev_example.*
+src/utils/temp_prompts.json
 
 # Test results
 /test_results/
