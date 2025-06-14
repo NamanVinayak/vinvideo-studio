@@ -471,6 +471,12 @@ export default function TestTTS() {
 
         const visionData = await visionResponse.json();
         
+        // Debug: Log what we received from vision API
+        console.log('🔍 DEBUG - test-tts received from vision API:');
+        console.log('- visionData.narrationScript:', visionData.narrationScript);
+        console.log('- visionData keys:', Object.keys(visionData));
+        console.log('- visionData structure:', JSON.stringify(visionData, null, 2));
+        
         // Store vision results immediately
         setVisionDocument(visionData.visionDocument);
         setVisionAgentResult(visionData.visionAgentData);
@@ -489,6 +495,11 @@ export default function TestTTS() {
         // Step 3: Generate Audio from Script (Separate step)
         updateStepStatus(2, 'processing');
         const step3Start = Date.now();
+        
+        // Debug: Log what we're sending to TTS
+        console.log('🔍 DEBUG - test-tts sending to TTS API:');
+        console.log('- visionData.narrationScript:', visionData.narrationScript);
+        console.log('- typeof visionData.narrationScript:', typeof visionData.narrationScript);
         
         const audioResponse = await fetch('/api/generate-audio-from-script', {
           method: 'POST',

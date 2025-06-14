@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import VideoTypeSelector from './components/VideoTypeSelector';
 import PipelineProgress from './components/PipelineProgress';
@@ -48,7 +47,6 @@ interface PipelineState {
 }
 
 export default function ConversationMode() {
-  const router = useRouter();
   const [showVideoTypeSelector, setShowVideoTypeSelector] = useState(true);
   const [selectedVideoType, setSelectedVideoType] = useState<'music_only' | 'voiceover_music' | 'pure_visuals' | null>(null);
   
@@ -176,8 +174,13 @@ export default function ConversationMode() {
   });
 
   const handleVideoTypeSelect = (type: 'music_only' | 'voiceover_music' | 'pure_visuals') => {
+    console.log('🎯 ConversationMode: handleVideoTypeSelect called with type:', type);
+    console.log('🎯 Current showVideoTypeSelector state:', showVideoTypeSelector);
+    
     setSelectedVideoType(type);
     setShowVideoTypeSelector(false);
+    
+    console.log('🎯 Called setShowVideoTypeSelector(false)');
     
     // Update requirements based on selection
     const updatedRequirements = { ...extractedRequirements };
@@ -269,51 +272,62 @@ export default function ConversationMode() {
   const analyzeAudioFileClientSide = async (file: File) => {
     console.log(`Analyzing ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)...`);
     
-    // Create audio context
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    // Load and decode audio file
-    const arrayBuffer = await file.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    
-    const duration = audioBuffer.duration;
-    const sampleRate = audioBuffer.sampleRate;
-    const channelData = audioBuffer.getChannelData(0);
-    
-    console.log(`Audio properties: ${duration.toFixed(1)}s, ${sampleRate}Hz`);
-    
-    // Perform basic analysis
-    const bpm = estimateBPM(channelData, sampleRate);
-    const beats = generateBeatsFromBPM(bpm, duration);
-    const downbeats = generateDownbeatsFromBeats(beats);
-    const intensityCurve = calculateIntensityCurve(channelData, sampleRate);
-    const naturalCutPoints = findNaturalCutPoints(intensityCurve, duration);
-    
-    // Close audio context to free resources
-    audioContext.close();
-    
-    return {
-      trackMetadata: {
-        source: 'upload',
-        title: file.name,
-        duration: duration
-      },
-      musicAnalysis: {
-        bpm: bpm,
-        beats: beats,
-        downbeats: downbeats,
-        sections: {
-          intro: [0, Math.min(15, duration * 0.1)],
-          main: [Math.min(15, duration * 0.1), duration * 0.85],
-          outro: [duration * 0.85, duration]
-        },
-        intensityCurve: intensityCurve,
-        emotionalPeaks: findEmotionalPeaks(intensityCurve, duration),
-        phraseBoundaries: generatePhraseBoundaries(duration),
-        naturalCutPoints: naturalCutPoints,
-        totalDuration: duration
+    try {
+      // Check if Web Audio API is supported
+      if (!window.AudioContext && !(window as any).webkitAudioContext) {
+        throw new Error('Web Audio API not supported in this browser');
       }
-    };
+      
+      // Create audio context
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Load and decode audio file
+      const arrayBuffer = await file.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+      const duration = audioBuffer.duration;
+      const sampleRate = audioBuffer.sampleRate;
+      const channelData = audioBuffer.getChannelData(0);
+      
+      console.log(`Audio properties: ${duration.toFixed(1)}s, ${sampleRate}Hz`);
+      
+      // Perform basic analysis
+      const bpm = estimateBPM(channelData, sampleRate);
+      const beats = generateBeatsFromBPM(bpm, duration);
+      const downbeats = generateDownbeatsFromBeats(beats);
+      const intensityCurve = calculateIntensityCurve(channelData, sampleRate);
+      const naturalCutPoints = findNaturalCutPoints(intensityCurve, duration);
+      
+      // Close audio context to free resources
+      audioContext.close();
+      
+      return {
+        trackMetadata: {
+          source: 'upload',
+          title: file.name,
+          duration: duration
+        },
+        musicAnalysis: {
+          bpm: bpm,
+          beats: beats,
+          downbeats: downbeats,
+          sections: {
+            intro: [0, Math.min(15, duration * 0.1)],
+            main: [Math.min(15, duration * 0.1), duration * 0.85],
+            outro: [duration * 0.85, duration]
+          },
+          intensityCurve: intensityCurve,
+          emotionalPeaks: findEmotionalPeaks(intensityCurve, duration),
+          phraseBoundaries: generatePhraseBoundaries(duration),
+          naturalCutPoints: naturalCutPoints,
+          totalDuration: duration
+        }
+      };
+      
+    } catch (error) {
+      console.error('Audio analysis failed:', error);
+      throw new Error(`Failed to analyze audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   // Simple BPM estimation using autocorrelation
@@ -671,68 +685,55 @@ export default function ConversationMode() {
         return;
       }
       
-      // For voiceover_music, we need the router to determine SCRIPT_MODE vs VISION_ENHANCED
-      const response = await fetch('/api/pipeline-router-enhanced', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          conversation: messages,
-          userRequirements: extractedRequirements,
-          context: {
-            videoType: selectedVideoType,
-            preSelectedNarration: true
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to analyze conversation');
-      }
-
-      const routingData = await response.json();
+      // For voiceover_music, user explicitly wants NARRATED content
+      // Only use SCRIPT_MODE if user provided a complete script, otherwise VISION_ENHANCED
+      const conversationText = messages.map(m => m.content).join(' ').toLowerCase();
+      const hasCompleteScript = conversationText.includes('here is my script') || 
+                               conversationText.includes('here\'s my script') ||
+                               conversationText.includes('script:');
       
-      console.log('Routing data received:', routingData);
+      const selectedPipeline = hasCompleteScript ? 'SCRIPT_MODE' : 'VISION_ENHANCED';
       
-      // Instead of navigating, execute the pipeline
-      const routing_decision = routingData.routing_decision || routingData.routingDecision;
+      console.log(`🎤 User selected voiceover_music → routing to ${selectedPipeline}`);
+      console.log(`📝 Has complete script: ${hasCompleteScript}`);
       
-      if (!routing_decision) {
-        throw new Error('No routing decision in response');
-      }
+      // Extract concept from conversation
+      const concept = messages
+        .filter(m => m.role === 'user')
+        .map(m => m.content)
+        .join(' ');
       
       // Add a message about starting the process
       const startMessage: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `🎬 Great! I understand your requirements. Starting to create your ${
-          routing_decision.pipeline === 'SCRIPT_MODE' ? 'video from your script' :
-          routing_decision.pipeline === 'VISION_ENHANCED' ? 'narrated video from your concept' :
-          'video'
+        content: `🎬 Perfect! Starting to create your ${
+          selectedPipeline === 'SCRIPT_MODE' ? 'video from your script' : 'narrated video with background music'
         }. I'll show you the progress below...`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, startMessage]);
       
-      // TEMPORARY: Add debug link based on pipeline type
-      let debugLink = '';
-      if (routing_decision.pipeline === 'SCRIPT_MODE' || routing_decision.pipeline === 'VISION_ENHANCED') {
-        debugLink = `/test-tts?${new URLSearchParams(routing_decision.parameters).toString()}`;
-      }
+      // TEMPORARY: Add debug link
+      const debugLink = `/test-tts?concept=${encodeURIComponent(concept)}&style=${extractedRequirements.style || 'cinematic'}&pacing=${extractedRequirements.pacing || 'moderate'}&duration=${extractedRequirements.duration || 30}&conversationMode=true&useVisionMode=true`;
+      const debugMessage: Message = {
+        id: Date.now().toString() + '-debug',
+        role: 'assistant',
+        content: `🔧 [TEMPORARY DEBUG] Direct pipeline page: <a href="${debugLink}" target="_blank" style="color: #667eea; text-decoration: underline;">Open ${selectedPipeline} Pipeline</a>`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, debugMessage]);
       
-      if (debugLink) {
-        const debugMessage: Message = {
-          id: Date.now().toString() + '-debug',
-          role: 'assistant',
-          content: `🔧 [TEMPORARY DEBUG] Direct pipeline page: <a href="${debugLink}" target="_blank" style="color: #667eea; text-decoration: underline;">Open ${routing_decision.pipeline} Pipeline</a>`,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, debugMessage]);
-      }
-      
-      // Start pipeline execution
-      executePipeline(routing_decision.pipeline, routing_decision.parameters);
+      // Start pipeline execution - ALWAYS respect user's voiceover_music selection
+      executePipeline(selectedPipeline, {
+        concept,
+        style: extractedRequirements.style || 'cinematic',
+        pacing: extractedRequirements.pacing || 'moderate',
+        duration: extractedRequirements.duration || 30,
+        conversationMode: 'true',
+        useVisionMode: 'true',
+        script: hasCompleteScript ? concept : undefined  // Only pass script if explicitly provided
+      });
       
     } catch (error) {
       console.error('Error analyzing conversation:', error);
@@ -966,20 +967,41 @@ export default function ConversationMode() {
   };
 
   const executeIndividualStage = async (stage: PipelineStage, parameters: any, previousResults: any) => {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    // Use current window location to get the correct port
+    const baseUrl = typeof window !== 'undefined' 
+      ? `${window.location.protocol}//${window.location.host}`
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     
     // Map stage names to API endpoints
     const endpointMap: Record<string, string> = {
-      'vision_understanding': '/api/vision-understanding', // Music video pipeline uses music-optimized vision (no TTS)
+      // Vision Understanding (different endpoints for different pipelines)
+      'vision_understanding': '/api/vision-understanding', 
+      
+      // TTS/Audio pipeline stages
+      'format_script': '/api/format-script',
+      'generate_audio': '/api/generate-audio-from-script',
+      'transcribe_audio': '/api/transcribe-audio',
+      
+      // Standard pipeline agents
+      'generate_cuts': '/api/producer-agent',
+      'generate_vision': '/api/director-agent', 
+      'generate_cinematography': '/api/dop-agent',
+      'generate_prompts': '/api/prompt-engineer-agent',
+      
+      // Music video pipeline
       'music_analysis': '/api/music-analysis',
       'music_producer': '/api/music-producer-agent',
       'music_director': '/api/music-director-agent',
       'music_dop': '/api/music-dop-agent',
       'music_prompts': '/api/music-prompt-engineer-agent',
-      'generate_images': '/api/generate-images', // Now uses ComfyUI Python script integration
+      
+      // No-music video pipeline
       'no_music_director': '/api/no-music-director-agent',
       'no_music_dop': '/api/no-music-dop-agent',
-      'no_music_prompts': '/api/no-music-prompt-engineer-agent'
+      'no_music_prompts': '/api/no-music-prompt-engineer-agent',
+      
+      // Image generation (shared across all pipelines)
+      'generate_images': '/api/generate-comfy-images'
     };
     
     const endpoint = endpointMap[stage.name];
@@ -990,45 +1012,138 @@ export default function ConversationMode() {
     // Prepare request body based on stage requirements
     const requestBody = prepareStageRequestBody(stage.name, parameters, previousResults);
     
-    console.log(`📤 Calling ${endpoint}`, { requestBody: Object.keys(requestBody) });
-    
-    // Execute the API call
-    const response = await fetch(`${baseUrl}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
+    const fullUrl = `${baseUrl}${endpoint}`;
+    console.log(`📤 Calling ${fullUrl}`, { 
+      stage: stage.name,
+      agent: stage.agent,
+      requestBodyKeys: Object.keys(requestBody),
+      baseUrl
     });
     
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`${stage.agent} failed: ${error}`);
+    // Execute the API call
+    try {
+      const response = await fetch(fullUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        console.error(`❌ API call failed:`, {
+          url: fullUrl,
+          status: response.status,
+          statusText: response.statusText,
+          error
+        });
+        throw new Error(`${stage.agent} failed (${response.status}): ${error}`);
+      }
+      
+      const result = await response.json();
+      console.log(`✅ ${stage.agent} completed successfully`);
+      return result;
+      
+    } catch (fetchError) {
+      console.error(`🚨 Network error calling ${fullUrl}:`, fetchError);
+      throw new Error(`Network error calling ${stage.agent}: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
     }
-    
-    return response.json();
   };
 
   const prepareStageRequestBody = (stageName: string, parameters: any, previousResults: any): any => {
     switch (stageName) {
       case 'vision_understanding':
-        return {
-          userInput: parameters.concept,
-          additionalContext: {
-            stylePreferences: {
-              pacing: parameters.pacing || 'moderate',
-              visualStyle: parameters.style || 'cinematic',
-              duration: parameters.duration || 60
+        // Configure vision understanding based on USER'S ACTUAL SELECTION, not pipeline name
+        console.log(`🎯 Configuring vision understanding for selectedVideoType: ${selectedVideoType}`);
+        
+        if (selectedVideoType === 'voiceover_music') {
+          // User explicitly wants voiceover + background music = NARRATED CONTENT
+          console.log(`🎤 Configuring for NARRATED content with background music`);
+          return {
+            userInput: parameters.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: parameters.pacing || 'moderate',
+                visualStyle: parameters.style || 'cinematic',
+                duration: parameters.duration || 30
+              },
+              technicalRequirements: {
+                contentType: 'narrated_video_with_music'
+              },
+              musicContext: {
+                willHaveMusic: true,  // User wants background music
+                musicStyle: 'background_sync',
+                noTtsRequired: false  // TTS IS REQUIRED for voiceover
+              }
             },
-            technicalRequirements: {
-              contentType: parameters.contentType || 'music_video'
+            folderId: parameters.folderId
+          };
+        } else if (selectedVideoType === 'music_only') {
+          // User explicitly wants music only = NO NARRATION
+          console.log(`🎵 Configuring for MUSIC-ONLY content (no narration)`);
+          return {
+            userInput: parameters.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: parameters.pacing || 'dynamic',
+                visualStyle: parameters.style || 'cinematic',
+                duration: parameters.duration || 60
+              },
+              technicalRequirements: {
+                contentType: 'music_video'
+              },
+              musicContext: {
+                willHaveMusic: true,
+                musicStyle: 'background_sync',
+                noTtsRequired: true   // NO TTS for music only
+              }
             },
-            musicContext: {
-              willHaveMusic: true,
-              musicStyle: 'background_sync',
-              noTtsRequired: true
-            }
-          },
-          folderId: parameters.folderId
-        };
+            folderId: parameters.folderId
+          };
+        } else if (selectedVideoType === 'pure_visuals') {
+          // User explicitly wants pure visuals = NO AUDIO AT ALL
+          console.log(`🎨 Configuring for PURE VISUAL content (no audio)`);
+          return {
+            userInput: parameters.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: parameters.pacing || 'contemplative',
+                visualStyle: parameters.style || 'artistic',
+                duration: parameters.duration || 30
+              },
+              technicalRequirements: {
+                contentType: 'visual_only'
+              },
+              musicContext: {
+                willHaveMusic: false,
+                musicStyle: 'none',
+                noTtsRequired: true   // NO TTS for pure visuals
+              }
+            },
+            folderId: parameters.folderId
+          };
+        } else {
+          // Fallback configuration
+          console.log(`⚠️ No selectedVideoType found, using default configuration`);
+          return {
+            userInput: parameters.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: parameters.pacing || 'moderate',
+                visualStyle: parameters.style || 'cinematic',
+                duration: parameters.duration || 30
+              },
+              technicalRequirements: {
+                contentType: 'narrated_video'
+              },
+              musicContext: {
+                willHaveMusic: false,
+                musicStyle: 'none',
+                noTtsRequired: false
+              }
+            },
+            folderId: parameters.folderId
+          };
+        }
         
       case 'music_analysis':
         // Handle client-side analyzed music data
@@ -1185,38 +1300,270 @@ export default function ConversationMode() {
         };
         
       case 'generate_images':
-        // Image Generation needs prompt engineer output
+        console.log('🚨🖼️ GENERATE_IMAGES CASE HIT - UNIFIED HANDLER 🚨');
+        
+        // Image Generation needs prompt engineer output from ANY pipeline
         const musicPromptResult = previousResults.music_prompts;
         const noMusicPromptResult = previousResults.no_music_prompts;
-        
-        let promptsOutput = null;
-        
-        // Get prompts from either music or no-music prompt engineer
-        if (musicPromptResult?.stage6_prompt_engineer_output?.flux_prompts) {
-          promptsOutput = musicPromptResult.stage6_prompt_engineer_output.flux_prompts;
-        } else if (musicPromptResult?.stage6_prompt_engineer_output?.prompts_output) {
-          promptsOutput = musicPromptResult.stage6_prompt_engineer_output.prompts_output;
-        } else if (musicPromptResult?.prompts_output) {
-          promptsOutput = musicPromptResult.prompts_output;
-        } else if (noMusicPromptResult?.stage4_prompt_engineer_output?.prompts_output) {
-          promptsOutput = noMusicPromptResult.stage4_prompt_engineer_output.prompts_output;
-        } else if (noMusicPromptResult?.prompts_output) {
-          promptsOutput = noMusicPromptResult.prompts_output;
-        }
+        const visionPromptResult = previousResults.generate_prompts; // VISION_ENHANCED pipeline
         
         console.log('🎨 IMAGE_GENERATION REQUEST PREPARATION:');
-        console.log(`- Music prompt result structure:`, Object.keys(musicPromptResult || {}));
-        console.log(`- Checking stage6_prompt_engineer_output:`, !!musicPromptResult?.stage6_prompt_engineer_output);
-        console.log(`- Checking direct prompts_output:`, !!musicPromptResult?.prompts_output);
-        console.log(`- Full music prompt result:`, musicPromptResult);
-        console.log(`- Prompts found: ${!!promptsOutput}`);
-        console.log(`- Prompt count: ${promptsOutput?.length || 0}`);
+        console.log(`- Previous results keys:`, Object.keys(previousResults || {}));
+        console.log(`- Music prompt result type:`, typeof musicPromptResult);
+        console.log(`- Music prompt result is array:`, Array.isArray(musicPromptResult));
+        console.log(`- No-music prompt result type:`, typeof noMusicPromptResult);
+        console.log(`- No-music prompt result is array:`, Array.isArray(noMusicPromptResult));
+        console.log(`- Vision prompt result type:`, typeof visionPromptResult);
+        console.log(`- Vision prompt result is array:`, Array.isArray(visionPromptResult));
+        console.log(`- Vision prompt result:`, visionPromptResult);
+        
+        let promptsForAllImages = null;
+        
+        // The Prompt Engineer API returns prompts as a direct array OR wrapped in objects
+        // Check all possible sources: VISION_ENHANCED (generate_prompts), MUSIC, NO_MUSIC
+        if (Array.isArray(visionPromptResult)) {
+          promptsForAllImages = visionPromptResult;
+          console.log('🎨 Using direct array from VISION_ENHANCED generate_prompts');
+        } else if (Array.isArray(musicPromptResult)) {
+          promptsForAllImages = musicPromptResult;
+          console.log('🎨 Using direct array from MUSIC music_prompts');
+        } else if (Array.isArray(noMusicPromptResult)) {
+          promptsForAllImages = noMusicPromptResult;
+          console.log('🎨 Using direct array from NO_MUSIC no_music_prompts');
+        } else {
+          // Check nested object structures for all pipeline types
+          promptsForAllImages = visionPromptResult?.promptsOutput ||
+                               visionPromptResult?.prompts ||
+                               visionPromptResult?.imagePrompts ||
+                               visionPromptResult?.promptEngineerOutput?.prompts ||
+                               visionPromptResult?.promptEngineerOutput?.promptsOutput ||
+                               musicPromptResult?.stage6_prompt_engineer_output?.flux_prompts ||
+                               musicPromptResult?.stage6_prompt_engineer_output?.prompts_output ||
+                               musicPromptResult?.prompts_output ||
+                               noMusicPromptResult?.stage4_prompt_engineer_output?.prompts_output ||
+                               noMusicPromptResult?.prompts_output ||
+                               null;
+          console.log('🎨 Using nested object extraction from multiple sources');
+        }
+        
+        console.log(`- FINAL: Prompts found: ${!!promptsForAllImages}`);
+        console.log(`- FINAL: Prompts type: ${Array.isArray(promptsForAllImages) ? 'array' : typeof promptsForAllImages}`);
+        console.log(`- FINAL: Prompt count: ${Array.isArray(promptsForAllImages) ? promptsForAllImages.length : 0}`);
+        console.log(`- FINAL: Sample prompt:`, Array.isArray(promptsForAllImages) && promptsForAllImages.length > 0 ? promptsForAllImages[0] : 'N/A');
         console.log(`- Folder ID: ${parameters.folderId}`);
         
+        // Ensure we send a valid array
+        const finalPromptsForAllImages = Array.isArray(promptsForAllImages) ? promptsForAllImages : [];
+        
+        if (finalPromptsForAllImages.length === 0) {
+          console.error('🚨 ERROR: No valid prompts found for image generation!');
+          console.error('🚨 Available previous results:', Object.keys(previousResults || {}));
+        }
+        
         return {
-          promptsOutput: promptsOutput,
-          folderId: parameters.folderId,
-          pipeline: pipelineState.pipeline
+          prompts: finalPromptsForAllImages,
+          folderId: parameters.folderId
+        };
+        
+      // TTS/Audio pipeline stages
+      case 'format_script':
+        // Script formatting needs the vision document or user script
+        const visionDoc = previousResults.vision_understanding?.stage1_vision_analysis?.vision_document;
+        return {
+          script: parameters.script || visionDoc?.core_concept || parameters.concept,
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_audio':
+        // TTS generation needs formatted script or vision document
+        console.log('🎤 GENERATE_AUDIO: Starting TTS preparation...');
+        console.log('🎤 Previous results keys:', Object.keys(previousResults));
+        console.log('🎤 Parameters keys:', Object.keys(parameters));
+        
+        const formattedScript = previousResults.format_script?.formattedScript || 
+                               previousResults.format_script?.script ||
+                               parameters.script;
+        
+        console.log('🎤 Formatted script found:', !!formattedScript);
+        console.log('🎤 Formatted script content:', formattedScript);
+        
+        // If no formatted script, use vision document narration script
+        if (!formattedScript) {
+          console.log('🎤 No formatted script, checking vision understanding...');
+          const visionResult = previousResults.vision_understanding;
+          console.log('🎤 Vision result structure:', Object.keys(visionResult || {}));
+          console.log('🎤 Full vision result:', JSON.stringify(visionResult, null, 2));
+          
+          const visionDoc = visionResult?.stage1_vision_analysis?.vision_document;
+          console.log('🎤 Vision document found:', !!visionDoc);
+          
+          // First try to get the proper narration_script from the vision analysis
+          const narrationScript = visionResult?.stage1_vision_analysis?.narration_script ||
+                                 visionResult?.narration_script ||
+                                 visionResult?.narrationScript;
+          
+          if (narrationScript) {
+            console.log('🎤 Using proper narration script from vision agent:', narrationScript);
+            
+            return {
+              narrationScript: narrationScript,
+              folderId: parameters.folderId
+            };
+          } else if (visionDoc) {
+            console.log('🎤 No narration script found, falling back to vision doc core_concept:', visionDoc.core_concept);
+            console.log('🎤 Vision doc emotion_arc:', visionDoc.emotion_arc);
+            
+            // Fallback: Create a narration script from the vision document
+            const fallbackNarration = `${visionDoc.core_concept}. ${visionDoc.emotion_arc?.join(', ')}.`;
+            console.log('🎤 Generated fallback narration:', fallbackNarration);
+            
+            return {
+              narrationScript: fallbackNarration,
+              folderId: parameters.folderId
+            };
+          } else {
+            console.error('🎤 ERROR: No vision document found in vision understanding result');
+          }
+        }
+        
+        console.log('🎤 Final formatted script being sent to TTS:', formattedScript);
+        return {
+          narrationScript: formattedScript,
+          folderId: parameters.folderId
+        };
+        
+      case 'transcribe_audio':
+        // Transcription needs the generated audio
+        const audioResultForTranscription = previousResults.generate_audio;
+        console.log('🎙️ TRANSCRIBE_AUDIO: Audio result structure:', Object.keys(audioResultForTranscription || {}));
+        console.log('🎙️ TRANSCRIBE_AUDIO: Audio result:', audioResultForTranscription);
+        
+        const audioUrl = audioResultForTranscription?.audioUrl || audioResultForTranscription?.audioFile || audioResultForTranscription?.generatedAudio;
+        console.log('🎙️ TRANSCRIBE_AUDIO: Extracted audioUrl:', audioUrl);
+        
+        return {
+          audioUrl: audioUrl,
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_cuts':
+        // Producer agent needs transcript and timing data
+        const transcriptionResult = previousResults.transcribe_audio;
+        const audioResultForProducer = previousResults.generate_audio;
+        
+        console.log('🎬 GENERATE_CUTS: Preparing producer agent inputs...');
+        console.log('🎬 Transcription result keys:', Object.keys(transcriptionResult || {}));
+        console.log('🎬 Audio result keys:', Object.keys(audioResultForProducer || {}));
+        
+        // Get script from TTS generation (formattedScript)
+        const scriptForProducer = audioResultForProducer?.formattedScript || parameters.script;
+        console.log('🎬 Script found:', !!scriptForProducer);
+        console.log('🎬 Script content:', scriptForProducer);
+        
+        return {
+          transcript: transcriptionResult?.transcript,
+          script: scriptForProducer,
+          wordTimestamps: transcriptionResult?.word_timestamps,
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_vision':
+        // Director agent needs BOTH standard fields AND vision fields for Vision Enhanced pipeline
+        const visionDocForDirector = previousResults.vision_understanding?.stage1_vision_analysis?.vision_document;
+        const producerResult = previousResults.generate_cuts;
+        const audioResultForDirector = previousResults.generate_audio;
+        
+        console.log('🎭 GENERATE_VISION: Preparing director agent inputs...');
+        console.log('🎭 Vision doc found:', !!visionDocForDirector);
+        console.log('🎭 Producer result keys:', Object.keys(producerResult || {}));
+        console.log('🎭 Audio result keys:', Object.keys(audioResultForDirector || {}));
+        
+        // Standard Director Agent fields
+        const producer_output = producerResult?.producerOutput || producerResult?.cutPoints || producerResult;
+        const scriptForDirector = audioResultForDirector?.formattedScript || parameters.script;
+        
+        // Vision Enhanced fields
+        const cutPoints = producerResult?.cutPoints;
+        
+        console.log('🎭 Producer output found:', !!producer_output);
+        console.log('🎭 Script found:', !!scriptForDirector);
+        console.log('🎭 Cut points found:', !!cutPoints);
+        
+        return {
+          // Standard Director Agent requirements
+          producer_output: producer_output,
+          script: scriptForDirector,
+          // Vision Enhanced additions
+          visionDocument: visionDocForDirector,
+          cutPoints: cutPoints,
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_cinematography':
+        // DoP agent needs BOTH standard fields AND vision fields for Vision Enhanced pipeline
+        const visionDocForDop = previousResults.vision_understanding?.stage1_vision_analysis?.vision_document;
+        const producerResultForDop = previousResults.generate_cuts;
+        const audioResultForDop = previousResults.generate_audio;
+        const directorResultForDop = previousResults.generate_vision;
+        
+        console.log('🎥 GENERATE_CINEMATOGRAPHY: Preparing DoP agent inputs...');
+        console.log('🎥 Vision doc found:', !!visionDocForDop);
+        console.log('🎥 Producer result keys:', Object.keys(producerResultForDop || {}));
+        console.log('🎥 Audio result keys:', Object.keys(audioResultForDop || {}));
+        console.log('🎥 Director result keys:', Object.keys(directorResultForDop || {}));
+        
+        // Standard DoP Agent fields
+        const scriptForDop = audioResultForDop?.formattedScript || parameters.script;
+        const producer_output_for_dop = producerResultForDop?.producerOutput || producerResultForDop?.cutPoints || producerResultForDop;
+        const director_output = directorResultForDop?.directorOutput || directorResultForDop;
+        
+        console.log('🎥 Script found:', !!scriptForDop);
+        console.log('🎥 Producer output found:', !!producer_output_for_dop);
+        console.log('🎥 Director output found:', !!director_output);
+        
+        return {
+          // Standard DoP Agent requirements
+          script: scriptForDop,
+          producer_output: producer_output_for_dop,
+          director_output: director_output,
+          // Vision Enhanced additions
+          visionDocument: visionDocForDop,
+          directorOutput: director_output,
+          folderId: parameters.folderId
+        };
+        
+      case 'generate_prompts':
+        // Prompt engineer needs BOTH standard fields AND vision fields for Vision Enhanced pipeline
+        const visionDocForPrompts = previousResults.vision_understanding?.stage1_vision_analysis?.vision_document;
+        const audioResultForPrompts = previousResults.generate_audio;
+        const directorResultForPrompts = previousResults.generate_vision;
+        const dopResultForPrompts = previousResults.generate_cinematography;
+        
+        console.log('🎨 GENERATE_PROMPTS: Preparing Prompt Engineer inputs...');
+        console.log('🎨 Vision doc found:', !!visionDocForPrompts);
+        console.log('🎨 Audio result keys:', Object.keys(audioResultForPrompts || {}));
+        console.log('🎨 Director result keys:', Object.keys(directorResultForPrompts || {}));
+        console.log('🎨 DoP result keys:', Object.keys(dopResultForPrompts || {}));
+        
+        // Standard Prompt Engineer fields
+        const scriptForPrompts = audioResultForPrompts?.formattedScript || parameters.script;
+        const director_output_for_prompts = directorResultForPrompts?.directorOutput || directorResultForPrompts;
+        const dop_output = dopResultForPrompts?.dopOutput || dopResultForPrompts;
+        
+        console.log('🎨 Script found:', !!scriptForPrompts);
+        console.log('🎨 Director output found:', !!director_output_for_prompts);
+        console.log('🎨 DoP output found:', !!dop_output);
+        
+        return {
+          // Standard Prompt Engineer requirements
+          script: scriptForPrompts,
+          director_output: director_output_for_prompts,
+          dop_output: dop_output,
+          // Vision Enhanced additions
+          visionDocument: visionDocForPrompts,
+          directorOutput: director_output_for_prompts,
+          dopOutput: dop_output,
+          folderId: parameters.folderId
         };
         
       default:
@@ -1405,7 +1752,7 @@ export default function ConversationMode() {
                     <div className={styles.analyzedMusic}>
                       <span className={styles.fileName}>✅ {audioFileName}</span>
                       <span className={styles.fileSize}>
-                        ({(audioFile.size / 1024 / 1024).toFixed(1)}MB)
+                        ({audioFile ? (audioFile.size / 1024 / 1024).toFixed(1) : '0'}MB)
                       </span>
                       <div className={styles.musicAnalysisInfo}>
                         🎵 {musicAnalysis.musicAnalysis.bpm} BPM • {musicAnalysis.trackMetadata.duration.toFixed(1)}s

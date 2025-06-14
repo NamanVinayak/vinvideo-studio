@@ -16,6 +16,9 @@ export async function POST(request: Request) {
     console.log(`📂 Folder: ${folderId}`);
     console.log(`🎤 Voice: ${voiceName || 'Enceladus (default)'}`);
     console.log(`📝 Script preview: ${narrationScript?.substring(0, 100)}...`);
+    console.log('🔍 DEBUG - Received body:', JSON.stringify(body, null, 2));
+    console.log('🔍 DEBUG - narrationScript type:', typeof narrationScript);
+    console.log('🔍 DEBUG - narrationScript value:', narrationScript);
     
     if (!narrationScript || typeof narrationScript !== 'string') {
       return NextResponse.json({ error: 'Narration script is required' }, { status: 400 });

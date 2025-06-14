@@ -1,0 +1,110 @@
+```json
+{
+  "project_metadata": {
+    "target_platform": "short-form video platforms",
+    "content_type": "cinematic narrative",
+    "primary_concept": "Nostalgic journey through rediscovered memories",
+    "entity_summary": [
+      {
+        "name": "Young Woman",
+        "type": "Person",
+        "role_in_scene": "primary",
+        "entity_context": "Protagonist discovering childhood memories"
+      },
+      {
+        "name": "Vintage Camera",
+        "type": "Object",
+        "role_in_scene": "primary",
+        "entity_context": "Memory-triggering artifact"
+      },
+      {
+        "name": "Attic",
+        "type": "Location",
+        "role_in_scene": "secondary",
+        "entity_context": "Discovery environment with nostalgic atmosphere"
+      },
+      {
+        "name": "Younger Self",
+        "type": "Person",
+        "role_in_scene": "secondary",
+        "entity_context": "Memory version of protagonist"
+      }
+    ]
+  },
+  "narrative_beats": [
+    {
+      "beat_no": 1,
+      "timecode_start": "0:00",
+      "est_duration_s": 2,
+      "script_phrase": "A dusty attic...",
+      "narrative_function": "environmental setup",
+      "emotional_tone": "curious anticipation",
+      "creative_vision": "Wide tracking shot through dust motes, revealing attic's aged textures",
+      "audience_retention_strategy": "atmospheric immersion",
+      "turning_point": false,
+      "entities": ["Attic"]
+    },
+    {
+      "beat_no": 2,
+      "timecode_start": "0:02.32",
+      "est_duration_s": 2,
+      "script_phrase": "A forgotten camera.",
+      "narrative_function": "object revelation",
+      "emotional_tone": "discovery intrigue",
+      "creative_vision": "Close-up dolly shot on camera emerging from opened trunk, light catching lens",
+      "audience_retention_strategy": "mysterious object focus",
+      "turning_point": true,
+      "entities": ["Vintage Camera"]
+    },
+    {
+      "beat_no": 3,
+      "timecode_start": "0:04.72",
+      "est_duration_s": 3,
+      "script_phrase": "As she held it...",
+      "narrative_function": "character interaction",
+      "emotional_tone": "tentative connection",
+      "creative_vision": "Medium close-up of weathered hands gently brushing camera's surface",
+      "audience_retention_strategy": "tactile intimacy",
+      "turning_point": false,
+      "entities": ["Young Woman", "Vintage Camera"]
+    },
+    {
+      "beat_no": 4,
+      "timecode_start": "0:07.52",
+      "est_duration_s": 4,
+      "script_phrase": "Childhood laughter...",
+      "narrative_function": "memory immersion",
+      "emotional_tone": "joyful nostalgia",
+      "creative_vision": "Shallow focus on swinging jump rope, blurred figures in golden light",
+      "audience_retention_strategy": "sensory memory trigger",
+      "turning_point": true,
+      "entities": ["Younger Self"]
+    },
+    {
+      "beat_no": 5,
+      "timecode_start": "0:11.36",
+      "est_duration_s": 2,
+      "script_phrase": "sunlit days...",
+      "narrative_function": "memory expansion",
+      "emotional_tone": "warm reminiscence",
+      "creative_vision": "Over-the-shoulder shot of child drawing, sunlight filtering through curtains",
+      "audience_retention_strategy": "perspective shift",
+      "turning_point": false,
+      "entities": ["Younger Self"]
+    },
+    {
+      "beat_no": 6,
+      "timecode_start": "0:13.60",
+      "est_duration_s": 3,
+      "script_phrase": "forever etched in time.",
+      "narrative_function": "reflective resolution",
+      "emotional_tone": "bittersweet acceptance",
+      "creative_vision": "Extreme close-up of camera lens reflecting adult eye's tearful smile",
+      "audience_retention_strategy": "emotional mirroring",
+      "turning_point": true,
+      "entities": ["Young Woman", "Vintage Camera"]
+    }
+  ],
+  "requires_user_clarification": ""
+}
+```

@@ -205,9 +205,23 @@ Generate the complete vision analysis as JSON only.`;
       const needsClarification = visionAnalysis.stage1_vision_analysis?.requires_user_clarification && 
                                 visionAnalysis.stage1_vision_analysis.requires_user_clarification.trim().length > 0;
 
+      // Extract narration script for test-tts compatibility
+      const stage1Data = visionAnalysis.stage1_vision_analysis || visionAnalysis;
+      const narrationScript = stage1Data.narration_script || null;
+      
+      // Debug logging to see what's happening
+      console.log('🔍 DEBUG - Narration Script Extraction:');
+      console.log('- stage1Data exists:', !!stage1Data);
+      console.log('- stage1Data.narration_script:', stage1Data.narration_script);
+      console.log('- extracted narrationScript:', narrationScript);
+      console.log('- stage1Data keys:', Object.keys(stage1Data || {}));
+      
       return NextResponse.json({
         success: true,
-        stage1_vision_analysis: visionAnalysis.stage1_vision_analysis || visionAnalysis,
+        stage1_vision_analysis: stage1Data,
+        narrationScript: narrationScript, // Add this for test-tts page compatibility
+        visionDocument: stage1Data.vision_document, // Add this for test-tts page compatibility
+        visionAgentData: stage1Data, // Add this for test-tts page compatibility
         executionTime,
         validation,
         needs_clarification: needsClarification,

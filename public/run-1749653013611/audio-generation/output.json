@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "formattedScript": "(Contemplative, nostalgic)\n\nA dusty attic... A forgotten camera. As she held it... memories flooded back. Childhood laughter... sunlit days... a world seen through a lens. Each click... a cherished moment... forever etched in time.",
+  "audioUrl": "/script-1749653013829-4d2483ef/generated-audio-1749653295543.wav",
+  "folderId": "script-1749653013829-4d2483ef",
+  "stats": {
+    "scriptLength": 189,
+    "formattedLength": 231,
+    "totalTime": 17.94,
+    "processingSteps": [
+      {
+        "name": "Script Formatting",
+        "duration": 1.03,
+        "success": true
+      },
+      {
+        "name": "Audio Generation",
+        "duration": 16.91,
+        "success": true
+      }
+    ]
+  },
+  "stage": "audio_generation"
+}

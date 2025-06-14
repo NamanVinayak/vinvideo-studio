@@ -6,6 +6,11 @@ interface VideoTypeSelectorProps {
 }
 
 export default function VideoTypeSelector({ onSelect }: VideoTypeSelectorProps) {
+  const handleSelect = (type: 'music_only' | 'voiceover_music' | 'pure_visuals') => {
+    console.log('🎬 VideoTypeSelector: Selected type:', type);
+    onSelect(type);
+  };
+
   return (
     <div className={styles.overlay}>
       <div className={styles.container}>
@@ -16,7 +21,7 @@ export default function VideoTypeSelector({ onSelect }: VideoTypeSelectorProps) 
         <div className={styles.options}>
           <button 
             className={styles.optionCard}
-            onClick={() => onSelect('music_only')}
+            onClick={() => handleSelect('music_only')}
           >
             <div className={styles.iconWrapper}>
               <svg className={styles.icon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +38,7 @@ export default function VideoTypeSelector({ onSelect }: VideoTypeSelectorProps) 
 
           <button 
             className={styles.optionCard}
-            onClick={() => onSelect('voiceover_music')}
+            onClick={() => handleSelect('voiceover_music')}
           >
             <div className={styles.iconWrapper}>
               <svg className={styles.icon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +57,7 @@ export default function VideoTypeSelector({ onSelect }: VideoTypeSelectorProps) 
 
           <button 
             className={styles.optionCard}
-            onClick={() => onSelect('pure_visuals')}
+            onClick={() => handleSelect('pure_visuals')}
           >
             <div className={styles.iconWrapper}>
               <svg className={styles.icon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +75,7 @@ export default function VideoTypeSelector({ onSelect }: VideoTypeSelectorProps) 
 
         <button 
           className={styles.skipButton}
-          onClick={() => onSelect('voiceover_music')}
+          onClick={() => handleSelect('voiceover_music')}
         >
           Continue to chat
         </button>
