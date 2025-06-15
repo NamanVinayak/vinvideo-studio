@@ -46,12 +46,18 @@ export async function POST(request: Request) {
     console.log(`Target duration: ${visionDocument.duration}s, Pacing: ${visionDocument.pacing}`);
     
     // Calculate expected cut count based on pacing
-    const pacingToCutRatio = {
+    const pacingToCutRatio: { [key: string]: number } = {
       contemplative: 8,  // 1 cut per 8 seconds
       moderate: 4,       // 1 cut per 4 seconds
       dynamic: 2.5,      // 1 cut per 2.5 seconds
       fast: 1.5          // 1 cut per 1.5 seconds
     };
+
+    if (!pacingToCutRatio[visionDocument.pacing]) {
+      return NextResponse.json({ 
+        error: `Invalid pacing value provided: "${visionDocument.pacing}". Valid options are: ${Object.keys(pacingToCutRatio).join(', ')}.` 
+      }, { status: 400 });
+    }
     
     const expectedCutCount = Math.round(visionDocument.duration / pacingToCutRatio[visionDocument.pacing]);
     

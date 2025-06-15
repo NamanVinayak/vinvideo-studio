@@ -1051,8 +1051,8 @@ export default function ConversationMode() {
       'generate_audio': '/api/generate-audio-from-script',
       'transcribe_audio': '/api/transcribe-audio',
       
-      // Standard pipeline agents
-      'generate_cuts': '/api/producer-agent',
+      // Standard pipeline agents - USE CORRECTED VISION-ENHANCED PRODUCER
+      'generate_cuts': '/api/vision-enhanced-producer-agent',
       'generate_vision': '/api/director-agent', 
       'generate_cinematography': '/api/dop-agent',
       'generate_prompts': '/api/prompt-engineer-agent',

@@ -17,9 +17,9 @@ No test commands are currently configured. However, manual testing is done throu
 - `no-music-video-pipeline` page for visual-only content
 
 ### System Analysis & Debugging
-- Read `SYSTEM_IMPROVEMENT_PLAN.md` for comprehensive analysis of current issues and solutions
+- Read `COMPREHENSIVE_PIPELINE_OPTIMIZATION_PLAN.md` for detailed analysis of all 4 pipelines
 - Read `BOOTSTRAP_CLAUDE_FOR_SYSTEM_IMPROVEMENT.md` for systematic onboarding of new Claude sessions
-- Check `test_results/` folder for test analysis files documenting system failures
+- Use the test pages (`test-tts`, `music-video-pipeline`, `no-music-video-pipeline`) for manual testing
 
 ## High-Level Architecture
 
