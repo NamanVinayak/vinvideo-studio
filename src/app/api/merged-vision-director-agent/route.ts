@@ -572,7 +572,7 @@ async function generateStoryFallback(input: UserInput): Promise<any> {
   const visualBeats = Array.from({ length: optimalCuts }, (_, index) => ({
     beat_no: index + 1,
     timecode_start: `00:00:${(index * cutDuration).toString().padStart(2, '0')}.000`,
-    est_duration_s: cutDuration,
+    estimated_duration_s: cutDuration,
     story_function: assignStoryFunction(index, optimalCuts),
     content_type_treatment: `Compelling visual story beat ${index + 1} that advances the narrative of "${input.userInput}" with engaging, diverse content that serves the overall story progression.`,
     primary_subject: diversifySubject('', index),
@@ -616,7 +616,7 @@ async function generateStoryFallback(input: UserInput): Promise<any> {
           target_emotional_impact: 'Engaged and satisfied'
         },
         timing_blueprint: {
-          total_duration: duration,
+          estimated_duration_s: duration,
           cut_strategy: 'narrative_flow',
           optimal_cut_count: optimalCuts,
           average_cut_length: cutDuration,

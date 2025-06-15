@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     console.log('Calling No-Music DoP Agent...');
     console.log(`Vision concept: ${visionDocument.core_concept}`);
     console.log(`Director visual beats: ${directorVisualBeats.length}`);
-    console.log(`Director beats preview:`, directorVisualBeats.map((beat: any) => ({ beat_no: beat.beat_no, duration: beat.est_duration_s })));
+    console.log(`Director beats preview:`, directorVisualBeats.map((beat: any) => ({ beat_no: beat.beat_no, duration: beat.estimated_duration_s })));
     
     // Prepare the user content message with all required context
     const userContent = `NO-MUSIC PIPELINE - STAGE 3: NARRATIVE CINEMATOGRAPHER

@@ -242,7 +242,7 @@ async function callIntelligentProducer(
         harmonic_complexity: musicAnalysis.musicAnalysis.harmonicComplexity,
         
         // Structure and timing
-        total_duration: musicAnalysis.musicAnalysis.totalDuration,
+        estimated_duration_s: musicAnalysis.musicAnalysis.totalDuration,
         sections: musicAnalysis.musicAnalysis.sections,
         beats: musicAnalysis.musicAnalysis.beats,
         downbeats: musicAnalysis.musicAnalysis.downbeats,
@@ -258,7 +258,7 @@ async function callIntelligentProducer(
         spectral_rolloff: musicAnalysis.musicAnalysis.spectralRolloff,
         zero_crossing_rate: musicAnalysis.musicAnalysis.zeroCrossingRate
       },
-      target_duration: targetDuration,
+      target_duration_s: targetDuration,
       creative_brief: `Create an intelligent cutting strategy for a ${targetDuration}s music video with the concept: "${visionDocument.core_concept}". The video has ${visionDocument.pacing} pacing and ${visionDocument.visual_style} visual style. Consider both musical structure and emotional narrative.`
     };
 
@@ -453,7 +453,7 @@ function generateFallbackProducerDecisions(musicAnalysis: any, targetDuration: n
     selectedCuts.forEach((cutTime, index) => {
       cutPoints.push({
         cut_number: index + 1,
-        cut_time: cutTime,
+        cut_time_s: cutTime,
         creative_reasoning: `Musical cut point at ${cutTime.toFixed(1)}s aligned with song structure`,
         musical_context: `BPM: ${bpm.toFixed(1)}, natural transition point`,
         narrative_purpose: `Supports ${visionDocument.pacing || 'moderate'} pacing for ${visionDocument.core_concept || 'concept'}`,
@@ -470,7 +470,7 @@ function generateFallbackProducerDecisions(musicAnalysis: any, targetDuration: n
     if (nextCutTime < targetDuration) {
       cutPoints.push({
         cut_number: cutPoints.length + 1,
-        cut_time: parseFloat(nextCutTime.toFixed(2)),
+        cut_time_s: parseFloat(nextCutTime.toFixed(2)),
         creative_reasoning: `Fallback cut point maintaining ${visionDocument.pacing || 'moderate'} pacing`,
         musical_context: `Aligned to ${bpm.toFixed(1)} BPM rhythm`,
         narrative_purpose: `Supports visual flow for ${visionDocument.visual_style || 'cinematic'} style`,

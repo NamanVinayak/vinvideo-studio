@@ -27,7 +27,7 @@ Return ONLY a JSON object with this structure:
         "director_intent": "string", 
         "dop_movement": "string",
         "video_prompt": "string",
-        "duration": number,
+        "duration_s": number,
         "model_specific_formatting": "string"
       }
     ]

@@ -141,7 +141,7 @@ You MUST provide a complete JSON response with these sections:
         "story_spine": "Clear narrative backbone",
         "pacing": "contemplative|moderate|dynamic",
         "visual_style": "cinematic|documentary|artistic|experimental", 
-        "duration": "Duration in seconds",
+        "duration_s": "Duration in seconds",
         "content_classification": {"type": "abstract_thematic|narrative_character"},
         "story_complexity": "simple|moderate|complex",
         "narrative_hook": "What makes this story compelling",
@@ -151,7 +151,7 @@ You MUST provide a complete JSON response with these sections:
         "target_emotional_impact": "Desired viewer feeling"
       },
       "timing_blueprint": {
-        "total_duration": "Duration in seconds", 
+        "duration_s": "Duration in seconds", 
         "cut_strategy": "narrative_flow|content_complexity|emotional_pacing",
         "optimal_cut_count": "Number based on story needs",
         "average_cut_length": "Duration per story beat",
@@ -187,7 +187,7 @@ You MUST provide a complete JSON response with these sections:
         {
           "beat_no": "Sequential number",
           "timecode_start": "00:00:00.000",
-          "est_duration_s": "Duration for this story beat",
+          "estimated_duration_s": "Duration for this story beat",
           "story_function": "setup|development|conflict|climax|resolution",
           "content_type_treatment": "Rich, detailed story beat description",
           "primary_subject": "Main story focus for this beat",

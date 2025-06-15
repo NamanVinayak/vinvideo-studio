@@ -81,7 +81,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
         "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
         "pacing": "contemplative|moderate|dynamic",
         "visual_style": "cinematic|documentary|artistic|experimental",
-        "duration": number_in_seconds,
+        "duration_s": number_in_seconds,
         "content_classification": {
           "type": "abstract_thematic|narrative_character"
         },
@@ -90,7 +90,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
         "color_philosophy": "string describing color approach (20-40 words)"
       },
       "timing_blueprint": {
-        "total_duration": number_in_seconds,
+        "duration_s": number_in_seconds,
         "cut_strategy": "narrative_flow|equal_divisions|content_complexity",
         "optimal_cut_count": number,
         "average_cut_length": number,
@@ -98,7 +98,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
         "cut_points": [
           {
             "cut_number": number,
-            "cut_time": number,
+            "cut_time_s": number,
             "narrative_reason": "string (10-30 words)",
             "content_transition": "string (10-30 words)",
             "cognitive_weight": "light|medium|heavy",
@@ -127,7 +127,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
         {
           "beat_no": number,
           "timecode_start": "00:00:00.000",
-          "est_duration_s": number,
+          "estimated_duration_s": number,
           "content_type_treatment": "string (20-40 words)",
           "primary_subject": "string (5-20 words)",
           "repetition_check": "unique|varied|evolved",
@@ -172,7 +172,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
 - Ensure anti_repetition_score > 0.8 for abstract content, > 0.7 for character content
 - Maintain subject_diversity_score > 0.7 for all content types
 - Ensure optimal_cut_count aligns with duration and pacing preference
-- Calculate average_cut_length as total_duration / optimal_cut_count
+- Calculate average_cut_length as duration_s / optimal_cut_count
 - Generate visual beats that feel both surprising and inevitable
 - Use narrative logic for all timing and transition decisions
 - Create natural rhythm through content progression and emotional beats

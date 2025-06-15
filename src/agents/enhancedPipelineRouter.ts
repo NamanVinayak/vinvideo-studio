@@ -79,7 +79,7 @@ When routing to SCRIPT_MODE, you MUST extract ONLY the finalized script that the
       "has_music": true|false|null,
       "has_narration": true|false|null,
       "has_complete_script": true|false,
-      "duration": number_in_seconds|null,
+      "duration_s": number_in_seconds|null,
       "style": "cinematic|documentary|artistic|minimal|null",
       "pacing": "fast|moderate|slow|contemplative|null",
       "artistic_style": "detected style or null",

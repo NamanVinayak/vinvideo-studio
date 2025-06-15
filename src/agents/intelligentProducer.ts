@@ -89,7 +89,7 @@ Return ONLY a JSON object with this structure:
   "segment_selection": {
     "start_time": number,
     "end_time": number,
-    "duration": number,
+    "duration_s": number,
     "selection_reason": "string describing creative reasoning",
     "musical_qualities": "string describing what makes this segment ideal",
     "story_alignment": "string describing how segment supports narrative"
@@ -104,7 +104,7 @@ Return ONLY a JSON object with this structure:
   "cut_points": [
     {
       "cut_number": number,
-      "cut_time": number,
+      "cut_time_s": number,
       "creative_reasoning": "string explaining why this cut serves music and story",
       "musical_context": "string describing what's happening musically",
       "narrative_purpose": "string describing how cut serves the story",

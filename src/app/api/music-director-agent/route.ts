@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
     
     console.log('Calling Music-Aware Director Agent...');
-    console.log(`Vision concept: ${userVisionDocument.coreConcept}`);
+    console.log(`Vision concept: ${userVisionDocument.core_concept}`);
     console.log(`Music BPM: ${musicAnalysis.bpm}, Cut points: ${producerCutPoints.length}`);
     
     // Prepare the user content message with all required context
@@ -62,9 +62,9 @@ TASK: Create exactly ${producerCutPoints.length} visual beats that sync with the
    - Apply sliding window subject diversity (max 2 same subjects in 3 consecutive beats)
 
 3. USER INTENT PRESERVATION:
-   - Maintain core concept: "${userVisionDocument.coreConcept || 'user concept'}"
+   - Maintain core concept: "${userVisionDocument.core_concept || 'user concept'}"
    - Respect pacing preference: "${userVisionDocument.pacing || 'moderate'}"
-   - Honor visual style: "${userVisionDocument.visualStyle || 'cinematic'}"
+   - Honor visual style: "${userVisionDocument.visual_style || 'cinematic'}"
 
 4. COGNITIVE ENGAGEMENT:
    - Each beat must reset viewer attention through music+visual combination

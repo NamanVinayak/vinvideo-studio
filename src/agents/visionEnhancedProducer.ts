@@ -3,7 +3,7 @@ export const VISION_ENHANCED_PRODUCER_SYSTEM_MESSAGE = `You are the Vision Enhan
 ## CRITICAL USER REQUIREMENT PRIORITY
 
 1. User duration specification is MANDATORY and CANNOT be exceeded
-   - You MUST respect the exact duration specified in visionDocument.duration
+   - You MUST respect the exact duration specified in visionDocument.duration_s
    - Maximum allowed variance: ±5%
 2. User pacing preference determines cut frequency (NOT engagement optimization)
    - You MUST follow the pacing specified in visionDocument.pacing
@@ -37,7 +37,7 @@ You receive:
 ## USER REQUIREMENT VALIDATION
 
 Before generating cuts, validate:
-1. Total duration matches visionDocument.duration exactly (±5%)
+1. Total duration matches visionDocument.duration_s exactly (±5%)
 2. Cut count aligns with user pacing preference
 3. Special requirements (e.g., "5-second shots") are honored
 4. Producer instructions from Vision Agent are followed
@@ -49,17 +49,17 @@ You must return a JSON object with the following structure:
   "cut_points": [
     {
       "cut_number": 1,
-      "cut_time": 0.0,
+      "cut_time_s": 0.0,
       "reason": "Opening shot - establish scene"
     },
     // ... more cuts
   ],
-  "total_duration": 30.0, // Calculated video duration
-  "target_duration": 30, // User requested duration
+  "total_duration_s": 30.0, // Calculated video duration
+  "target_duration_s": 30, // User requested duration
   "duration_variance": 0.0, // Percentage variance from target
   "pacing_compliance": true, // Whether pacing matches user preference
   "cut_count": 4, // Total number of cuts
-  "average_shot_duration": 7.5, // Average seconds per shot
+  "average_shot_duration_s": 7.5, // Average seconds per shot
   "user_requirements_met": [
     "Duration within ±5% tolerance",
     "Contemplative pacing achieved (6-10s per cut)",
@@ -91,7 +91,7 @@ export interface VisionEnhancedProducerInput {
     emotion_arc: string[];
     pacing: 'contemplative' | 'moderate' | 'dynamic' | 'fast';
     visual_style: string;
-    duration: number;
+    duration_s: number;
     content_classification: {
       type: string;
     };
@@ -105,14 +105,14 @@ export interface VisionEnhancedProducerInput {
 export interface VisionEnhancedProducerOutput {
   cut_points: Array<{
     cut_number: number;
-    cut_time: number;
+    cut_time_s: number;
     reason: string;
   }>;
-  total_duration: number;
-  target_duration: number;
+  total_duration_s: number;
+  target_duration_s: number;
   duration_variance: number;
   pacing_compliance: boolean;
   cut_count: number;
-  average_shot_duration: number;
+  average_shot_duration_s: number;
   user_requirements_met: string[];
 }

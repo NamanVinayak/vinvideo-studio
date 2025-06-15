@@ -481,7 +481,7 @@ function prepareFluxInput(
   const producerEditorNotes = directorBeats.map((beat: any, index: number) => ({
     beat_no: beat.beat_no || index + 1,
     timecode_start: beat.timecode_start || `00:00:${(index * 4).toString().padStart(2, '0')}.000`,
-    est_duration_s: beat.est_duration_s || 4,
+    estimated_duration_s: beat.estimated_duration_s || 4,
     cut_reason: beat.musical_context?.cut_reason || 'music_synchronized_cut',
     music_context: beat.musical_context || {}
   }));

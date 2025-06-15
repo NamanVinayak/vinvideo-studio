@@ -251,7 +251,7 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
     {
       "beat_no": 1,
       "timecode_start": "string",
-      "est_duration_s": 0,
+      "estimated_duration_s": 0,
       "script_phrase": "string",
       "narrative_function": "string",
       "emotional_tone": "string",

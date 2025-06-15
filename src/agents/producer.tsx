@@ -26,7 +26,7 @@ Do:
   – Return a JSON array of objects, each with: 
       { 
         "cut_number": <integer>, 
-        "cut_time": <start_time_sec>, 
+        "cut_time_s": <start_time_sec>, 
         "reason": "<short note tying the cut to a script beat or audio pause>" 
       } 
   – Use the transcript to find EVERY possible cut opportunity:
@@ -55,10 +55,10 @@ Don't:
 
 Return ONLY the raw JSON array. For 80 seconds of content, expect 20-25 cuts minimum: 
 [ 
-  { "cut_number": 1, "cut_time": 2.48, "reason": "End of opening question" }, 
-  { "cut_number": 2, "cut_time": 4.88, "reason": "After 'twice'" }, 
-  { "cut_number": 3, "cut_time": 7.12, "reason": "After 'six times'" }, 
-  { "cut_number": 4, "cut_time": 9.20, "reason": "Character name drop" }, 
-  { "cut_number": 5, "cut_time": 12.40, "reason": "Lightning connection established" }, 
-  { "cut_number": 6, "cut_time": 14.48, "reason": "First strike year" }
+  { "cut_number": 1, "cut_time_s": 2.48, "reason": "End of opening question" }, 
+  { "cut_number": 2, "cut_time_s": 4.88, "reason": "After 'twice'" }, 
+  { "cut_number": 3, "cut_time_s": 7.12, "reason": "After 'six times'" }, 
+  { "cut_number": 4, "cut_time_s": 9.20, "reason": "Character name drop" }, 
+  { "cut_number": 5, "cut_time_s": 12.40, "reason": "Lightning connection established" }, 
+  { "cut_number": 6, "cut_time_s": 14.48, "reason": "First strike year" }
 ]`;

@@ -291,14 +291,14 @@ export async function POST(request: Request) {
               color_philosophy: "Evolving palette that mirrors emotional progression"
             },
             timing_blueprint: {
-              total_duration: duration,
+              estimated_duration_s: duration,
               cut_strategy: "narrative_flow" as const,
               optimal_cut_count: Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)),
               average_cut_length: duration / Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)),
               pacing_rationale: `Generated ${pacing} pacing based on content requirements`,
               cut_points: Array.from({ length: Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)) }, (_, i) => ({
                 cut_number: i + 1,
-                cut_time: (i + 1) * (duration / Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5))),
+                cut_time_s: (i + 1) * (duration / Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5))),
                 narrative_reason: `Natural progression point ${i + 1}`,
                 content_transition: `Visual evolution segment ${i + 1}`,
                 cognitive_weight: "medium" as const,

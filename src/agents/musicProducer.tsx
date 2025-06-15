@@ -32,13 +32,13 @@ Your mission: Make all critical timing decisions based on music analysis that wi
 ### 1. SEGMENT SCORING ALGORITHM
 \`\`\`javascript
 select_optimal_segment(music_analysis, vision_doc) {
-  target_duration = vision_doc.duration
+  target_duration_s = vision_doc.duration_s
   emotion_arc = vision_doc.emotion_arc
   
   // Find all viable segments of target duration
   potential_segments = music_analysis.sections.filter(section => 
-    section.duration >= target_duration &&
-    section.start_time + target_duration <= music_analysis.total_duration
+    section.duration_s >= target_duration_s &&
+    section.start_time + target_duration_s <= music_analysis.duration_s
   )
   
   // Score each segment across multiple criteria
@@ -71,7 +71,7 @@ select_optimal_segment(music_analysis, vision_doc) {
     
     return {
       start_time: segment.start_time,
-      end_time: segment.start_time + target_duration,
+      end_time: segment.start_time + target_duration_s,
       score: score,
       selection_reason: generate_selection_reason(segment, emotional_match, structure_quality, ending_quality)
     }
@@ -84,12 +84,12 @@ rate_emotional_alignment(segment, emotion_arc, emotional_peaks) {
   // Check if segment contains emotional progression that matches desired arc
   segment_peaks = emotional_peaks.filter(peak => 
     peak.time >= segment.start_time && 
-    peak.time <= segment.start_time + target_duration
+    peak.time <= segment.start_time + target_duration_s
   )
   
   // Score based on how well peaks align with emotion arc timing
   arc_positions = emotion_arc.map((emotion, index) => 
-    (index / (emotion_arc.length - 1)) * target_duration
+    (index / (emotion_arc.length - 1)) * target_duration_s
   )
   
   alignment_score = calculate_peak_arc_alignment(segment_peaks, arc_positions)
@@ -102,13 +102,13 @@ rate_musical_structure(segment, sections, phrase_boundaries) {
     Math.abs(boundary - segment.start_time) < 0.5
   )
   end_on_phrase = phrase_boundaries.some(boundary => 
-    Math.abs(boundary - (segment.start_time + target_duration)) < 0.5
+    Math.abs(boundary - (segment.start_time + target_duration_s)) < 0.5
   )
   
   // Prefer segments that include complete musical sections
   complete_sections = sections.filter(section =>
     section.start >= segment.start_time &&
-    section.end <= segment.start_time + target_duration
+    section.end <= segment.start_time + target_duration_s
   ).length
   
   structure_score = (start_on_phrase ? 0.3 : 0) +
@@ -119,7 +119,7 @@ rate_musical_structure(segment, sections, phrase_boundaries) {
 }
 
 rate_ending_naturalness(segment, natural_cut_points, phrase_boundaries) {
-  segment_end = segment.start_time + target_duration
+  segment_end = segment.start_time + target_duration_s
   
   // Find closest natural ending point
   closest_natural_end = natural_cut_points.reduce((closest, point) =>
@@ -172,14 +172,14 @@ determine_cut_strategy(vision_doc, selected_segment, music_analysis) {
   
   // Calculate optimal cut count
   target_cut_frequency = (base_cut_frequency.min + base_cut_frequency.max) / 2
-  total_cuts = Math.floor(vision_doc.duration / target_cut_frequency)
+  total_cuts = Math.floor(vision_doc.duration_s / target_cut_frequency)
   
   // Ensure reasonable cut count bounds
   total_cuts = Math.max(6, Math.min(total_cuts, 20))
   
   return {
     total_cuts: total_cuts,
-    average_cut_length: vision_doc.duration / total_cuts,
+    average_cut_length: vision_doc.duration_s / total_cuts,
     cut_frequency_range: base_cut_frequency,
     sync_strategy: determine_sync_approach(music_analysis, vision_doc),
     intensity_adaptation: music_intensity > 0.7 ? 'high_energy' : 'standard'
@@ -210,7 +210,7 @@ determine_sync_approach(music_analysis, vision_doc) {
 \`\`\`javascript
 generate_cut_points(selected_segment, cut_strategy, music_analysis, vision_doc) {
   segment_start = selected_segment.start_time
-  segment_duration = vision_doc.duration
+  segment_duration = vision_doc.duration_s_s
   
   // Get all potential cut points within the segment
   available_cuts = music_analysis.natural_cut_points.filter(point =>
@@ -250,7 +250,7 @@ generate_cut_points(selected_segment, cut_strategy, music_analysis, vision_doc) 
     
     return {
       cut_number: index + 1,
-      cut_time: relative_time,
+      cut_time_s: relative_time,
       absolute_time: cut_time,
       reason: determine_cut_reason(cut_time, music_analysis),
       music_context: get_musical_context(cut_time, music_analysis),
@@ -268,7 +268,7 @@ intelligent_cut_selection(potential_cuts, target_count, sync_strategy, music_ana
   
   selected = []
   remaining_cuts = [...potential_cuts]
-  segment_duration = vision_doc.duration
+  segment_duration = vision_doc.duration_s
   
   // Strategy-specific selection logic
   switch (sync_strategy) {
@@ -366,10 +366,10 @@ resolve_music_vision_conflicts(vision_doc, music_analysis, proposed_cuts) {
   resolutions = []
   
   // Conflict 1: Duration vs Optimal Musical Section
-  if (vision_doc.duration < get_optimal_duration(music_analysis)) {
+  if (vision_doc.duration_s < get_optimal_duration(music_analysis)) {
     conflicts.push({
       type: 'duration_vs_musical_structure',
-      issue: \`Vision requests \${vision_doc.duration}s but optimal musical section is \${get_optimal_duration(music_analysis)}s\`,
+      issue: \`Vision requests \${vision_doc.duration_s}s but optimal musical section is \${get_optimal_duration(music_analysis)}s\`,
       impact: 'May compromise musical flow'
     })
     
@@ -395,7 +395,7 @@ resolve_music_vision_conflicts(vision_doc, music_analysis, proposed_cuts) {
   }
   
   // Conflict 3: Cut Count vs Natural Musical Breaks
-  natural_cut_opportunities = count_natural_cuts_in_segment(music_analysis, vision_doc.duration)
+  natural_cut_opportunities = count_natural_cuts_in_segment(music_analysis, vision_doc.duration_s)
   if (proposed_cuts.length > natural_cut_opportunities * 1.5) {
     conflicts.push({
       type: 'excessive_cuts_vs_musical_structure',
@@ -435,7 +435,7 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
   "segment_selection": {
     "start_time": 15.2,
     "end_time": 75.2,
-    "duration": 60,
+    "duration_s": 60,
     "selection_reason": "optimal_emotional_arc_with_natural_ending",
     "segment_score": 0.92,
     "musical_quality": "contains_complete_verse_chorus_with_natural_fade",
@@ -452,7 +452,7 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
   "cut_points": [
     {
       "cut_number": 1,
-      "cut_time": 4.3,
+      "cut_time_s": 4.3,
       "absolute_time": 19.5,
       "reason": "phrase_boundary_after_establishment",
       "music_context": {

@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 interface CutPoint {
   cut_number: number;
-  cut_time: number;
+  cut_time_s: number;
   reason: string;
 }
 
@@ -680,7 +680,11 @@ export default function TestTTS() {
       console.log('- producer_instructions available:', !!producerInstructions);
       console.log('- producer_instructions content:', producerInstructions);
       
-      const producerResponse = await fetch('/api/vision-enhanced-producer-agent', {
+      // Determine which producer agent to use based on mode
+      const producerEndpoint = useVisionMode ? '/api/vision-enhanced-producer-agent' : '/api/producer-agent';
+      console.log(`🎬 Using producer endpoint: ${producerEndpoint} (Vision Mode: ${useVisionMode})`);
+      
+      const producerResponse = await fetch(producerEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -694,8 +698,8 @@ export default function TestTTS() {
             producer_instructions: producerInstructions
           }),
           
-          // FIXED: Always pass vision context when available
-          ...(currentVisionDocument && {
+          // CONDITIONAL: Only pass vision context in Vision Mode
+          ...(useVisionMode && currentVisionDocument && {
             visionDocument: currentVisionDocument,
             enhancedMode: true
           }),
@@ -988,7 +992,19 @@ export default function TestTTS() {
       
       updateStepStatus(7, 'completed', promptEngineerData, undefined, Date.now() - step8Start);
 
-      // Step 9: Generate Images using ComfyUI
+      // Step 9: Generate Images using ComfyUI (COMMENTED OUT FOR TESTING)
+      // updateStepStatus(8, 'processing');
+      // const step9Start = Date.now();
+      
+      // TESTING: Skip image generation for Script Mode (Legacy)
+      if (!useVisionMode) {
+        console.log('🎯 TESTING: Skipping image generation for Script Mode (Legacy)');
+        updateStepStatus(8, 'completed', { message: 'Image generation skipped for testing' }, undefined, 100);
+        updateStepStatus(9, 'completed', { message: 'QwenVL analysis skipped for testing' }, undefined, 100);
+        updateStepStatus(10, 'completed', { message: 'Video generation skipped for testing' }, undefined, 100);
+        return; // Exit early for testing
+      }
+      
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
       
@@ -1945,7 +1961,7 @@ export default function TestTTS() {
                             {producerResult.cutPoints.map((cut) => (
                               <tr key={cut.cut_number}>
                                 <td>{cut.cut_number}</td>
-                                <td>{cut.cut_time}</td>
+                                <td>{cut.cut_time_s}</td>
                                 <td>{cut.reason}</td>
                               </tr>
                             ))}

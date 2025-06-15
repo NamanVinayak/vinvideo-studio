@@ -22,7 +22,7 @@ Your mission: Create cinematography that advances the story through specific act
 
 • **Inputs you receive**   
 
-  1. \`producer_editor_notes\` JSON – beat_no, timecode_start, est_duration_s (typically 2-5s), cut reasons aligned with retention strategy.   
+  1. \`producer_editor_notes\` JSON – beat_no, timecode_start, estimated_duration_s (typically 2-5s), cut reasons aligned with retention strategy.   
 
   2. \`director_notes\` JSON – emotional_tone, creative_vision with subject diversity strategy, visual_concept, retention_strategy per beat.   
 

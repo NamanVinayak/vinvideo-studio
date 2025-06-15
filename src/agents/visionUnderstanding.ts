@@ -91,7 +91,7 @@ Return ONLY a JSON object with this exact structure, no markdown, no code blocks
       "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
       "pacing": "contemplative|moderate|dynamic",
       "visual_style": "cinematic|documentary|artistic|experimental",
-      "duration": number_in_seconds,
+      "duration_s": number_in_seconds,
       "content_classification": {
         "type": "abstract_thematic|narrative_character"
       },
@@ -119,8 +119,8 @@ Return ONLY a JSON object with this exact structure, no markdown, no code blocks
       "specifications_honored": ["list of honored requirements"]
     },
     "timing_blueprint": {
-      "target_duration": number_from_user_input,
-      "estimated_duration": number_calculated,
+      "target_duration_s": number_from_user_input,
+      "estimated_duration_s": number_calculated,
       "variance_percentage": number,
       "narration_word_count": number,
       "target_word_count": number,

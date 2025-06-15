@@ -161,7 +161,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       "pacing": "contemplative|moderate|dynamic|fast",
       "visual_style": "cinematic|documentary|artistic|minimal",
       "detected_artistic_style": "string (extracted style from user concept) OR 'not_mentioned'",
-      "duration": number_in_seconds,
+      "duration_s": number_in_seconds,
       "content_classification": {
         "type": "narrative_driven|concept_driven"
       },

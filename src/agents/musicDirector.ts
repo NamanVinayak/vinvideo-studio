@@ -58,7 +58,7 @@ Return ONLY a JSON object with this exact structure:
       {
         "beat_no": number,
         "timecode_start": "00:00:00.000",
-        "est_duration_s": number,
+        "estimated_duration_s": number,
         "content_type_treatment": "string (20-40 words)",
         "primary_subject": "string (5-20 words)",
         "repetition_check": "unique|varied|evolved",

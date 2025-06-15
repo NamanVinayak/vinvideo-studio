@@ -63,7 +63,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
       "pacing": "contemplative|moderate|dynamic",
       "visual_style": "cinematic|documentary|artistic|experimental",
-      "duration": number_in_seconds,
+      "duration_s": number_in_seconds,
       "content_classification": {
         "type": "abstract_thematic|narrative_character"
       },
@@ -72,7 +72,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       "color_philosophy": "string describing color approach (20-40 words)"
     },
     "timing_blueprint": {
-      "total_duration": number_in_seconds,
+      "duration_s": number_in_seconds,
       "cut_strategy": "narrative_flow|equal_divisions|content_complexity",
       "optimal_cut_count": number,
       "average_cut_length": number,
@@ -80,7 +80,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       "cut_points": [
         {
           "cut_number": number,
-          "cut_time": number,
+          "cut_time_s": number,
           "narrative_reason": "string (10-30 words)",
           "content_transition": "string (10-30 words)",
           "cognitive_weight": "light|medium|heavy",
@@ -112,7 +112,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
 - Generate timing blueprint that serves the narrative and emotional arc
 - Create cut points that feel natural and purposeful
 - Ensure optimal_cut_count aligns with duration and pacing preference
-- Calculate average_cut_length as total_duration / optimal_cut_count
+- Calculate average_cut_length as duration_s / optimal_cut_count
 - Design cognitive pacing that maintains viewer engagement
 - Generate 3-5 emotions that create a meaningful arc
 - Choose visual complexity based on the concept's demands
