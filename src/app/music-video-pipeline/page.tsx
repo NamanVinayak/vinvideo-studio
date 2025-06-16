@@ -1090,7 +1090,7 @@ export default function MusicVideoPipelinePage() {
       let isComplete = false;
       
       try {
-        const response = await fetch('/api/generate-comfy-images-stream', {
+        const response = await fetch('/api/generate-comfy-images-concurrent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1225,7 +1225,7 @@ export default function MusicVideoPipelinePage() {
         }));
         
         // Fall back to regular API
-        const comfyResponse = await fetch('/api/generate-comfy-images', {
+        const comfyResponse = await fetch('/api/generate-comfy-images-concurrent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

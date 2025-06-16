@@ -1079,23 +1079,30 @@ export default function TestTTS() {
           
           if (done) break;
           
-          buffer += decoder.decode(value, { stream: true });
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+          
+          // Debug: Log raw chunks
+          if (chunk.includes('event:') || chunk.includes('data:')) {
+            console.log('Raw SSE chunk:', chunk);
+          }
           
           // Process complete SSE events from buffer
           const lines = buffer.split('\n');
           buffer = lines.pop() || ''; // Keep incomplete line in buffer
           
-          for (const line of lines) {
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
             if (line.startsWith('event:')) {
               const eventType = line.substring(6).trim();
               
               // Get the data line (should be next)
-              const dataLineIndex = lines.indexOf(line) + 1;
-              if (dataLineIndex < lines.length && lines[dataLineIndex].startsWith('data:')) {
-                const dataLine = lines[dataLineIndex];
-                const data = JSON.parse(dataLine.substring(5).trim());
-                
-                switch (eventType) {
+              if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
+                const dataLine = lines[i + 1];
+                try {
+                  const data = JSON.parse(dataLine.substring(5).trim());
+                  
+                  switch (eventType) {
                   case 'start':
                     console.log('Generation started:', data);
                     setImageGenerationProgress(prev => ({
@@ -1115,10 +1122,16 @@ export default function TestTTS() {
                     
                   case 'image':
                     console.log('Image generated:', data);
+                    console.log('Current allGeneratedImages:', allGeneratedImages);
                     
                     // Update the specific image in the array
-                    allGeneratedImages[data.index] = data.imageUrl;
-                    setGeneratedImages([...allGeneratedImages]);
+                    if (data.index >= 0 && data.index < allGeneratedImages.length) {
+                      allGeneratedImages[data.index] = data.imageUrl;
+                      setGeneratedImages([...allGeneratedImages]);
+                      console.log('Updated images array:', allGeneratedImages);
+                    } else {
+                      console.error('Invalid image index:', data.index, 'for array length:', allGeneratedImages.length);
+                    }
                     
                     // Update progress
                     setImageGenerationProgress(prev => ({
@@ -1131,6 +1144,12 @@ export default function TestTTS() {
                     
                   case 'error':
                     console.error('Generation error:', data);
+                    if (typeof data === 'object' && data.message) {
+                      setImageGenerationProgress(prev => ({
+                        ...prev,
+                        message: `Error: ${data.message}`
+                      }));
+                    }
                     break;
                     
                   case 'complete':
@@ -1161,6 +1180,12 @@ export default function TestTTS() {
                       throw new Error(data.error || 'Failed to generate images with ComfyUI');
                     }
                     break;
+                  }
+                  
+                  // Skip the data line in the next iteration
+                  i++;
+                } catch (error) {
+                  console.error('Error parsing SSE data:', error, dataLine);
                 }
               }
             }
@@ -1176,7 +1201,7 @@ export default function TestTTS() {
         }));
         
         // Fall back to regular API
-        const comfyResponse = await fetch('/api/generate-comfy-images', {
+        const comfyResponse = await fetch('/api/generate-comfy-images-concurrent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

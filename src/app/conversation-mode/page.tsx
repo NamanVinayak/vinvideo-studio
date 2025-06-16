@@ -1070,7 +1070,7 @@ export default function ConversationMode() {
       'no_music_prompts': '/api/no-music-prompt-engineer-agent',
       
       // Image generation (shared across all pipelines)
-      'generate_images': '/api/generate-comfy-images'
+      'generate_images': '/api/generate-comfy-images-concurrent'
     };
     
     const endpoint = endpointMap[stage.name];

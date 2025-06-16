@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     const stream = new ReadableStream({
       start(controller) {
-        const pythonScript = path.join(process.cwd(), 'src', 'utils', 'comfyEndpointTest.py');
+        const pythonScript = path.join(process.cwd(), 'src', 'utils', 'comfyEndpointConcurrent.py');
         const python = spawn('python3', [pythonScript, '--prompts-file', promptsFilePath], {
           cwd: path.dirname(pythonScript),
           env: { 
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         
         let output = '';
         let errorOutput = '';
-        const generatedImages: string[] = [];
+        const generatedImages: (string | undefined)[] = new Array(prompts.length);
         let currentImageIndex = 0;
         
         // Send initial progress event
@@ -84,36 +84,62 @@ export async function POST(request: Request) {
           output += text;
           console.log('Python stdout:', text);
           
-          // Check for successful image generation
-          const imageMatch = text.match(/saved as (.+\.png)/);
+          // Check for successful image generation (updated for concurrent script format)
+          const imageMatch = text.match(/💾 Image saved: (.+\.png)|saved as (.+\.png)/);
           if (imageMatch) {
-            const imagePath = imageMatch[1];
+            const imagePath = imageMatch[1] || imageMatch[2];
             const fileName = path.basename(imagePath);
             const imageUrl = `/${folderId}/${fileName}`;
-            generatedImages.push(imageUrl);
-            currentImageIndex++;
             
-            // Send progress event for each completed image
-            sendEvent('image', {
-              imageUrl,
-              index: currentImageIndex - 1,
-              totalImages: prompts.length,
-              progress: Math.round((currentImageIndex / prompts.length) * 100),
-              message: `Generated image ${currentImageIndex}/${prompts.length}`
-            });
-          }
-          
-          // Check for processing status
-          if (text.includes('Processing image')) {
-            const processingMatch = text.match(/Processing image (\d+)/);
-            if (processingMatch) {
-              const imageNumber = parseInt(processingMatch[1]);
-              sendEvent('processing', {
-                index: imageNumber - 1,
+            // Extract the image index from the filename (prompt_engineer_image_X.png)
+            const indexMatch = fileName.match(/prompt_engineer_image_(\d+)\.png/);
+            const imageIndex = indexMatch ? parseInt(indexMatch[1]) - 1 : currentImageIndex;
+            
+            // Ensure we don't add duplicates
+            if (!generatedImages[imageIndex]) {
+              generatedImages[imageIndex] = imageUrl;
+              currentImageIndex = Math.max(currentImageIndex, imageIndex + 1);
+              
+              // Send progress event for each completed image
+              sendEvent('image', {
+                imageUrl,
+                index: imageIndex,
                 totalImages: prompts.length,
-                message: `Processing image ${imageNumber}/${prompts.length}...`
+                progress: Math.round((currentImageIndex / prompts.length) * 100),
+                message: `Generated image ${imageIndex + 1}/${prompts.length}`
               });
             }
+          }
+          
+          // Check for processing status (updated for concurrent script)
+          if (text.includes('✅ Submitted job')) {
+            const submittedMatch = text.match(/✅ Submitted job (\d+)/);
+            if (submittedMatch) {
+              const jobNumber = parseInt(submittedMatch[1]);
+              sendEvent('processing', {
+                index: jobNumber - 1,
+                totalImages: prompts.length,
+                message: `Processing image ${jobNumber}/${prompts.length}...`
+              });
+            }
+          }
+          
+          // Check for job completion (before image is saved)
+          if (text.includes('🎉 Job') && text.includes('completed')) {
+            const completedMatch = text.match(/🎉 Job (\d+) completed/);
+            if (completedMatch) {
+              const jobNumber = parseInt(completedMatch[1]);
+              sendEvent('processing', {
+                index: jobNumber - 1,
+                totalImages: prompts.length,
+                message: `Saving image ${jobNumber}/${prompts.length}...`
+              });
+            }
+          }
+          
+          // Check for generation complete message
+          if (text.includes('🎉 GENERATION COMPLETE!')) {
+            console.log('Detected generation complete signal from Python script');
           }
         });
         
@@ -122,11 +148,41 @@ export async function POST(request: Request) {
           errorOutput += text;
           console.error('Python stderr:', text);
           
-          // Send error events for individual image failures
-          sendEvent('error', {
-            message: text,
-            timestamp: new Date().toISOString()
-          });
+          // Check if stderr contains success messages (since Python logging goes to stderr by default)
+          // Look for the same patterns we check in stdout
+          const imageMatch = text.match(/💾 Image saved: (.+\.png)|saved as (.+\.png)/);
+          if (imageMatch) {
+            const imagePath = imageMatch[1] || imageMatch[2];
+            const fileName = path.basename(imagePath);
+            const imageUrl = `/${folderId}/${fileName}`;
+            
+            // Extract the image index from the filename (prompt_engineer_image_X.png)
+            const indexMatch = fileName.match(/prompt_engineer_image_(\d+)\.png/);
+            const imageIndex = indexMatch ? parseInt(indexMatch[1]) - 1 : currentImageIndex;
+            
+            // Ensure we don't add duplicates
+            if (!generatedImages[imageIndex]) {
+              generatedImages[imageIndex] = imageUrl;
+              currentImageIndex = Math.max(currentImageIndex, imageIndex + 1);
+              
+              // Send progress event for each completed image
+              sendEvent('image', {
+                imageUrl,
+                index: imageIndex,
+                totalImages: prompts.length,
+                progress: Math.round((currentImageIndex / prompts.length) * 100),
+                message: `Generated image ${imageIndex + 1}/${prompts.length}`
+              });
+            }
+          }
+          
+          // Don't send error events for normal logging output
+          if (text.includes('ERROR') || text.includes('Failed') || text.includes('❌')) {
+            sendEvent('error', {
+              message: text,
+              timestamp: new Date().toISOString()
+            });
+          }
         });
         
         python.on('close', async (code) => {
@@ -137,13 +193,16 @@ export async function POST(request: Request) {
             console.warn('Could not clean up temp prompts file:', error);
           }
           
-          if (code === 0) {
-            console.log(`ComfyUI image generation completed successfully. Generated ${generatedImages.length} images.`);
+          // Filter out undefined entries and create a clean array
+          const cleanGeneratedImages = generatedImages.filter(img => img !== undefined);
+          
+          if (code === 0 || cleanGeneratedImages.length > 0) {
+            console.log(`ComfyUI image generation completed. Generated ${cleanGeneratedImages.length} images.`);
             sendEvent('complete', {
               success: true,
-              generatedImages,
-              totalImages: generatedImages.length,
-              message: `Successfully generated ${generatedImages.length} images`,
+              generatedImages: cleanGeneratedImages,
+              totalImages: cleanGeneratedImages.length,
+              message: `Successfully generated ${cleanGeneratedImages.length} images`,
               output
             });
           } else {
@@ -153,7 +212,7 @@ export async function POST(request: Request) {
               error: `Image generation failed with exit code ${code}`,
               errorOutput,
               output,
-              generatedImages // Send whatever images were generated
+              generatedImages: cleanGeneratedImages // Send whatever images were generated
             });
           }
           

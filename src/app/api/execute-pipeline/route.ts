@@ -191,7 +191,7 @@ async function executeStage(stage: PipelineStage, parameters: any, previousResul
     'no_music_director': '/api/no-music-director-agent',
     'no_music_dop': '/api/no-music-dop-agent',
     'no_music_prompts': '/api/no-music-prompt-engineer-agent',
-    'generate_images': '/api/generate-images'
+    'generate_images': '/api/generate-comfy-images-concurrent'
   };
   
   const endpoint = endpointMap[stage.name];
@@ -528,6 +528,33 @@ function prepareStageRequest(stageName: string, parameters: any, previousResults
         dopSpecs: dopSpecs,
         contentClassification: { type: 'visual_only' },
         folderId: parameters.folderId
+      };
+      
+    case 'generate_images':
+      // Image generation needs the prompts from the prompt engineer stage
+      const promptsResult = previousResults.generate_prompts || 
+                           previousResults.music_prompts || 
+                           previousResults.no_music_prompts;
+      
+      // Extract the prompts array from the result
+      let promptsArray = null;
+      if (promptsResult?.promptsOutput) {
+        promptsArray = promptsResult.promptsOutput;
+      } else if (promptsResult?.stage6_prompt_engineer_output?.prompts_output) {
+        promptsArray = promptsResult.stage6_prompt_engineer_output.prompts_output;
+      } else if (Array.isArray(promptsResult)) {
+        promptsArray = promptsResult;
+      }
+      
+      console.log('🖼️ GENERATE_IMAGES DATA PREPARATION:');
+      console.log(`- Prompts found: ${!!promptsArray}`);
+      console.log(`- Prompts count: ${Array.isArray(promptsArray) ? promptsArray.length : 'not array'}`);
+      
+      return {
+        prompts: promptsArray,
+        promptsOutput: promptsArray, // Support both formats for backward compatibility
+        folderId: parameters.folderId,
+        mode: 'auto' // Let the concurrent system decide optimal mode
       };
       
     // Add more cases as needed

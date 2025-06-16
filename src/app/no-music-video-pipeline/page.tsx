@@ -333,7 +333,7 @@ export default function NoMusicVideoPipelinePage() {
       const folderId = `music-video-${Date.now()}`;
       
       // Use streaming image generation
-      const response = await fetch('/api/generate-comfy-images-stream', {
+      const response = await fetch('/api/generate-comfy-images-concurrent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
