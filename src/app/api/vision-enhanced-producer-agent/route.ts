@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
     
     console.log('Calling Vision Enhanced Producer Agent...');
-    console.log(`Target duration: ${visionDocument.estimated_duration_s}s, Pacing: ${visionDocument.pacing}`);
+    console.log(`Target duration: ${visionDocument.duration_s}s, Pacing: ${visionDocument.pacing}`);
     
     // Calculate expected cut count based on pacing
     const pacingToCutRatio: { [key: string]: number } = {
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
     
-    const expectedCutCount = Math.round(visionDocument.estimated_duration_s / pacingToCutRatio[visionDocument.pacing]);
+    const expectedCutCount = Math.round(visionDocument.duration_s / pacingToCutRatio[visionDocument.pacing]);
     
     // Prepare user content
     const userContent = `
@@ -70,7 +70,7 @@ VISION DOCUMENT:
 ${JSON.stringify(visionDocument, null, 2)}
 
 TARGET REQUIREMENTS:
-- Duration: ${visionDocument.estimated_duration_s} seconds (MANDATORY ±5%)
+- Duration: ${visionDocument.duration_s} seconds (MANDATORY ±5%)
 - Pacing: ${visionDocument.pacing} (expecting ~${expectedCutCount} cuts)
 - Content Type: ${visionDocument.content_classification?.type || 'general'}
 
@@ -85,7 +85,7 @@ ${JSON.stringify(transcript)}
 SCRIPT:
 "${script}"
 
-Generate cut points that EXACTLY match the user's duration requirement (${visionDocument.estimated_duration_s}s ±5%) and respect their pacing preference (${visionDocument.pacing}).`;
+Generate cut points that EXACTLY match the user's duration requirement (${visionDocument.duration_s}s ±5%) and respect their pacing preference (${visionDocument.pacing}).`;
 
     // Create the request payload for OpenRouter
     const payload = {
@@ -175,7 +175,7 @@ Generate cut points that EXACTLY match the user's duration requirement (${vision
       const meetsRequirements = durationVariance <= 5 && producerOutput.pacing_compliance;
       
       console.log(`✅ Vision Enhanced Producer Results:
-        - Target Duration: ${visionDocument.estimated_duration_s}s
+        - Target Duration: ${visionDocument.duration_s}s
         - Actual Duration: ${producerOutput.estimated_duration_s}s
         - Variance: ${producerOutput.duration_variance}%
         - Pacing Compliance: ${producerOutput.pacing_compliance}
