@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { DOP_SYSTEM_MESSAGE } from '@/agents/dop';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
+import type { UserContext } from '@/types/userContext';
 
 /**
  * DoP Agent endpoint to generate cinematography directions
@@ -10,7 +11,15 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, producer_output, director_output, visionDocument, enhancedMode, dop_instructions } = body;
+    const { script, producer_output, director_output, visionDocument, enhancedMode, dop_instructions, userContext } = body as {
+      script: string;
+      producer_output: any;
+      director_output: any;
+      visionDocument?: any;
+      enhancedMode?: boolean;
+      dop_instructions?: any;
+      userContext?: UserContext;
+    };
     
     if (!script || producer_output === undefined || producer_output === null || 
         director_output === undefined || director_output === null) {
@@ -33,10 +42,21 @@ export async function POST(request: Request) {
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
     console.log(`DoP Instructions available: ${!!dop_instructions}`);
-    console.log(`Enhanced Mode: ${!!dop_instructions}`);
+    console.log(`Enhanced Mode: ${!!enhancedMode}`);
+    console.log(`UserContext available: ${!!userContext}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
       console.log(`Detected artistic style: ${visionDocument.detected_artistic_style}`);
+    }
+    if (userContext) {
+      console.log(`User original prompt: ${userContext.originalPrompt?.substring(0, 50)}...`);
+      console.log(`User visual style: ${userContext.settings.visualStyle}`);
+    }
+    
+    // ENHANCED: Log DoP instructions content
+    if (dop_instructions) {
+      console.log('📋 DOP INSTRUCTIONS CONTENT:');
+      console.log(JSON.stringify(dop_instructions, null, 2));
     }
     
     // Prepare enhanced vision context with artistic style
@@ -72,7 +92,18 @@ Use this strategic guidance to create cinematography that supports both the narr
 
 ` : '';
 
-    const userContent = `${visionContext}${enhancedDoPGuidance}Here are the inputs for cinematography planning:
+    // Add user context information if available
+    const userContextInfo = userContext ? `
+🎯 USER'S ORIGINAL VISION:
+- Request: "${userContext.originalPrompt}"
+- Visual Style: ${userContext.settings.visualStyle}
+- Pacing: ${userContext.settings.pacing}
+
+Ensure your cinematography supports the user's intended visual style.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedDoPGuidance}${userContextInfo}Here are the inputs for cinematography planning:
 
 ORIGINAL SCRIPT:
 "${script}"

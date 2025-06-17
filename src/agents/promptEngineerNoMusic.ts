@@ -137,8 +137,8 @@ Return ONLY a JSON object with this exact structure:
 **Content-Type Prompt Strategies:**
 - **Abstract/Thematic**: Each prompt explores different conceptual angle with evolving visual metaphors
 - **Narrative/Character**: Character consistency with environmental variety reflecting story progression
-- **Contemplative pacing**: Detailed descriptions allowing for deep visual exploration
-- **Dynamic pacing**: Concise, punchy descriptions with energetic visual elements
+- **Slow pacing**: Detailed descriptions allowing for deep visual exploration
+- **Fast pacing**: Concise, punchy descriptions with energetic visual elements
 
 **Visual Flow Without Music:**
 - Cognitive pacing through visual complexity

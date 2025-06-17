@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnderstandingWithAudio';
+import type { UserContext } from '@/types/userContext';
 
 /**
  * Audio-Enhanced Vision Understanding Agent API
@@ -8,10 +9,17 @@ import { AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnders
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userInput, additionalContext } = body;
+    const { userInput, additionalContext, userContext } = body as { 
+      userInput?: string; 
+      additionalContext?: any; 
+      userContext?: UserContext;
+    };
+    
+    // Use userContext if provided, otherwise fall back to legacy format
+    const concept = userContext?.originalPrompt || userInput;
     
     // Validate required inputs
-    if (!userInput || !userInput.trim()) {
+    if (!concept || !concept.trim()) {
       return NextResponse.json({ 
         error: 'User input is required for vision analysis' 
       }, { status: 400 });
@@ -26,15 +34,40 @@ export async function POST(request: Request) {
     }
     
     console.log('Calling Audio-Enhanced Vision Understanding Agent...');
+    console.log('UserContext provided:', !!userContext);
+    
+    // Merge contexts - userContext takes precedence
+    const mergedContext = userContext ? {
+      stylePreferences: {
+        pacing: userContext.settings.pacing,
+        visualStyle: userContext.settings.visualStyle,
+        duration: userContext.settings.duration
+      },
+      technicalRequirements: {
+        contentType: userContext.settings.contentType || 'general'
+      },
+      audioContext: {
+        willHaveNarration: true,
+        narrativeStyle: 'emotional_storytelling',
+        ttsOptimization: true
+      }
+    } : additionalContext;
     
     // Prepare user content with audio context emphasis
     const userContent = `AUDIO-ENHANCED PIPELINE - STAGE 1: VISION UNDERSTANDING FOR NARRATED CONTENT
     
     USER CONCEPT INPUT:
-    "${userInput}"
+    "${concept}"
     
     ADDITIONAL CONTEXT:
-    ${JSON.stringify(additionalContext, null, 2)}
+    ${JSON.stringify(mergedContext, null, 2)}
+    
+    ${userContext ? `USER REQUIREMENTS:
+    - Requested Duration: ${userContext.settings.duration} seconds (MUST be respected)
+    - Pacing Preference: ${userContext.settings.pacing}
+    - Visual Style: ${userContext.settings.visualStyle}
+    - Content Type: ${userContext.settings.contentType || 'general'}
+    ` : ''}
     
     CRITICAL CONTEXT: This vision will be accompanied by NARRATED AUDIO generated from your core concept.
     
@@ -140,8 +173,25 @@ export async function POST(request: Request) {
       console.log('- Full output keys:', Object.keys(parsedOutput));
       console.log('- stage1_vision_analysis keys:', Object.keys(parsedOutput.stage1_vision_analysis || {}));
       console.log('- agent_instructions present:', !!parsedOutput.stage1_vision_analysis?.agent_instructions);
-      console.log('- agent_instructions content:', parsedOutput.stage1_vision_analysis?.agent_instructions);
       console.log('- detected_artistic_style:', parsedOutput.stage1_vision_analysis?.vision_document?.detected_artistic_style);
+      
+      // Log sample of each agent instruction
+      if (parsedOutput.stage1_vision_analysis?.agent_instructions) {
+        const instructions = parsedOutput.stage1_vision_analysis.agent_instructions;
+        console.log('\n📋 AGENT INSTRUCTIONS SAMPLE:');
+        if (instructions.producer_instructions) {
+          console.log('- Producer target_cut_timing:', instructions.producer_instructions.target_cut_timing);
+        }
+        if (instructions.director_instructions) {
+          console.log('- Director scene_philosophy:', instructions.director_instructions.scene_direction_philosophy?.substring(0, 100) + '...');
+        }
+        if (instructions.dop_instructions) {
+          console.log('- DoP artistic_style_support:', instructions.dop_instructions.artistic_style_support);
+        }
+        if (instructions.prompt_engineer_instructions) {
+          console.log('- Prompt Engineer artistic_enforcement:', instructions.prompt_engineer_instructions.artistic_style_enforcement);
+        }
+      }
 
       // Validate essential outputs for enhanced audio pipeline
       const validation = {

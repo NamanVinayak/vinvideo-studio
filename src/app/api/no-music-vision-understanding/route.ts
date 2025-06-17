@@ -293,12 +293,12 @@ export async function POST(request: Request) {
             timing_blueprint: {
               estimated_duration_s: duration,
               cut_strategy: "narrative_flow" as const,
-              optimal_cut_count: Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)),
-              average_cut_length: duration / Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)),
+              optimal_cut_count: Math.floor(duration / (pacing === 'slow' ? 9 : pacing === 'fast' ? 3 : 6)),
+              average_cut_length: duration / Math.floor(duration / (pacing === 'slow' ? 9 : pacing === 'fast' ? 3 : 6)),
               pacing_rationale: `Generated ${pacing} pacing based on content requirements`,
-              cut_points: Array.from({ length: Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5)) }, (_, i) => ({
+              cut_points: Array.from({ length: Math.floor(duration / (pacing === 'slow' ? 9 : pacing === 'fast' ? 3 : 6)) }, (_, i) => ({
                 cut_number: i + 1,
-                cut_time_s: (i + 1) * (duration / Math.floor(duration / (pacing === 'contemplative' ? 8 : pacing === 'dynamic' ? 3 : 5))),
+                cut_time_s: (i + 1) * (duration / Math.floor(duration / (pacing === 'slow' ? 9 : pacing === 'fast' ? 3 : 6))),
                 narrative_reason: `Natural progression point ${i + 1}`,
                 content_transition: `Visual evolution segment ${i + 1}`,
                 cognitive_weight: "medium" as const,

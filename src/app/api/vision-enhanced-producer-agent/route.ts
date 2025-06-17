@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { VISION_ENHANCED_PRODUCER_SYSTEM_MESSAGE } from '@/agents/visionEnhancedProducer';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
+import type { UserContext } from '@/types/userContext';
 
 /**
  * Vision Enhanced Producer Agent endpoint
@@ -10,7 +11,13 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { transcript, script, visionDocument, producer_instructions } = body;
+    const { transcript, script, visionDocument, producer_instructions, userContext } = body as {
+      transcript: any;
+      script: string;
+      visionDocument: any;
+      producer_instructions?: any;
+      userContext?: UserContext;
+    };
     
     // Enhanced debugging for Vision Enhanced Producer Agent input
     console.log('🎬 VISION ENHANCED PRODUCER AGENT - Debug Input:');
@@ -24,7 +31,19 @@ export async function POST(request: Request) {
     console.log('- visionDocument.duration_s:', visionDocument?.duration_s);
     console.log('- visionDocument.pacing:', visionDocument?.pacing);
     console.log('- producer_instructions:', producer_instructions ? 'PRESENT' : 'NOT_PRESENT');
+    console.log('- userContext:', userContext ? 'PRESENT' : 'NOT_PRESENT');
+    if (userContext) {
+      console.log('  - originalPrompt:', userContext.originalPrompt?.substring(0, 50) + '...');
+      console.log('  - duration:', userContext.settings.duration);
+      console.log('  - pacing:', userContext.settings.pacing);
+    }
     console.log('- Full visionDocument structure:', JSON.stringify(visionDocument, null, 2));
+    
+    // ENHANCED: Log producer instructions content
+    if (producer_instructions) {
+      console.log('📋 PRODUCER INSTRUCTIONS CONTENT:');
+      console.log(JSON.stringify(producer_instructions, null, 2));
+    }
     
     // Validation
     const hasValidTranscript = transcript && Array.isArray(transcript) && transcript.length > 0;
@@ -50,10 +69,9 @@ export async function POST(request: Request) {
     
     // Calculate expected cut count based on pacing
     const pacingToCutRatio: { [key: string]: number } = {
-      contemplative: 8,  // 1 cut per 8 seconds
-      moderate: 4,       // 1 cut per 4 seconds
-      dynamic: 2.5,      // 1 cut per 2.5 seconds
-      fast: 1.5          // 1 cut per 1.5 seconds
+      slow: 9,      // 1 cut per 9 seconds (8-10 sec range)
+      medium: 6,    // 1 cut per 6 seconds (5-7 sec range)
+      fast: 3       // 1 cut per 3 seconds (2-4 sec range)
     };
 
     if (!pacingToCutRatio[visionDocument.pacing]) {
@@ -85,7 +103,13 @@ ${JSON.stringify(transcript)}
 SCRIPT:
 "${script}"
 
-Generate cut points that EXACTLY match the user's duration requirement (${visionDocument.duration_s}s ±5%) and respect their pacing preference (${visionDocument.pacing}).`;
+${userContext ? `USER REQUIREMENTS (HIGHEST PRIORITY):
+- Original Request: "${userContext.originalPrompt}"
+- Requested Duration: ${userContext.settings.duration} seconds (ABSOLUTE REQUIREMENT)
+- Pacing Preference: ${userContext.settings.pacing}
+- Visual Style: ${userContext.settings.visualStyle}
+
+` : ''}Generate cut points that EXACTLY match the user's duration requirement (${userContext?.settings.duration || visionDocument.duration_s}s ±5%) and respect their pacing preference (${userContext?.settings.pacing || visionDocument.pacing}).`;
 
     // Create the request payload for OpenRouter
     const payload = {

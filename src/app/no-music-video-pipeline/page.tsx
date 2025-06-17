@@ -551,7 +551,7 @@ export default function NoMusicVideoPipelinePage() {
   const [formData, setFormData] = useState({
     concept: urlConcept || '',
     style: urlStyle || 'cinematic',
-    pacing: urlPacing || 'dynamic',
+    pacing: urlPacing || 'fast',
     duration: urlDuration ? parseInt(urlDuration) : 30,
     contentType: urlContentType || 'general'
   });
@@ -654,9 +654,8 @@ export default function NoMusicVideoPipelinePage() {
                   onChange={(e) => setFormData({...formData, pacing: e.target.value})}
                   className={styles.select}
                 >
-                  <option value="contemplative">Contemplative</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="dynamic">Dynamic</option>
+                  <option value="slow">Slow</option>
+                  <option value="medium">Medium</option>
                   <option value="fast">Fast</option>
                 </select>
               </div>

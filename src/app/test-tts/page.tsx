@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import type { UserContext } from '@/types/userContext';
 
 interface CutPoint {
   cut_number: number;
@@ -118,13 +119,12 @@ interface WorkflowStep {
 interface VisionDocument {
   core_concept: string;
   emotion_arc: string[];
-  pacing: 'contemplative' | 'moderate' | 'dynamic' | 'fast';
+  pacing: 'slow' | 'medium' | 'fast';
   visual_style: string;
   duration: number;
   content_classification: {
     type: 'narrative_driven' | 'concept_driven' | 'abstract_thematic' | 'narrative_character';
   };
-  audio_mood_hints: string[]; // Changed from music_mood_hints
   visual_complexity: 'simple' | 'moderate' | 'complex';
   color_philosophy: string;
   detected_artistic_style?: string;
@@ -167,7 +167,7 @@ interface VisionDocument {
 interface VisionFormData {
   concept: string;
   style: 'cinematic' | 'documentary' | 'artistic' | 'minimal';
-  pacing: 'contemplative' | 'moderate' | 'dynamic' | 'fast';
+  pacing: 'slow' | 'medium' | 'fast';
   duration: number;
   contentType: 'general' | 'educational' | 'storytelling' | 'abstract';
 }
@@ -199,7 +199,7 @@ export default function TestTTS() {
   const [visionFormData, setVisionFormData] = useState<VisionFormData>({
     concept: urlConcept || '',
     style: urlStyle || 'cinematic',
-    pacing: urlPacing || 'moderate',
+    pacing: urlPacing || 'medium',
     duration: urlDuration ? parseInt(urlDuration) : 30,
     contentType: urlContentType || 'general'
   });
@@ -465,10 +465,42 @@ export default function TestTTS() {
       
       updateStepStatus(0, 'completed', { folderId: projectFolderId }, undefined, Date.now() - step1Start);
 
+      // Create UserContext for all agents
+      const userContext: UserContext = {
+        originalPrompt: useVisionMode ? visionFormData.concept : script,
+        settings: {
+          duration: useVisionMode ? visionFormData.duration : 30, // Default to 30s for script mode
+          pacing: useVisionMode ? visionFormData.pacing : 'moderate',
+          visualStyle: useVisionMode ? visionFormData.style : 'cinematic',
+          contentType: useVisionMode ? visionFormData.contentType : undefined,
+          voiceSelection: 'Enceladus' // Default voice for now - TODO: Add voice selection UI
+        },
+        pipeline: {
+          mode: useVisionMode ? 'vision_enhanced' : 'legacy_script',
+          timestamp: new Date().toISOString(),
+          sessionId: sessionId || projectFolderId // Use sessionId if available, else projectFolderId
+        },
+        constraints: {
+          mustMatchDuration: true,
+          durationTolerance: 5 // Fixed at 5%
+        }
+      };
+
+      // DEBUG: Log UserContext creation
+      console.log('🎯 USERCONTEXT CREATED:');
+      console.log('- Original Prompt:', userContext.originalPrompt);
+      console.log('- Duration:', userContext.settings.duration);
+      console.log('- Pacing:', userContext.settings.pacing);
+      console.log('- Visual Style:', userContext.settings.visualStyle);
+      console.log('- Pipeline Mode:', userContext.pipeline.mode);
+      console.log('- Full UserContext:', JSON.stringify(userContext, null, 2));
+
       if (useVisionMode) {
         // Step 2: Vision Understanding (Separate step)
         updateStepStatus(1, 'processing');
         const step2Start = Date.now();
+        
+        console.log('📤 Sending to Vision API - UserContext only (no redundant concept)');
         
         const visionResponse = await fetch('/api/vision-only', {
           method: 'POST',
@@ -476,11 +508,7 @@ export default function TestTTS() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            concept: visionFormData.concept,
-            style: visionFormData.style,
-            pacing: visionFormData.pacing,
-            duration: visionFormData.duration,
-            contentType: visionFormData.contentType
+            userContext // Pass only userContext, no redundant concept
           }),
         });
 
@@ -496,6 +524,19 @@ export default function TestTTS() {
         console.log('- visionData.narrationScript:', visionData.narrationScript);
         console.log('- visionData keys:', Object.keys(visionData));
         console.log('- visionData structure:', JSON.stringify(visionData, null, 2));
+        
+        // ENHANCED DEBUG: Log agent instructions
+        console.log('📋 AGENT INSTRUCTIONS DEBUG:');
+        console.log('- Has visionAgentData:', !!visionData.visionAgentData);
+        console.log('- Has stage1_vision_analysis:', !!visionData.visionAgentData?.stage1_vision_analysis);
+        console.log('- Has agent_instructions:', !!visionData.visionAgentData?.stage1_vision_analysis?.agent_instructions);
+        if (visionData.visionAgentData?.stage1_vision_analysis?.agent_instructions) {
+          const instructions = visionData.visionAgentData.stage1_vision_analysis.agent_instructions;
+          console.log('- Producer instructions:', instructions.producer_instructions);
+          console.log('- Director instructions:', instructions.director_instructions);
+          console.log('- DoP instructions:', instructions.dop_instructions);
+          console.log('- Prompt Engineer instructions:', instructions.prompt_engineer_instructions);
+        }
         
         // Store vision results immediately
         setVisionDocument(visionData.visionDocument);
@@ -678,7 +719,9 @@ export default function TestTTS() {
       console.log('- currentVisionAgentData available:', !!currentVisionAgentData);
       console.log('- agent_instructions available:', !!currentVisionAgentData?.stage1_vision_analysis?.agent_instructions);
       console.log('- producer_instructions available:', !!producerInstructions);
-      console.log('- producer_instructions content:', producerInstructions);
+      console.log('- producer_instructions content:', JSON.stringify(producerInstructions, null, 2));
+      console.log('- Vision document core_concept:', currentVisionDocument?.core_concept);
+      console.log('- Vision document detected_artistic_style:', currentVisionDocument?.detected_artistic_style);
       
       // Determine which producer agent to use based on mode
       const producerEndpoint = useVisionMode ? '/api/vision-enhanced-producer-agent' : '/api/producer-agent';
@@ -692,6 +735,9 @@ export default function TestTTS() {
         body: JSON.stringify({
           transcript: transcriptData,
           script: generatedFormattedScript, // Use local variable for consistency
+          
+          // NEW: Always pass userContext
+          userContext,
           
           // ENHANCED: Pass producer instructions for intelligent pacing
           ...(producerInstructions && {
@@ -756,7 +802,9 @@ export default function TestTTS() {
       console.log('🔍 DIRECTOR AGENT ENHANCEMENT DEBUG:');
       console.log('- currentVisionAgentData available:', !!currentVisionAgentData);
       console.log('- director_instructions available:', !!directorInstructions);
-      console.log('- director_instructions content:', directorInstructions);
+      console.log('- director_instructions content:', JSON.stringify(directorInstructions, null, 2));
+      console.log('- Passing vision core_concept:', currentVisionDocument?.core_concept);
+      console.log('- Passing detected_artistic_style:', currentVisionDocument?.detected_artistic_style);
       
       console.log('Sending to Director Agent:', { 
         producer_output: producerOutput, 
@@ -774,6 +822,9 @@ export default function TestTTS() {
         body: JSON.stringify({
           producer_output: producerOutput,
           script: generatedFormattedScript, // Use local variable
+          
+          // NEW: Always pass userContext
+          userContext,
           
           // ENHANCED: Pass director instructions for creative vision
           ...(directorInstructions && {
@@ -839,6 +890,10 @@ export default function TestTTS() {
       // Extract dop instructions from Vision Agent output
       const dopInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.dop_instructions;
       
+      console.log('🔍 DOP AGENT ENHANCEMENT DEBUG:');
+      console.log('- dop_instructions available:', !!dopInstructions);
+      console.log('- dop_instructions content:', JSON.stringify(dopInstructions, null, 2));
+      
       console.log('Sending to DoP Agent:', { 
         script: generatedFormattedScript, 
         producer_output: producerOutputForDoP, 
@@ -858,6 +913,9 @@ export default function TestTTS() {
           script: generatedFormattedScript, // Use local variable
           producer_output: producerOutputForDoP,
           director_output: directorOutputForDoP,
+          
+          // NEW: Always pass userContext
+          userContext,
           
           // ENHANCED: Pass dop instructions for cinematography guidance
           ...(dopInstructions && {
@@ -940,6 +998,11 @@ export default function TestTTS() {
       // Extract prompt engineer instructions from Vision Agent output
       const promptEngineerInstructions = currentVisionAgentData?.stage1_vision_analysis?.agent_instructions?.prompt_engineer_instructions;
       
+      console.log('🔍 PROMPT ENGINEER ENHANCEMENT DEBUG:');
+      console.log('- prompt_engineer_instructions available:', !!promptEngineerInstructions);
+      console.log('- prompt_engineer_instructions content:', JSON.stringify(promptEngineerInstructions, null, 2));
+      console.log('- Detected artistic style being passed:', currentVisionDocument?.detected_artistic_style);
+      
       console.log('Sending to Prompt Engineer Agent:', { 
         script: generatedFormattedScript, 
         director_output: directorOutputForPE, 
@@ -962,6 +1025,9 @@ export default function TestTTS() {
           director_output: directorOutputForPE,
           dop_output: dopOutputForPE,
           num_images: numImages, // Use the number of beats from DoP output
+          
+          // NEW: Always pass userContext
+          userContext,
           
           // ENHANCED: Pass prompt engineer instructions for image generation
           ...(promptEngineerInstructions && {
@@ -1523,9 +1589,8 @@ export default function TestTTS() {
                   className={styles.select}
                   disabled={loading || isGeneratingScript}
                 >
-                  <option value="contemplative">Contemplative</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="dynamic">Dynamic</option>
+                  <option value="slow">Slow</option>
+                  <option value="medium">Medium</option>
                   <option value="fast">Fast</option>
                 </select>
               </div>

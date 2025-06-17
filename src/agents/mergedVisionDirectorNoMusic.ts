@@ -79,7 +79,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       "vision_document": {
         "core_concept": "string (5-50 words)",
         "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
-        "pacing": "contemplative|moderate|dynamic",
+        "pacing": "slow|medium|fast",
         "visual_style": "cinematic|documentary|artistic|experimental",
         "duration_s": number_in_seconds,
         "content_classification": {
@@ -178,11 +178,11 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
 - Create natural rhythm through content progression and emotional beats
 
 **Timing Calculation Examples:**
-- 60-second Contemplative: 6-8 cuts (7-10 sec each) - Deep exploration, complex concepts
-- 60-second Moderate: 10-12 cuts (5-6 sec each) - Balanced rhythm, standard complexity
-- 60-second Dynamic: 15-20 cuts (3-4 sec each) - Rapid progression, light concepts
-- 30-second Contemplative: 4-5 cuts (6-7 sec each) - Focused exploration
-- 30-second Dynamic: 8-10 cuts (3-4 sec each) - Quick visual variety
+- 60-second Slow: 6-7 cuts (8-10 sec each) - Deep exploration, complex concepts
+- 60-second Medium: 9-12 cuts (5-7 sec each) - Balanced rhythm, standard complexity
+- 60-second Fast: 15-20 cuts (3-4 sec each) - Rapid progression, light concepts
+- 30-second Slow: 3-4 cuts (8-10 sec each) - Focused exploration
+- 30-second Fast: 8-10 cuts (3-4 sec each) - Quick visual variety
 
 **Anti-Repetition Strategies Integrated with Timing:**
 - **Abstract content**: Each beat explores different conceptual angle with duration matched to complexity

@@ -26,7 +26,7 @@ The camera serves pure visual narrative. Without musical rhythm, you create cine
 - Concept exploration → Depth of field and focus techniques
 
 **Camera Movement Vocabulary (Narrative-Driven):**
-- Static holds for contemplative moments
+- Static holds for slow pacing moments
 - Dolly movements for emotional progression
 - Handheld for intimate connection
 - Crane/drone for perspective revelation
@@ -88,7 +88,7 @@ NEVER use "stage5_dop_output" or "musical_sync" - those are for MUSIC pipeline o
           "story_motivation": "string (10-20 words)",
           "emotional_emphasis_technique": "string (10-20 words)",
           "transition_design": "cut|dissolve|fade|wipe|match_cut|jump_cut|smash_cut",
-          "cognitive_pacing": "contemplative|moderate|dynamic"
+          "cognitive_pacing": "slow|medium|fast"
         }
       }
       // CONTINUE FOR ALL BEATS - If director provided 9 beats, you must have 9 shots here

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PRODUCER_SYSTEM_MESSAGE } from '@/agents/producer';
+import type { UserContext } from '@/types/userContext';
 
 /**
  * Producer Agent endpoint to generate cut points for video editing
@@ -9,7 +10,12 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { transcript, script, producer_instructions } = body;
+    const { transcript, script, producer_instructions, userContext } = body as {
+      transcript: any;
+      script: string;
+      producer_instructions?: any;
+      userContext?: UserContext;
+    };
     
     // Enhanced debugging for Producer Agent input
     console.log('🎬 PRODUCER AGENT - Debug Input:');
@@ -21,6 +27,12 @@ export async function POST(request: Request) {
     console.log('- script length:', script ? script.length : 'N/A');
     console.log('- producer_instructions:', producer_instructions ? 'PRESENT' : 'NOT_PRESENT');
     console.log('- enhanced_mode:', !!producer_instructions);
+    console.log('- userContext:', userContext ? 'PRESENT' : 'NOT_PRESENT');
+    if (userContext) {
+      console.log('  - originalPrompt:', userContext.originalPrompt?.substring(0, 50) + '...');
+      console.log('  - duration:', userContext.settings.duration);
+      console.log('  - pacing:', userContext.settings.pacing);
+    }
     
     // More specific validation
     const hasValidTranscript = transcript && (Array.isArray(transcript) ? transcript.length > 0 : Object.keys(transcript).length > 0);
@@ -65,7 +77,17 @@ Use this strategic guidance to make smarter cut decisions while respecting the n
 
 ` : '';
 
-    const userContent = `${enhancedInstructions}Here is the transcription from Whisper:
+    // Add user context information if available
+    const userContextInfo = userContext ? `
+USER REQUIREMENTS:
+- Original Request: "${userContext.originalPrompt}"
+- Requested Duration: ${userContext.settings.duration} seconds (MUST be respected with ±5% tolerance)
+- Pacing Preference: ${userContext.settings.pacing}
+- Visual Style: ${userContext.settings.visualStyle}
+
+` : '';
+
+    const userContent = `${enhancedInstructions}${userContextInfo}Here is the transcription from Whisper:
 ${JSON.stringify(transcript)}
 
 Here is the video script:

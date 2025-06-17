@@ -1092,9 +1092,9 @@ export function determineCutStrategy(
   musicSegment: MusicAnalysisResult['musicAnalysis']
 ): CutStrategy {
   const cutFrequencyMap = {
-    'contemplative': 7, // 6-10 seconds per cut
-    'moderate': 5,      // 4-6 seconds
-    'dynamic': 3        // 2-4 seconds
+    'slow': 9,        // 8-10 seconds per cut
+    'medium': 6,      // 5-7 seconds
+    'fast': 3           // 2-4 seconds
   } as const;
   
   const baseCutFrequency = cutFrequencyMap[visionDoc.pacing as keyof typeof cutFrequencyMap] || 5;

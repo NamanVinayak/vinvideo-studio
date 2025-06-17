@@ -158,14 +158,13 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
     "vision_document": {
       "core_concept": "string (5-50 words, creative essence for other agents)",
       "emotion_arc": ["array", "of", "3-5", "emotions", "that sound compelling"],
-      "pacing": "contemplative|moderate|dynamic|fast",
+      "pacing": "slow|medium|fast",
       "visual_style": "cinematic|documentary|artistic|minimal",
       "detected_artistic_style": "string (extracted style from user concept) OR 'not_mentioned'",
       "duration_s": number_in_seconds,
       "content_classification": {
         "type": "narrative_driven|concept_driven"
       },
-      "audio_mood_hints": ["vocal", "performance", "style", "hints"],
       "visual_complexity": "simple|moderate|complex",
       "color_philosophy": "string describing colors that enhance vocal mood",
       "narration_optimization": {

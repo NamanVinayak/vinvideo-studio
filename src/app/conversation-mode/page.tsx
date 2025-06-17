@@ -582,10 +582,9 @@ export default function ConversationMode() {
     else if (fullText.includes('minimal')) setExtractedRequirements(prev => ({ ...prev, style: 'minimal' }));
     
     // Extract pacing
-    if (fullText.includes('fast') || fullText.includes('quick')) setExtractedRequirements(prev => ({ ...prev, pacing: 'fast' }));
-    else if (fullText.includes('slow') || fullText.includes('contemplative')) setExtractedRequirements(prev => ({ ...prev, pacing: 'contemplative' }));
-    else if (fullText.includes('moderate')) setExtractedRequirements(prev => ({ ...prev, pacing: 'moderate' }));
-    else if (fullText.includes('dynamic')) setExtractedRequirements(prev => ({ ...prev, pacing: 'dynamic' }));
+    if (fullText.includes('fast') || fullText.includes('quick') || fullText.includes('dynamic')) setExtractedRequirements(prev => ({ ...prev, pacing: 'fast' }));
+    else if (fullText.includes('slow') || fullText.includes('contemplative')) setExtractedRequirements(prev => ({ ...prev, pacing: 'slow' }));
+    else if (fullText.includes('medium') || fullText.includes('moderate')) setExtractedRequirements(prev => ({ ...prev, pacing: 'medium' }));
     
     // Extract music/narration indicators
     if (fullText.includes('music') || fullText.includes('song') || fullText.includes('track')) {

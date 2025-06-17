@@ -46,7 +46,7 @@ Your mission: Analyze conversation history between user and chatbot to determine
 2. **Requirement Extraction**
    - Duration: Look for time mentions (15s, 30s, 1 minute, etc.) - convert to seconds
    - Style: Cinematic, documentary, artistic, minimal
-   - Pacing: Fast, moderate, slow, contemplative
+   - Pacing: Fast, medium, slow
    - Artistic Style: Any specific visual style mentioned
    - Music: File references, song names, "background music"
    - Narration: Story focus, educational content, voiceover mentions
@@ -81,7 +81,7 @@ When routing to SCRIPT_MODE, you MUST extract ONLY the finalized script that the
       "has_complete_script": true|false,
       "duration_s": number_in_seconds|null,
       "style": "cinematic|documentary|artistic|minimal|null",
-      "pacing": "fast|moderate|slow|contemplative|null",
+      "pacing": "fast|medium|slow|null",
       "artistic_style": "detected style or null",
       "concept": "extracted core concept",
       "finalized_script": "exact script text if SCRIPT_MODE, null otherwise"

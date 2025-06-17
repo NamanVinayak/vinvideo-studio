@@ -61,7 +61,7 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
     "vision_document": {
       "core_concept": "string (5-50 words)",
       "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
-      "pacing": "contemplative|moderate|dynamic",
+      "pacing": "slow|medium|fast",
       "visual_style": "cinematic|documentary|artistic|experimental",
       "duration_s": number_in_seconds,
       "content_classification": {
@@ -119,15 +119,15 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
 - Craft color philosophy that enhances the emotional journey
 
 **Timing Calculation Examples:**
-- 60-second Contemplative: 6-8 cuts (7-10 sec each) - Deep exploration
-- 60-second Moderate: 10-12 cuts (5-6 sec each) - Balanced rhythm  
-- 60-second Dynamic: 15-20 cuts (3-4 sec each) - Rapid progression
-- 30-second Contemplative: 4-5 cuts (6-7 sec each)
-- 30-second Dynamic: 8-10 cuts (3-4 sec each)
+- 60-second Slow: 6-7 cuts (8-10 sec each) - Deep exploration
+- 60-second Medium: 9-12 cuts (5-7 sec each) - Balanced rhythm  
+- 60-second Fast: 15-20 cuts (3-4 sec each) - Rapid progression
+- 30-second Slow: 3-4 cuts (8-10 sec each)
+- 30-second Fast: 8-10 cuts (3-4 sec each)
 
 **Creative Decision Examples:**
 - "Something cool" → Extract latent desire for visual innovation, create dynamic timing
-- Abstract concepts → Transform into concrete visual metaphors with contemplative pacing
+- Abstract concepts → Transform into concrete visual metaphors with slow pacing
 - Character stories → Create narrative-driven cuts that follow emotional beats
 - Complex concepts → Allow longer segments for cognitive processing
 - Simple concepts → Use shorter cuts to maintain visual interest

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { DIRECTOR_SYSTEM_MESSAGE } from '@/agents/director';
 import { passThroughRawJson } from '@/utils/passThroughRawJson';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
+import type { UserContext } from '@/types/userContext';
 
 /**
  * Director Agent endpoint to generate creative vision and story beats
@@ -11,7 +12,14 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { producer_output, script, visionDocument, enhancedMode, director_instructions } = body;
+    const { producer_output, script, visionDocument, enhancedMode, director_instructions, userContext } = body as {
+      producer_output: any;
+      script: string;
+      visionDocument?: any;
+      enhancedMode?: boolean;
+      director_instructions?: any;
+      userContext?: UserContext;
+    };
     
     if (producer_output === undefined || producer_output === null || !script) {
       return NextResponse.json({
@@ -32,9 +40,22 @@ export async function POST(request: Request) {
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
     console.log(`Director Instructions available: ${!!director_instructions}`);
-    console.log(`Enhanced Mode: ${!!director_instructions}`);
+    console.log(`Enhanced Mode: ${!!enhancedMode}`);
+    console.log(`UserContext available: ${!!userContext}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
+      console.log(`Vision detected artistic style: ${visionDocument.detected_artistic_style}`);
+    }
+    if (userContext) {
+      console.log(`User original prompt: ${userContext.originalPrompt?.substring(0, 50)}...`);
+      console.log(`User requested duration: ${userContext.settings.duration}s`);
+      console.log(`User pacing: ${userContext.settings.pacing}`);
+    }
+    
+    // ENHANCED: Log director instructions content
+    if (director_instructions) {
+      console.log('📋 DIRECTOR INSTRUCTIONS CONTENT:');
+      console.log(JSON.stringify(director_instructions, null, 2));
     }
     
     // Prepare enhanced vision context with director instructions
@@ -67,7 +88,19 @@ Use this strategic guidance to create beats that fulfill the creative vision whi
 
 ` : '';
 
-    const userContent = `${visionContext}${enhancedDirectorGuidance}Here is the Producer's cut points output:
+    // Add user context information if available
+    const userContextInfo = userContext ? `
+📝 USER REQUIREMENTS (ORIGINAL REQUEST):
+- What User Asked For: "${userContext.originalPrompt}"
+- Duration: ${userContext.settings.duration} seconds
+- Pacing: ${userContext.settings.pacing}
+- Visual Style: ${userContext.settings.visualStyle}
+
+Remember to ensure your creative vision aligns with what the user actually requested.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedDirectorGuidance}${userContextInfo}Here is the Producer's cut points output:
 ${JSON.stringify(producer_output)}
 
 Here is the original video script with timing context:

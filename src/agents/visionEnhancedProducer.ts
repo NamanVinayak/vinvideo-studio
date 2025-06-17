@@ -95,7 +95,6 @@ export interface VisionEnhancedProducerInput {
     content_classification: {
       type: string;
     };
-    audio_mood_hints?: string[];
     visual_complexity?: string;
     color_philosophy?: string;
   };

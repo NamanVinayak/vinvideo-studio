@@ -89,7 +89,7 @@ Return ONLY a JSON object with this exact structure, no markdown, no code blocks
     "vision_document": {
       "core_concept": "string (5-50 words)",
       "emotion_arc": ["array", "of", "3-5", "specific", "emotions"],
-      "pacing": "contemplative|moderate|dynamic",
+      "pacing": "slow|medium|fast",
       "visual_style": "cinematic|documentary|artistic|experimental",
       "duration_s": number_in_seconds,
       "content_classification": {

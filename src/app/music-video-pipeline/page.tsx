@@ -163,7 +163,7 @@ export default function MusicVideoPipelinePage() {
 
   const [formData, setFormData] = useState({
     concept: urlConcept || '',
-    pacing: urlPacing || 'moderate',
+    pacing: urlPacing || 'medium',
     style: urlStyle || 'cinematic',
     duration: urlDuration ? parseInt(urlDuration) : 30,
     musicPreference: urlMusicPreference || 'auto',
@@ -1801,9 +1801,9 @@ export default function MusicVideoPipelinePage() {
                   value={formData.pacing}
                   onChange={handleInputChange}
                 >
-                  <option value="contemplative">Contemplative</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="dynamic">Dynamic</option>
+                  <option value="slow">Slow</option>
+                  <option value="medium">Medium</option>
+                  <option value="fast">Fast</option>
                 </select>
               </div>
 

@@ -66,7 +66,7 @@ export interface StandardValidation {
 export interface StandardVisionDocument {
   core_concept: string;                 // 5-50 words creative essence
   emotion_arc: string[];               // 3-5 emotions progression
-  pacing: "contemplative" | "moderate" | "dynamic" | "fast";
+  pacing: "slow" | "medium" | "fast";
   visual_style: "cinematic" | "documentary" | "artistic" | "minimal";
   detected_artistic_style: string;     // Extracted style or "not_mentioned"
   duration_s: number;                   // Video duration in seconds
@@ -79,7 +79,6 @@ export interface StandardVisionDocument {
 }
 
 export interface StandardAudioEnhancement {
-  audio_mood_hints: string[];
   narration_optimization: {
     vocal_style: "dramatic" | "conversational" | "mysterious" | "inspiring" | "intimate";
     emphasis_points: string[];

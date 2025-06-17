@@ -38,7 +38,7 @@ export const testScenarios = [
       { role: "assistant", content: "Abstract visual art can be mesmerizing. Tell me more about your vision." },
       { role: "user", content: "No music, no words, just pure visual art" },
       { role: "assistant", content: "A silent visual experience. How long should it be?" },
-      { role: "user", content: "15 seconds of contemplative visuals" }
+      { role: "user", content: "15 seconds of slow visuals" }
     ],
     expectedPipeline: "NO_MUSIC_VIDEO",
     expectedParams: { has_music: false, has_narration: false, duration: 15 }

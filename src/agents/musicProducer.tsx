@@ -144,9 +144,9 @@ rate_ending_naturalness(segment, natural_cut_points, phrase_boundaries) {
 \`\`\`javascript
 determine_cut_strategy(vision_doc, selected_segment, music_analysis) {
   base_cut_frequency = {
-    'contemplative': { min: 6, max: 10 }, // seconds per cut
-    'moderate': { min: 4, max: 6 },
-    'dynamic': { min: 2, max: 4 }
+    'slow': { min: 8, max: 10 }, // seconds per cut
+    'medium': { min: 5, max: 7 },
+    'fast': { min: 2, max: 4 }
   }[vision_doc.pacing]
   
   // Adjust based on music characteristics
@@ -190,9 +190,9 @@ determine_sync_approach(music_analysis, vision_doc) {
   // Choose synchronization strategy based on music and vision characteristics
   if (vision_doc.content_classification.type === 'narrative_character') {
     return 'phrase_aligned_with_character_continuity'
-  } else if (music_analysis.bpm > 120 && vision_doc.pacing === 'dynamic') {
+  } else if (music_analysis.bpm > 120 && vision_doc.pacing === 'fast') {
     return 'beat_synchronized_high_energy'
-  } else if (vision_doc.pacing === 'contemplative') {
+  } else if (vision_doc.pacing === 'slow') {
     return 'phrase_boundary_gentle_sync'
   } else {
     return 'phrase_aligned_with_beat_emphasis'
@@ -342,7 +342,7 @@ suggest_transition_type(cut_time, music_analysis, vision_doc) {
   
   // Suggest transition based on musical and visual context
   if (musical_context.intensity_level > 0.8) {
-    return vision_doc.pacing === 'dynamic' ? 'sharp_cut' : 'quick_dissolve'
+    return vision_doc.pacing === 'fast' ? 'sharp_cut' : 'quick_dissolve'
   } else if (musical_context.intensity_level < 0.3) {
     return 'slow_dissolve'
   } else if (musical_context.beat_position === 'downbeat') {
@@ -381,16 +381,16 @@ resolve_music_vision_conflicts(vision_doc, music_analysis, proposed_cuts) {
   }
   
   // Conflict 2: Pacing vs Musical BPM Mismatch
-  if (vision_doc.pacing === 'contemplative' && music_analysis.bpm > 120) {
+  if (vision_doc.pacing === 'slow' && music_analysis.bpm > 120) {
     conflicts.push({
       type: 'pacing_vs_music_energy',
-      issue: 'Contemplative pacing requested but music is high-energy',
+      issue: 'Slow pacing requested but music is high-energy',
       impact: 'Visual-audio disconnect possible'
     })
     
     resolutions.push({
       strategy: 'internal_intensity_external_calm',
-      implementation: 'Use contemplative subjects with subtle urgency, slower cuts but dynamic lighting'
+      implementation: 'Use slow pacing subjects with subtle urgency, slower cuts but dynamic lighting'
     })
   }
   

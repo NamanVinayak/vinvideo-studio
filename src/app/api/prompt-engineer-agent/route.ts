@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineer';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
+import type { UserContext } from '@/types/userContext';
 
 // Manual prompt extraction when JSON parsing fails
 function extractPromptsFromRawText(rawText: string, expectedCount?: number): string[] {
@@ -61,7 +62,16 @@ export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { script, director_output, dop_output, num_images, visionDocument, enhancedMode, prompt_engineer_instructions } = body;
+    const { script, director_output, dop_output, num_images, visionDocument, enhancedMode, prompt_engineer_instructions, userContext } = body as {
+      script: string;
+      director_output: any;
+      dop_output: any;
+      num_images?: number;
+      visionDocument?: any;
+      enhancedMode?: boolean;
+      prompt_engineer_instructions?: any;
+      userContext?: UserContext;
+    };
     
     if (!script || director_output === undefined || director_output === null || 
         dop_output === undefined || dop_output === null) {
@@ -82,12 +92,22 @@ export async function POST(request: Request) {
     console.log(`Script preview: ${script.substring(0, 100)}...`);
     console.log(`Vision Document available: ${!!visionDocument}`);
     console.log(`Prompt Engineer Instructions available: ${!!prompt_engineer_instructions}`);
-    console.log(`Enhanced Mode: ${!!prompt_engineer_instructions}`);
+    console.log(`UserContext available: ${!!userContext}`);
+    if (userContext) {
+      console.log(`User original prompt: ${userContext.originalPrompt?.substring(0, 50)}...`);
+      console.log(`User visual style: ${userContext.settings.visualStyle}`);
+    }
+    console.log(`Enhanced Mode: ${!!enhancedMode}`);
     if (visionDocument) {
       console.log(`Vision core concept: ${visionDocument.core_concept}`);
       console.log(`Vision visual style: ${visionDocument.visual_style}`);
       console.log(`Detected artistic style: ${visionDocument.detected_artistic_style}`);
-      console.log(`Enhanced mode: ${enhancedMode}`);
+    }
+    
+    // ENHANCED: Log Prompt Engineer instructions content
+    if (prompt_engineer_instructions) {
+      console.log('📋 PROMPT ENGINEER INSTRUCTIONS CONTENT:');
+      console.log(JSON.stringify(prompt_engineer_instructions, null, 2));
     }
     console.log(`Director output preview: ${JSON.stringify(director_output).substring(0, 100)}...`);
     console.log(`DoP output preview: ${JSON.stringify(dop_output).substring(0, 100)}...`);
@@ -113,7 +133,9 @@ MANDATORY STYLE REQUIREMENTS:
 ${prompt_engineer_instructions.mandatory_style?.map(req => `- ${req}`).join('\n')}
 
 VISUAL CONSISTENCY RULES:
-${prompt_engineer_instructions.visual_consistency_rules?.map(rule => `- ${rule}`).join('\n')}
+${Array.isArray(prompt_engineer_instructions.visual_consistency_rules) 
+  ? prompt_engineer_instructions.visual_consistency_rules.map(rule => `- ${rule}`).join('\n')
+  : prompt_engineer_instructions.visual_consistency_rules || 'None specified'}
 
 CHARACTER REQUIREMENTS: ${prompt_engineer_instructions.character_requirements || 'None specified'}
 
@@ -130,7 +152,17 @@ CRITICAL: Use this guidance to ensure ALL generated images maintain perfect cons
 
 ` : '';
 
-    const userContent = `${visionContext}${enhancedPromptEngineerGuidance}Here are the inputs for FLUX image prompt generation:
+    // Add user context information if available
+    const userContextInfo = userContext ? `
+🎨 USER'S ORIGINAL REQUEST:
+- What They Asked For: "${userContext.originalPrompt}"
+- Visual Style Selected: ${userContext.settings.visualStyle}
+
+CRITICAL: Every image prompt MUST reflect the user's requested visual style and concept.
+
+` : '';
+
+    const userContent = `${visionContext}${enhancedPromptEngineerGuidance}${userContextInfo}Here are the inputs for FLUX image prompt generation:
 
 ORIGINAL SCRIPT:
 "${script}"

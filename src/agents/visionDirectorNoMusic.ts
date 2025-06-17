@@ -139,7 +139,7 @@ You MUST provide a complete JSON response with these sections:
         "core_concept": "Clear, compelling story concept",
         "emotion_arc": ["Beginning emotion", "Development", "Climax", "Resolution"],
         "story_spine": "Clear narrative backbone",
-        "pacing": "contemplative|moderate|dynamic",
+        "pacing": "slow|medium|fast",
         "visual_style": "cinematic|documentary|artistic|experimental", 
         "duration_s": "Duration in seconds",
         "content_classification": {"type": "abstract_thematic|narrative_character"},
