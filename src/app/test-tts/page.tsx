@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
 import type { UserContext } from '@/types/userContext';
+import type { ScriptModeUserContext } from '@/types/scriptModeUserContext';
 
 interface CutPoint {
   cut_number: number;
@@ -184,7 +185,7 @@ export default function TestTTS() {
   const urlDuration = searchParams?.get('duration');
   const urlContentType = searchParams?.get('contentType') as VisionFormData['contentType'] | null;
   
-  const [script, setScript] = useState<string>('Have you ever been alone at night and heard something outside your door?');
+  const [script, setScript] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isGeneratingScript, setIsGeneratingScript] = useState<boolean>(false);
@@ -202,6 +203,13 @@ export default function TestTTS() {
     pacing: urlPacing || 'medium',
     duration: urlDuration ? parseInt(urlDuration) : 30,
     contentType: urlContentType || 'general'
+  });
+
+  // NEW: Script Mode form data state (no duration - auto-calculated from TTS)
+  const [scriptFormData, setScriptFormData] = useState({
+    style: 'cinematic' as 'cinematic' | 'documentary' | 'artistic' | 'minimal',
+    pacing: 'medium' as 'slow' | 'medium' | 'fast',
+    contentType: 'general' as string
   });
 
   // Workflow state (UPDATED: Separated vision understanding from audio generation)
@@ -233,6 +241,12 @@ export default function TestTTS() {
   const [directorResult, setDirectorResult] = useState<DirectorResult | null>(null);
   const [dopResult, setDoPResult] = useState<DoPResult | null>(null);
   const [promptEngineerResult, setPromptEngineerResult] = useState<PromptEngineerResult | null>(null);
+  
+  // Enhanced Script Mode results (different structure than legacy)
+  const [enhancedProducerResult, setEnhancedProducerResult] = useState<any>(null);
+  const [enhancedDirectorResult, setEnhancedDirectorResult] = useState<any>(null);
+  const [enhancedDopResult, setEnhancedDopResult] = useState<any>(null);
+  const [enhancedPromptEngineerResult, setEnhancedPromptEngineerResult] = useState<any>(null);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [imageGenerationProgress, setImageGenerationProgress] = useState<{
     currentIndex: number;
@@ -405,6 +419,12 @@ export default function TestTTS() {
     setDirectorResult(null);
     setDoPResult(null);
     setPromptEngineerResult(null);
+    
+    // Reset Enhanced Script results
+    setEnhancedProducerResult(null);
+    setEnhancedDirectorResult(null);
+    setEnhancedDopResult(null);
+    setEnhancedPromptEngineerResult(null);
     setGeneratedImages([]);
     setImageGenerationProgress({ currentIndex: 0, totalImages: 0, percentage: 0, isGenerating: false, message: '' });
     setQwenVLResult(null);
@@ -425,6 +445,7 @@ export default function TestTTS() {
     let generatedFormattedScript = '';
     let currentVisionDocument: VisionDocument | null = null;
     let currentVisionAgentData: any = null; // Store full vision agent response for agent instructions
+    let currentScriptModeUserContext: ScriptModeUserContext | null = null; // Store script mode context
 
     try {
       // Step 1: Initialize Project
@@ -465,18 +486,18 @@ export default function TestTTS() {
       
       updateStepStatus(0, 'completed', { folderId: projectFolderId }, undefined, Date.now() - step1Start);
 
-      // Create UserContext for all agents
-      const userContext: UserContext = {
-        originalPrompt: useVisionMode ? visionFormData.concept : script,
+      // Create UserContext for Vision Mode only
+      const userContext: UserContext | null = useVisionMode ? {
+        originalPrompt: visionFormData.concept,
         settings: {
-          duration: useVisionMode ? visionFormData.duration : 30, // Default to 30s for script mode
-          pacing: useVisionMode ? visionFormData.pacing : 'moderate',
-          visualStyle: useVisionMode ? visionFormData.style : 'cinematic',
-          contentType: useVisionMode ? visionFormData.contentType : undefined,
-          voiceSelection: 'Enceladus' // Default voice for now - TODO: Add voice selection UI
+          duration: visionFormData.duration,
+          pacing: visionFormData.pacing,
+          visualStyle: visionFormData.style,
+          contentType: visionFormData.contentType,
+          voiceSelection: 'enceladus' // Default voice for now - TODO: Add voice selection UI
         },
         pipeline: {
-          mode: useVisionMode ? 'vision_enhanced' : 'legacy_script',
+          mode: 'vision_enhanced',
           timestamp: new Date().toISOString(),
           sessionId: sessionId || projectFolderId // Use sessionId if available, else projectFolderId
         },
@@ -484,16 +505,24 @@ export default function TestTTS() {
           mustMatchDuration: true,
           durationTolerance: 5 // Fixed at 5%
         }
-      };
+      } : null;
 
-      // DEBUG: Log UserContext creation
-      console.log('🎯 USERCONTEXT CREATED:');
-      console.log('- Original Prompt:', userContext.originalPrompt);
-      console.log('- Duration:', userContext.settings.duration);
-      console.log('- Pacing:', userContext.settings.pacing);
-      console.log('- Visual Style:', userContext.settings.visualStyle);
-      console.log('- Pipeline Mode:', userContext.pipeline.mode);
-      console.log('- Full UserContext:', JSON.stringify(userContext, null, 2));
+      // DEBUG: Log UserContext creation (Vision Mode only)
+      if (useVisionMode && userContext) {
+        console.log('🎯 USERCONTEXT CREATED FOR VISION MODE:');
+        console.log('- Original Prompt:', userContext.originalPrompt);
+      } else {
+        console.log('🎯 SCRIPT MODE: No UserContext created (using ScriptModeUserContext instead)');
+      }
+      if (useVisionMode && userContext) {
+        console.log('- Duration:', userContext.settings.duration);
+        console.log('- Pacing:', userContext.settings.pacing);
+        console.log('- Visual Style:', userContext.settings.visualStyle);
+        console.log('- Pipeline Mode:', userContext.pipeline.mode);
+      }
+      if (useVisionMode && userContext) {
+        console.log('- Full UserContext:', JSON.stringify(userContext, null, 2));
+      }
 
       if (useVisionMode) {
         // Step 2: Vision Understanding (Separate step)
@@ -593,40 +622,92 @@ export default function TestTTS() {
         updateStepStatus(2, 'completed', audioData, undefined, Date.now() - step3Start);
         
       } else {
-        // Script Mode: Use the existing combined endpoint for backward compatibility
-        updateStepStatus(1, 'processing'); // Skip vision step in script mode
-        updateStepStatus(2, 'processing');
-        const step2Start = Date.now();
+        // Enhanced Script Mode: Step 1: Script Formatting
+        updateStepStatus(1, 'processing', { message: 'Formatting script for TTS...' });
+        const formatStart = Date.now();
         
-        const visionAudioResponse = await fetch('/api/vision-understanding-and-audio', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        // Create ScriptModeUserContext (duration will be calculated after TTS)
+        const scriptModeUserContext: ScriptModeUserContext = {
+          originalScript: script,
+          originalPrompt: script, // In script mode, the script IS the prompt
+          settings: {
+            // calculatedDuration will be set after TTS generation
+            pacing: scriptFormData.pacing,
+            visualStyle: scriptFormData.style,
+            contentType: scriptFormData.contentType || 'narrative',
+            voiceSelection: 'enceladus' // TODO: Add voice selection UI
           },
+          pipeline: {
+            mode: 'enhanced_script',
+            timestamp: new Date().toISOString(),
+            sessionId: sessionId || projectFolderId
+          },
+          constraints: {
+            scriptFidelity: 'exact' as const,
+            adaptToTTSDuration: true // Must adapt cuts to actual TTS duration
+          }
+        };
+        
+        // Call Script Formatting Agent
+        const formatResponse = await fetch('/api/script-formatting', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            useVisionMode: false,
-            script: script,
-            folderId: projectFolderId
-          }),
+            originalScript: script,
+            userContext: {
+              // No duration needed - will be calculated from TTS
+              contentType: scriptFormData.contentType
+            }
+          })
         });
-
-        if (!visionAudioResponse.ok) {
-          const errorData = await visionAudioResponse.json();
-          throw new Error(errorData.error || 'Failed to process script');
+        
+        if (!formatResponse.ok) {
+          throw new Error('Script formatting failed');
         }
-
-        const visionAudioData = await visionAudioResponse.json();
         
-        setFormattedScript(visionAudioData.formattedScript);
-        setAudioUrl(visionAudioData.audioUrl);
-        generatedAudioUrl = visionAudioData.audioUrl; // Store for transcription step
-        generatedFormattedScript = visionAudioData.formattedScript; // Store for Producer Agent step
+        const formatResult = await formatResponse.json();
+        scriptModeUserContext.scriptContext = {
+          formatted_script_for_tts: formatResult.formatted_script_for_tts,
+          script_analysis: formatResult.script_analysis
+        };
         
-        // Save script mode results
-        await saveAgentOutput('script-formatting-and-audio', visionAudioData);
+        generatedFormattedScript = formatResult.formatted_script_for_tts;
+        setFormattedScript(formatResult.formatted_script_for_tts);
+        updateStepStatus(1, 'completed', formatResult, undefined, Date.now() - formatStart);
         
-        updateStepStatus(1, 'completed', { skipped: true, reason: 'Script mode - no vision understanding needed' }, undefined, 0);
-        updateStepStatus(2, 'completed', visionAudioData, undefined, Date.now() - step2Start);
+        // Step 2: TTS Generation
+        updateStepStatus(2, 'processing');
+        const ttsStart = Date.now();
+        
+        const ttsResponse = await fetch('/api/generate-audio-from-script', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            narrationScript: formatResult.formatted_script_for_tts,
+            voiceName: 'enceladus', // TODO: Use voice from settings
+            folderId: projectFolderId
+          })
+        });
+        
+        if (!ttsResponse.ok) {
+          throw new Error('TTS generation failed');
+        }
+        
+        const ttsResult = await ttsResponse.json();
+        setAudioUrl(ttsResult.audioUrl);
+        generatedAudioUrl = ttsResult.audioUrl;
+        
+        // Update ScriptModeUserContext with calculated duration from TTS
+        if (ttsResult.duration) {
+          scriptModeUserContext.settings.calculatedDuration = ttsResult.duration;
+          console.log(`🎵 TTS Duration calculated: ${ttsResult.duration} seconds for script mode`);
+        }
+        
+        await saveAgentOutput('tts-generation', ttsResult);
+        updateStepStatus(2, 'completed', ttsResult, undefined, Date.now() - ttsStart);
+        
+        // Store updated scriptModeUserContext for later use
+        currentScriptModeUserContext = scriptModeUserContext;
       }
 
       // Step 4: Transcribe Audio using Nvidia script (updated index)
@@ -682,6 +763,18 @@ export default function TestTTS() {
       
       setTranscriptionResult(transcribeData);
       
+      // Calculate duration from transcription word timestamps for Script Mode
+      if (!useVisionMode && transcribeData.word_timestamps && Array.isArray(transcribeData.word_timestamps)) {
+        const lastWord = transcribeData.word_timestamps[transcribeData.word_timestamps.length - 1];
+        if (lastWord && (lastWord.end_time || lastWord.end)) {
+          const calculatedDuration = lastWord.end_time || lastWord.end;
+          if (currentScriptModeUserContext) {
+            currentScriptModeUserContext.settings.calculatedDuration = calculatedDuration;
+            console.log(`🎵 Duration calculated from transcription: ${calculatedDuration} seconds for script mode`);
+          }
+        }
+      }
+      
       // Save Transcription output
       await saveAgentOutput('transcription', transcribeData);
       
@@ -724,7 +817,7 @@ export default function TestTTS() {
       console.log('- Vision document detected_artistic_style:', currentVisionDocument?.detected_artistic_style);
       
       // Determine which producer agent to use based on mode
-      const producerEndpoint = useVisionMode ? '/api/vision-enhanced-producer-agent' : '/api/producer-agent';
+      const producerEndpoint = useVisionMode ? '/api/vision-enhanced-producer-agent' : '/api/enhanced-script-producer-agent';
       console.log(`🎬 Using producer endpoint: ${producerEndpoint} (Vision Mode: ${useVisionMode})`);
       
       const producerResponse = await fetch(producerEndpoint, {
@@ -734,23 +827,22 @@ export default function TestTTS() {
         },
         body: JSON.stringify({
           transcript: transcriptData,
-          script: generatedFormattedScript, // Use local variable for consistency
-          
-          // NEW: Always pass userContext
-          userContext,
-          
-          // ENHANCED: Pass producer instructions for intelligent pacing
-          ...(producerInstructions && {
-            producer_instructions: producerInstructions
+          ...(useVisionMode ? {
+            // Vision Mode parameters
+            script: generatedFormattedScript,
+            userContext,
+            ...(producerInstructions && { producer_instructions: producerInstructions }),
+            ...(currentVisionDocument && {
+              visionDocument: currentVisionDocument,
+              enhancedMode: true
+            })
+          } : {
+            // Enhanced Script Mode parameters
+            transcript: transcriptData,
+            formatted_script: generatedFormattedScript,
+            scriptModeUserContext: currentScriptModeUserContext
           }),
-          
-          // CONDITIONAL: Only pass vision context in Vision Mode
-          ...(useVisionMode && currentVisionDocument && {
-            visionDocument: currentVisionDocument,
-            enhancedMode: true
-          }),
-          
-          // NEW: Pass sessionId for organized output storage
+          // Common parameter
           ...(sessionId && { sessionId })
         }),
       });
@@ -761,7 +853,11 @@ export default function TestTTS() {
       }
 
       const producerData = await producerResponse.json();
-      setProducerResult(producerData);
+      if (useVisionMode) {
+        setProducerResult(producerData);
+      } else {
+        setEnhancedProducerResult(producerData);
+      }
       
       // NEW: Capture sessionId from producer if not already captured
       if (!sessionId && producerData.sessionId) {
@@ -814,30 +910,32 @@ export default function TestTTS() {
         hasDirectorInstructions: !!directorInstructions
       });
       
-      const directorResponse = await fetch('/api/director-agent', {
+      const directorEndpoint = useVisionMode ? '/api/director-agent' : '/api/enhanced-script-director-agent';
+      console.log(`🎬 Using director endpoint: ${directorEndpoint} (Vision Mode: ${useVisionMode})`);
+      
+      const directorResponse = await fetch(directorEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          producer_output: producerOutput,
-          script: generatedFormattedScript, // Use local variable
-          
-          // NEW: Always pass userContext
-          userContext,
-          
-          // ENHANCED: Pass director instructions for creative vision
-          ...(directorInstructions && {
-            director_instructions: directorInstructions
+          ...(useVisionMode ? {
+            // Vision Mode parameters
+            producer_output: producerOutput,
+            script: generatedFormattedScript,
+            userContext,
+            ...(directorInstructions && { director_instructions: directorInstructions }),
+            ...(currentVisionDocument && {
+              visionDocument: currentVisionDocument,
+              enhancedMode: true
+            })
+          } : {
+            // Enhanced Script Mode parameters
+            producer_output: producerData.producer_output || producerOutput,
+            script: generatedFormattedScript,
+            scriptModeUserContext: currentScriptModeUserContext
           }),
-          
-          // FIXED: Always pass vision context when available
-          ...(currentVisionDocument && {
-            visionDocument: currentVisionDocument,
-            enhancedMode: true
-          }),
-          
-          // NEW: Pass sessionId for organized output storage
+          // Common parameter
           ...(sessionId && { sessionId })
         }),
       });
@@ -848,7 +946,11 @@ export default function TestTTS() {
       }
 
       const directorData = await directorResponse.json();
-      setDirectorResult(directorData);
+      if (useVisionMode) {
+        setDirectorResult(directorData);
+      } else {
+        setEnhancedDirectorResult(directorData);
+      }
       
       // Save Director Agent output (including failed parsing attempts)
       await saveAgentOutput('director', directorData, directorData.rawResponse || 'No raw response available');
@@ -904,31 +1006,34 @@ export default function TestTTS() {
         detectedArtisticStyle: (currentVisionDocument as any)?.detected_artistic_style
       });
       
-      const dopResponse = await fetch('/api/dop-agent', {
+      const dopEndpoint = useVisionMode ? '/api/dop-agent' : '/api/enhanced-script-dop-agent';
+      console.log(`🎬 Using DoP endpoint: ${dopEndpoint} (Vision Mode: ${useVisionMode})`);
+      
+      const dopResponse = await fetch(dopEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          script: generatedFormattedScript, // Use local variable
-          producer_output: producerOutputForDoP,
-          director_output: directorOutputForDoP,
-          
-          // NEW: Always pass userContext
-          userContext,
-          
-          // ENHANCED: Pass dop instructions for cinematography guidance
-          ...(dopInstructions && {
-            dop_instructions: dopInstructions
+          ...(useVisionMode ? {
+            // Vision Mode parameters
+            script: generatedFormattedScript,
+            producer_output: producerOutputForDoP,
+            director_output: directorOutputForDoP,
+            userContext,
+            ...(dopInstructions && { dop_instructions: dopInstructions }),
+            ...(currentVisionDocument && {
+              visionDocument: currentVisionDocument,
+              enhancedMode: true
+            })
+          } : {
+            // Enhanced Script Mode parameters
+            director_output: directorData.director_output || directorOutputForDoP,
+            script: generatedFormattedScript,
+            producer_output: producerData.producer_output || producerOutputForDoP,
+            scriptModeUserContext: currentScriptModeUserContext
           }),
-          
-          // FIXED: Always pass vision context when available
-          ...(currentVisionDocument && {
-            visionDocument: currentVisionDocument,
-            enhancedMode: true
-          }),
-          
-          // NEW: Pass sessionId for organized output storage
+          // Common parameter
           ...(sessionId && { sessionId })
         }),
       });
@@ -939,7 +1044,11 @@ export default function TestTTS() {
       }
 
       const dopData = await dopResponse.json();
-      setDoPResult(dopData);
+      if (useVisionMode) {
+        setDoPResult(dopData);
+      } else {
+        setEnhancedDopResult(dopData);
+      }
       
       // Save DoP Agent output
       await saveAgentOutput('dop', dopData, dopData.rawResponse);
@@ -1015,32 +1124,35 @@ export default function TestTTS() {
         detectedArtisticStyle: (currentVisionDocument as any)?.detected_artistic_style
       });
       
-      const promptEngineerResponse = await fetch('/api/prompt-engineer-agent', {
+      const promptEngineerEndpoint = useVisionMode ? '/api/prompt-engineer-agent' : '/api/enhanced-script-prompt-engineer-agent';
+      console.log(`🎬 Using Prompt Engineer endpoint: ${promptEngineerEndpoint} (Vision Mode: ${useVisionMode})`);
+      
+      const promptEngineerResponse = await fetch(promptEngineerEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          script: generatedFormattedScript, // Use local variable
-          director_output: directorOutputForPE,
-          dop_output: dopOutputForPE,
-          num_images: numImages, // Use the number of beats from DoP output
-          
-          // NEW: Always pass userContext
-          userContext,
-          
-          // ENHANCED: Pass prompt engineer instructions for image generation
-          ...(promptEngineerInstructions && {
-            prompt_engineer_instructions: promptEngineerInstructions
+          ...(useVisionMode ? {
+            // Vision Mode parameters
+            script: generatedFormattedScript,
+            director_output: directorOutputForPE,
+            dop_output: dopOutputForPE,
+            num_images: numImages,
+            userContext,
+            ...(promptEngineerInstructions && { prompt_engineer_instructions: promptEngineerInstructions }),
+            ...(currentVisionDocument && {
+              visionDocument: currentVisionDocument,
+              enhancedMode: true
+            })
+          } : {
+            // Enhanced Script Mode parameters
+            director_output: directorData.director_output || directorOutputForPE,
+            dop_output: dopData.dop_output || dopOutputForPE,
+            script: generatedFormattedScript,
+            scriptModeUserContext: currentScriptModeUserContext
           }),
-          
-          // FIXED: Always pass vision context when available
-          ...(currentVisionDocument && {
-            visionDocument: currentVisionDocument,
-            enhancedMode: true
-          }),
-          
-          // NEW: Pass sessionId for organized output storage
+          // Common parameter
           ...(sessionId && { sessionId })
         }),
       });
@@ -1051,33 +1163,32 @@ export default function TestTTS() {
       }
 
       const promptEngineerData = await promptEngineerResponse.json();
-      setPromptEngineerResult(promptEngineerData);
+      if (useVisionMode) {
+        setPromptEngineerResult(promptEngineerData);
+      } else {
+        setEnhancedPromptEngineerResult(promptEngineerData);
+      }
       
       // Save Prompt Engineer Agent output
       await saveAgentOutput('prompt-engineer', promptEngineerData, promptEngineerData.rawResponse);
       
       updateStepStatus(7, 'completed', promptEngineerData, undefined, Date.now() - step8Start);
 
-      // Step 9: Generate Images using ComfyUI (COMMENTED OUT FOR TESTING)
-      // updateStepStatus(8, 'processing');
-      // const step9Start = Date.now();
-      
-      // TESTING: Skip image generation for Script Mode (Legacy)
-      if (!useVisionMode) {
-        console.log('🎯 TESTING: Skipping image generation for Script Mode (Legacy)');
-        updateStepStatus(8, 'completed', { message: 'Image generation skipped for testing' }, undefined, 100);
-        updateStepStatus(9, 'completed', { message: 'QwenVL analysis skipped for testing' }, undefined, 100);
-        updateStepStatus(10, 'completed', { message: 'Video generation skipped for testing' }, undefined, 100);
-        return; // Exit early for testing
-      }
+      // Step 9: Generate Images using ComfyUI
+      console.log('🎯 Script Mode: Proceeding with image generation using Enhanced Script prompts');
       
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
       
-      // Extract prompts from prompt engineer output
+      // Extract prompts from prompt engineer output (support both legacy and Enhanced Script modes)
       let promptsToGenerate: string[] = [];
       if (promptEngineerData.promptsOutput && Array.isArray(promptEngineerData.promptsOutput)) {
         promptsToGenerate = promptEngineerData.promptsOutput;
+      } else if (promptEngineerData.prompts && Array.isArray(promptEngineerData.prompts)) {
+        // Enhanced Script Mode format
+        promptsToGenerate = promptEngineerData.prompts;
+      } else if (promptEngineerData.promptEngineerOutput?.prompts && Array.isArray(promptEngineerData.promptEngineerOutput.prompts)) {
+        promptsToGenerate = promptEngineerData.promptEngineerOutput.prompts;
       } else if (promptEngineerData.rawResponse) {
         // Try to parse from raw response if structured output failed
         try {
@@ -1526,22 +1637,76 @@ export default function TestTTS() {
 
         {/* Script Mode Input (Existing) */}
         {!useVisionMode && (
-          <div className={styles.inputGroup}>
-            <label htmlFor="script" className={styles.label}>
-              {conversationMode ? 'Generated Script:' : 'Enter Script:'}
-            </label>
-            <textarea
-              id="script"
-              value={script}
-              onChange={(e) => setScript(e.target.value)}
-              className={styles.textarea}
-              rows={5}
-              placeholder={conversationMode ? "Script will be generated from your conversation..." : "Enter your script here..."}
-              required
-              disabled={loading || isGeneratingScript}
-              readOnly={conversationMode && !conversationAnalyzed}
-            />
-          </div>
+          <>
+            <div className={styles.inputGroup}>
+              <label htmlFor="script" className={styles.label}>
+                {conversationMode ? 'Generated Script:' : 'Enter Script:'}
+              </label>
+              <textarea
+                id="script"
+                value={script}
+                onChange={(e) => setScript(e.target.value)}
+                className={styles.textarea}
+                rows={5}
+                placeholder={conversationMode ? "Script will be generated from your conversation..." : "Enter your script here..."}
+                required
+                disabled={loading || isGeneratingScript}
+                readOnly={conversationMode && !conversationAnalyzed}
+              />
+            </div>
+
+            {/* NEW: Script Mode Preferences (parallel to Vision Mode) */}
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="scriptStyle" className={styles.label}>Visual Style</label>
+                <select
+                  id="scriptStyle"
+                  value={scriptFormData.style}
+                  onChange={(e) => setScriptFormData({...scriptFormData, style: e.target.value as typeof scriptFormData.style})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="cinematic">Cinematic</option>
+                  <option value="documentary">Documentary</option>
+                  <option value="artistic">Artistic</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="scriptPacing" className={styles.label}>Pacing</label>
+                <select
+                  id="scriptPacing"
+                  value={scriptFormData.pacing}
+                  onChange={(e) => setScriptFormData({...scriptFormData, pacing: e.target.value as typeof scriptFormData.pacing})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="slow">Slow</option>
+                  <option value="medium">Medium</option>
+                  <option value="fast">Fast</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="scriptContentType" className={styles.label}>Content Type</label>
+                <select
+                  id="scriptContentType"
+                  value={scriptFormData.contentType}
+                  onChange={(e) => setScriptFormData({...scriptFormData, contentType: e.target.value})}
+                  className={styles.select}
+                  disabled={loading || isGeneratingScript}
+                >
+                  <option value="general">General</option>
+                  <option value="educational">Educational</option>
+                  <option value="storytelling">Storytelling</option>
+                  <option value="abstract">Abstract</option>
+                </select>
+              </div>
+            </div>
+          </>
         )}
 
         {/* NEW: Vision Mode Input */}
@@ -2087,6 +2252,70 @@ export default function TestTTS() {
           </div>
         )}
 
+        {/* Enhanced Script Mode Producer Results */}
+        {enhancedProducerResult && (
+          <div className={styles.result}>
+            <h2>4. Enhanced Script Producer Cut Points:</h2>
+            <div className={styles.producerResult}>
+              <div className={styles.executionStats}>
+                <h3>Execution Stats:</h3>
+                <div className={styles.statsGrid}>
+                  <div>
+                    <strong>Cut Count:</strong> {enhancedProducerResult.producer_output?.cut_count || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Total Duration:</strong> {enhancedProducerResult.producer_output?.total_duration_s || 'N/A'}s
+                  </div>
+                  <div>
+                    <strong>Target Duration:</strong> {enhancedProducerResult.producer_output?.target_duration_s || 'N/A'}s
+                  </div>
+                  <div>
+                    <strong>Pacing Compliance:</strong> {enhancedProducerResult.producer_output?.pacing_compliance ? '✅ Yes' : '❌ No'}
+                  </div>
+                  <div>
+                    <strong>Execution Time:</strong> {enhancedProducerResult.execution_time_ms}ms
+                  </div>
+                </div>
+              </div>
+              
+              {enhancedProducerResult.producer_output?.cut_points && (
+                <div className={styles.cutPoints}>
+                  <h3>Cut Points:</h3>
+                  <div className={styles.cutPointsTable}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Cut #</th>
+                          <th>Time (s)</th>
+                          <th>Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {enhancedProducerResult.producer_output.cut_points.map((cut: any) => (
+                          <tr key={cut.cut_number}>
+                            <td>{cut.cut_number}</td>
+                            <td>{cut.cut_time_s}</td>
+                            <td>{cut.reason}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {enhancedProducerResult.rawResponse && (
+                <div className={styles.rawResponse}>
+                  <h3>Raw Response:</h3>
+                  <pre className={styles.rawResponseText}>
+                    {enhancedProducerResult.rawResponse}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {directorResult && (
           <div className={styles.result}>
             <h2>{visionDocument ? '6. Director Agent Creative Vision:' : '5. Director Agent Creative Vision:'}</h2>
@@ -2192,6 +2421,162 @@ export default function TestTTS() {
               {!dopResult.success && dopResult.error && (
                 <div className={styles.dopError}>
                   <strong>DoP Agent Error:</strong> {dopResult.error}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Script Mode Director Results */}
+        {enhancedDirectorResult && (
+          <div className={styles.result}>
+            <h2>5. Enhanced Script Director Creative Vision:</h2>
+            <div className={styles.directorResult}>
+              <div className={styles.executionStats}>
+                <h3>Execution Stats:</h3>
+                <div className={styles.statsGrid}>
+                  <div>
+                    <strong>Beat Count:</strong> {enhancedDirectorResult.director_output?.narrative_beats?.length || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>User Style Applied:</strong> {enhancedDirectorResult.director_output?.project_metadata?.user_visual_style || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Execution Time:</strong> {enhancedDirectorResult.execution_time_ms}ms
+                  </div>
+                  <div>
+                    <strong>Parsing Status:</strong> {enhancedDirectorResult.parsingStatus || 'N/A'}
+                  </div>
+                </div>
+              </div>
+
+              {enhancedDirectorResult.director_output?.narrative_beats && (
+                <div className={styles.narrativeBeats}>
+                  <h3>Narrative Beats:</h3>
+                  <div className={styles.beatsList}>
+                    {enhancedDirectorResult.director_output.narrative_beats.map((beat: any, index: number) => (
+                      <div key={index} className={styles.beatItem}>
+                        <div className={styles.beatNumber}>Beat {index + 1}:</div>
+                        <div className={styles.beatContent}>
+                          <div><strong>Creative Vision:</strong> {beat.creative_vision}</div>
+                          <div><strong>Emotion:</strong> {beat.emotion}</div>
+                          <div><strong>Narrative Function:</strong> {beat.narrative_function}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {enhancedDirectorResult.rawResponse && (
+                <div className={styles.rawResponse}>
+                  <h3>Raw Response:</h3>
+                  <pre className={styles.rawResponseText}>
+                    {enhancedDirectorResult.rawResponse}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Script Mode DoP Results */}
+        {enhancedDopResult && (
+          <div className={styles.result}>
+            <h2>6. Enhanced Script DoP Cinematography:</h2>
+            <div className={styles.dopResult}>
+              <div className={styles.executionStats}>
+                <h3>Execution Stats:</h3>
+                <div className={styles.statsGrid}>
+                  <div>
+                    <strong>Shot Count:</strong> {Array.isArray(enhancedDopResult.dop_output) ? enhancedDopResult.dop_output.length : 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Style Consistency:</strong> {enhancedDopResult.dop_output?.[0]?.style_notes ? 'Present' : 'Missing'}
+                  </div>
+                  <div>
+                    <strong>Execution Time:</strong> {enhancedDopResult.execution_time_ms}ms
+                  </div>
+                  <div>
+                    <strong>Parsing Status:</strong> {enhancedDopResult.parsingStatus || 'N/A'}
+                  </div>
+                </div>
+              </div>
+
+              {Array.isArray(enhancedDopResult.dop_output) && (
+                <div className={styles.cinematographyShots}>
+                  <h3>Cinematography Shots:</h3>
+                  <div className={styles.shotsList}>
+                    {enhancedDopResult.dop_output.map((shot: any, index: number) => (
+                      <div key={index} className={styles.shotItem}>
+                        <div className={styles.shotNumber}>Shot {index + 1}:</div>
+                        <div className={styles.shotContent}>
+                          <div><strong>Shot Type:</strong> {shot.shot_type}</div>
+                          <div><strong>Camera Movement:</strong> {shot.camera_movement}</div>
+                          <div><strong>Lighting:</strong> {shot.lighting}</div>
+                          <div><strong>Style Notes:</strong> {shot.style_notes}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {enhancedDopResult.rawResponse && (
+                <div className={styles.rawResponse}>
+                  <h3>Raw Response:</h3>
+                  <pre className={styles.rawResponseText}>
+                    {enhancedDopResult.rawResponse}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Enhanced Script Mode Prompt Engineer Results */}
+        {enhancedPromptEngineerResult && (
+          <div className={styles.result}>
+            <h2>7. Enhanced Script Prompt Engineer Image Prompts:</h2>
+            <div className={styles.promptEngineerResult}>
+              <div className={styles.executionStats}>
+                <h3>Execution Stats:</h3>
+                <div className={styles.statsGrid}>
+                  <div>
+                    <strong>Prompt Count:</strong> {enhancedPromptEngineerResult.prompt_count || enhancedPromptEngineerResult.prompts?.length || enhancedPromptEngineerResult.promptEngineerOutput?.prompts?.length || enhancedPromptEngineerResult.promptsOutput?.length || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Style Applied:</strong> {enhancedPromptEngineerResult.style_applied || 'N/A'}
+                  </div>
+                  <div>
+                    <strong>Execution Time:</strong> {enhancedPromptEngineerResult.execution_time_ms}ms
+                  </div>
+                  <div>
+                    <strong>Parsing Status:</strong> {enhancedPromptEngineerResult.parsingStatus || 'Text extraction used'}
+                  </div>
+                </div>
+              </div>
+
+              {(enhancedPromptEngineerResult.prompts || enhancedPromptEngineerResult.promptEngineerOutput?.prompts || enhancedPromptEngineerResult.promptsOutput) && (
+                <div className={styles.promptEngineerOutput}>
+                  <h3>Generated Image Prompts:</h3>
+                  <div className={styles.promptsList}>
+                    {(enhancedPromptEngineerResult.prompts || enhancedPromptEngineerResult.promptEngineerOutput?.prompts || enhancedPromptEngineerResult.promptsOutput || []).map((prompt: string, index: number) => (
+                      <div key={index} className={styles.promptItem}>
+                        <div className={styles.promptNumber}>Prompt {index + 1}:</div>
+                        <div className={styles.promptText}>{prompt}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {enhancedPromptEngineerResult.rawResponse && (
+                <div className={styles.rawResponse}>
+                  <h3>Raw Response:</h3>
+                  <pre className={styles.rawResponseText}>
+                    {enhancedPromptEngineerResult.rawResponse}
+                  </pre>
                 </div>
               )}
             </div>

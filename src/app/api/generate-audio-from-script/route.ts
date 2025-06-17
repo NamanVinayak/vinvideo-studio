@@ -49,11 +49,29 @@ export async function POST(request: Request) {
     let formattedScript = '';
     let processingSteps = [];
     
-    // Step 1: Format the narration script for TTS
-    console.log('Step 1: Formatting narration script for TTS...');
+    // Step 1: Format the narration script for TTS (skip if already formatted by Script Formatting Agent)
+    console.log('Step 1: Checking if script needs TTS formatting...');
     const formatStartTime = Date.now();
     
-    formattedScript = await formatScriptForTTS(narrationScript);
+    // If the script is already well-formatted narrative (from Script Formatting Agent), skip additional formatting
+    const isPreFormattedNarrative = 
+      narrationScript.length > 200 && 
+      !narrationScript.includes('INT.') && 
+      !narrationScript.includes('EXT.') &&
+      !narrationScript.includes('CUT TO') &&
+      (narrationScript.includes(' lies in bed') || 
+       narrationScript.includes(' stands ') || 
+       narrationScript.includes(' walks ') ||
+       narrationScript.includes('A woman') ||
+       narrationScript.includes('A man'));
+    
+    if (isPreFormattedNarrative) {
+      console.log('🎯 Script is pre-formatted narrative from Script Formatting Agent - skipping additional TTS formatting');
+      formattedScript = narrationScript;
+    } else {
+      console.log('🎯 Script needs TTS formatting - applying dramatic formatting');
+      formattedScript = await formatScriptForTTS(narrationScript);
+    }
     
     const formatTime = ((Date.now() - formatStartTime) / 1000).toFixed(2);
     console.log(`Narration script formatting completed in ${formatTime}s`);

@@ -33,20 +33,22 @@ export async function POST(request: Request) {
     console.log(`📁 Folder ID: ${folderId || 'default'}`);
     console.log(`🎯 Mode: ${mode || 'auto-detect'}`);
     
-    // Create temporary prompts file
+    // Create session-specific prompts file
     const utilsDir = path.join(process.cwd(), 'src', 'utils');
-    const tempPromptsFile = path.join(utilsDir, 'temp_prompts.json');
+    const tempPromptsFile = path.join(utilsDir, `prompts_${folderId || 'default'}.json`);
     
     try {
-      // Write prompts to temporary file
+      // Write prompts to session-specific file
       await fs.writeFile(tempPromptsFile, JSON.stringify(actualPrompts, null, 2));
+      console.log(`💾 Saved ${actualPrompts.length} prompts to session file: prompts_${folderId || 'default'}.json`);
       console.log(`✅ Prompts written to ${tempPromptsFile}`);
       
       // Execute the concurrent Python script
       const pythonScript = path.join(utilsDir, 'comfyEndpointConcurrent.py');
+      const promptsFileName = path.basename(tempPromptsFile);
       const result = await executeConcurrentPythonScript(
         pythonScript, 
-        tempPromptsFile, 
+        promptsFileName, 
         folderId, 
         mode, 
         negativePrompt

@@ -536,7 +536,7 @@ export default function Home() {
             💬 Conversation Mode
           </Link>
           <Link href="/test-tts" className={styles.navButton}>
-            Test TTS (Script Mode)
+            Test TTS (Vision Mode Enhanced)
           </Link>
           <Link href="/test" className={styles.navButton}>
             Test Image Generation

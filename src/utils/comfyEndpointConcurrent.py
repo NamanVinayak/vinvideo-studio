@@ -75,7 +75,16 @@ class ConcurrentImageGenerator:
 
     async def __aenter__(self):
         """Async context manager entry"""
-        self.session = aiohttp.ClientSession()
+        import ssl
+        # Create SSL context that doesn't verify certificates to fix macOS SSL issues
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        
+        # Create aiohttp connector with SSL context
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        self.session = aiohttp.ClientSession(connector=connector)
+        logger.info("🔓 SSL certificate verification disabled for RunPod API compatibility")
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -540,7 +549,18 @@ class ConcurrentImageGenerator:
     def load_prompt_engineer_output(self, filename: Optional[str] = None) -> List[str]:
         """Load prompts from the prompt engineer output file"""
         try:
-            candidate_files = ["temp_prompts.json", "prompt_engineer_output.json"] if filename is None else [filename]
+            # If no specific filename provided, look for session-specific files first, then legacy files
+            if filename is None:
+                import glob
+                # Look for session-specific files in the script directory
+                session_pattern = str(script_dir / "prompts_*.json")
+                session_files = [Path(f).name for f in glob.glob(session_pattern)]
+                candidate_files = session_files + ["temp_prompts.json", "prompt_engineer_output.json"]
+                logger.info(f"🔍 Found session files: {session_files}")
+            else:
+                # Specific filename provided - use it directly
+                candidate_files = [filename]
+                logger.info(f"🎯 Using specified prompts file: {filename}")
             
             for candidate in candidate_files:
                 prompt_path = script_dir / candidate
@@ -659,7 +679,7 @@ def main():
                 prompt_engineer_data = generator.load_prompt_engineer_output()
                 
                 if not prompt_engineer_data:
-                    logger.error("❌ No prompt engineer output found. Looking for 'temp_prompts.json' or 'prompt_engineer_output.json'")
+                    logger.error("❌ No prompt engineer output found. Looking for session-specific 'prompts_*.json', 'temp_prompts.json' or 'prompt_engineer_output.json'")
                     return
             
             # Validate prompts

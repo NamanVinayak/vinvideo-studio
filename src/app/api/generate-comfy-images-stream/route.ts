@@ -25,9 +25,12 @@ export async function POST(request: Request) {
       await fs.chmod(publicDir, 0o755);
     }
     
-    // Save prompts to a temporary file for the Python script to read
-    const promptsFilePath = path.join(process.cwd(), 'src', 'utils', 'temp_prompts.json');
+    // Save prompts to a session-specific file for the Python script to read
+    const promptsFilePath = path.join(process.cwd(), 'src', 'utils', `prompts_${folderId}.json`);
     await fs.writeFile(promptsFilePath, JSON.stringify(prompts));
+    
+    console.log(`💾 Saved ${prompts.length} prompts to session file: prompts_${folderId}.json`);
+    console.log(`🔍 First prompt preview: ${prompts[0]?.substring(0, 100)}...`);
     
     // Set the output directory for the Python script
     process.env.OUTPUT_DIR = publicDir;
@@ -53,7 +56,8 @@ export async function POST(request: Request) {
     const stream = new ReadableStream({
       start(controller) {
         const pythonScript = path.join(process.cwd(), 'src', 'utils', 'comfyEndpointConcurrent.py');
-        const python = spawn('python3', [pythonScript, '--prompts-file', promptsFilePath], {
+        const promptsFileName = path.basename(promptsFilePath);
+        const python = spawn('python3', [pythonScript, '--prompts-file', promptsFileName], {
           cwd: path.dirname(pythonScript),
           env: { 
             ...process.env, 
