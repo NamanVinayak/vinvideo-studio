@@ -36,3 +36,26 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated content and outputs
+public/*/
+public/run-*/
+public/script-*/
+public/vision_enhanced-*/
+public/music-video-*/
+public/no_music_video-*/
+public/old/
+public/*.png
+public/*.svg
+public/*.jpg
+public/*.jpeg
+public/*.gif
+public/*.webp
+
+# Temporary files
+temp_files/
+src/utils/temp_prompts.json
+
+# Pipeline outputs
+*.svg
+pipeline_*.svg
