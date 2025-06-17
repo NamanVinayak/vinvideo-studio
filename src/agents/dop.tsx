@@ -55,12 +55,19 @@ STEP 3: RAPID-CUTTING OPTIMIZATION
    • Lens choices - vary focal lengths dramatically (wide 24mm to tight 85mm) for maximum visual contrast
    • Lighting CONTRAST - shift lighting dramatically between beats supporting rapid cutting rhythm   
 
-STEP 4: VALIDATION CHECK
+STEP 4: LOCATION CONSISTENCY TRACKING
+   • Analyze script content and Director beats to identify locations
+   • Assign consistent location_id when same location appears across beats
+   • Create detailed location_description for environmental continuity
+   • Use incremental location_id (loc_01, loc_02, etc.) for location changes
+
+STEP 5: VALIDATION CHECK
    • Ensure shot count matches Director beat count exactly
    • Verify visual distinction from previous shot supports cognitive engagement
    • Confirm cinematography amplifies Director's subject diversity strategy
+   • Validate location consistency tracking for environmental continuity
 
-4. Write ≤ 20‑word rationale focusing on subject diversity support and cognitive engagement for ultra-fast editing. 
+5. Write ≤ 20‑word rationale focusing on subject diversity support and cognitive engagement for ultra-fast editing. 
 
   
 
@@ -89,6 +96,11 @@ Example structure demonstrating subject diversity cinematographic support:
     "lens": "85mm", 
     "focus_depth": "shallow f/1.8", 
     "lighting": "soft key left + cool fill right", 
+    "location": {
+      "location_id": "loc_01",
+      "location_name": "Modern Office",
+      "location_description": "bright contemporary office with glass windows and minimalist furniture"
+    },
     "handoff_notes": "supports cognitive engagement through visual variety" 
   } 
 ] 
@@ -118,6 +130,12 @@ Example structure demonstrating subject diversity cinematographic support:
   – Prioritize HIGH CONTRAST cinematography supporting 2-5 second cut rhythm
   – Dramatic differences in shot size, angle, lighting between consecutive beats
   – Visual variety that resets viewer attention with each cut
+
+• **LOCATION CONSISTENCY REQUIREMENTS**:
+  – MANDATORY: Include "location" object in every shot with location_id, location_name, location_description
+  – Same location_id = IDENTICAL location_description for visual consistency
+  – New location = new location_id (loc_01, loc_02, etc.) with unique description
+  – Location description should be detailed enough for environmental consistency in image generation
 
 • Avoid vague adjectives—be implementable and production‑ready for ultra-fast cutting workflows.   
 
