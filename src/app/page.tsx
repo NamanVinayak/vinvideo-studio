@@ -532,8 +532,11 @@ export default function Home() {
           <Link href="/test-script-to-images" className={styles.navButton}>
             Test Script to Images
           </Link>
+          <Link href="/conversation-mode" className={styles.navButton}>
+            💬 Conversation Mode
+          </Link>
           <Link href="/test-tts" className={styles.navButton}>
-            Test TTS
+            Test TTS (Vision Mode Enhanced)
           </Link>
           <Link href="/test" className={styles.navButton}>
             Test Image Generation
@@ -543,6 +546,24 @@ export default function Home() {
           </Link>
           <Link href="/workflow-test" className={styles.navButton}>
             New Workflow Test
+          </Link>
+          <Link href="/music-video-pipeline" className={styles.navButton}>
+            🎵 Music Video Pipeline
+          </Link>
+          <Link href="/no-music-video-pipeline" className={styles.navButton}>
+            🎬 No-Music Video Pipeline
+          </Link>
+          <Link href="/test-music-analysis" className={styles.navButton}>
+            🎼 Test Music Analysis
+          </Link>
+          <Link href="/universal-video-chat" className={styles.navButton}>
+            🎬 Universal Video Chat
+          </Link>
+          <Link href="/test-runpod" className={styles.navButton}>
+            🔧 Test RunPod
+          </Link>
+          <Link href="/simple-test" className={styles.navButton}>
+            🧪 Simple Test
           </Link>
         </div>
       </nav>
