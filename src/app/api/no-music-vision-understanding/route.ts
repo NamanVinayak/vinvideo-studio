@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnderstandingNoMusic';
+import { NO_MUSIC_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/no-music-pipeline/no-music-vision-understanding';
 
 /**
  * Enhanced Vision Understanding Agent for No-Music Pipeline

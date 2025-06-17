@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Add context to system message if provided
     let systemMessage = CHATBOT_SYSTEM_MESSAGE;
     if (context?.videoType) {
-      const typeContext = {
+      const typeContext: Record<string, string> = {
         music_only: '\n\nCONTEXT: User wants a MUSIC VIDEO (no narration, music-driven visuals). Focus on visual concepts that sync with music, rhythm, and beat.',
         voiceover_music: '\n\nCONTEXT: User wants NARRATED CONTENT WITH BACKGROUND MUSIC. Focus on storytelling, message delivery, and how visuals support the narrative.',
         pure_visuals: '\n\nCONTEXT: User wants PURE VISUALS (no music, no narration). Focus on visual storytelling, imagery, and silent narrative techniques.'

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ENHANCED_PIPELINE_ROUTER_SYSTEM_MESSAGE } from '@/agents/enhancedPipelineRouter';
+import { ENHANCED_PIPELINE_ROUTER_SYSTEM_MESSAGE } from '@/agents/infrastructure/enhanced-pipeline-router';
 
 export async function POST(request: NextRequest) {
   try {

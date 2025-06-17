@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { VIDEO_PROMPT_ENGINEER_SYSTEM_MESSAGE } from '@/agents/videoPromptEngineer';
+import { VIDEO_PROMPT_ENGINEER_SYSTEM_MESSAGE } from '@/agents/shared/video-prompt-engineer';
 
 /**
  * Video Prompt Engineer API endpoint for Music Video Pipeline Stage 8

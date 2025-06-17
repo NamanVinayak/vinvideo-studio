@@ -3,7 +3,7 @@ import {
   analyzeMusicFile, 
   autoSelectMusic 
 } from '@/utils/musicAnalysis';
-import { INTELLIGENT_PRODUCER_SYSTEM_MESSAGE } from '@/agents/intelligentProducer';
+import { INTELLIGENT_PRODUCER_SYSTEM_MESSAGE } from '@/agents/shared/intelligent-producer';
 import { createOpenRouterService, cleanJsonResponse } from '@/services/openrouter';
 
 /**
@@ -340,7 +340,7 @@ Create intelligent producer decisions for cut points and segment selection.`
           rawResponse: responseContent,
           executionTime,
           fallback: true,
-          parseError: parseError.toString()
+          parseError: parseError instanceof Error ? parseError.message : String(parseError)
         };
       }
     } else {
@@ -447,10 +447,10 @@ function generateFallbackProducerDecisions(musicAnalysis: any, targetDuration: n
   // Use natural cut points if available
   if (naturalCutPoints.length > 0) {
     const selectedCuts = naturalCutPoints
-      .filter(cut => cut < targetDuration)
+      .filter((cut: number) => cut < targetDuration)
       .slice(0, suggestedCutCount);
     
-    selectedCuts.forEach((cutTime, index) => {
+    selectedCuts.forEach((cutTime: number, index: number) => {
       cutPoints.push({
         cut_number: index + 1,
         cut_time_s: cutTime,
@@ -466,7 +466,7 @@ function generateFallbackProducerDecisions(musicAnalysis: any, targetDuration: n
   
   // Fill remaining cuts with beat-aligned points if needed
   while (cutPoints.length < suggestedCutCount && cutPoints.length < 10) {
-    const nextCutTime = (cutPoints.length + 1) * (targetDuration / suggestedCutCount);
+    const nextCutTime: number = (cutPoints.length + 1) * (targetDuration / suggestedCutCount);
     if (nextCutTime < targetDuration) {
       cutPoints.push({
         cut_number: cutPoints.length + 1,

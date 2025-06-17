@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { SCRIPT_FORMATTING_SYSTEM_MESSAGE } from '@/agents/scriptFormattingAgent';
-import type { ScriptFormattingInput } from '@/agents/scriptFormattingAgent';
+import { SCRIPT_FORMATTING_SYSTEM_MESSAGE } from '@/agents/enhanced-script-pipeline/script-formatting-agent';
+import type { ScriptFormattingInput } from '@/agents/enhanced-script-pipeline/script-formatting-agent';
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +49,7 @@ Extract only the spoken content and provide comprehensive analysis as specified 
         }
       ],
       temperature: 0.1,
-      max_tokens: 4000
+      max_tokens: 8000
     };
     
     const startTime = Date.now();

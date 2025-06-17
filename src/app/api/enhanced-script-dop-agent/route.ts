@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { ENHANCED_SCRIPT_DOP_SYSTEM_MESSAGE } from '@/agents/enhancedScriptDop';
-import type { EnhancedScriptDopInput } from '@/agents/enhancedScriptDop';
+import { ENHANCED_SCRIPT_DOP_SYSTEM_MESSAGE } from '@/agents/enhanced-script-pipeline/enhanced-script-dop';
+import type { EnhancedScriptDopInput } from '@/agents/enhanced-script-pipeline/enhanced-script-dop';
 import { passThroughRawJson } from '@/utils/passThroughRawJson';
 
 export async function POST(request: Request) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     console.log('Enhanced Script DoP called with:', {
       user_visual_style: scriptModeUserContext.settings.visualStyle,
       user_pacing: scriptModeUserContext.settings.pacing,
-      content_type: scriptModeUserContext.scriptContext?.content_type,
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type,
       beat_count: expectedBeatCount
     });
     
@@ -51,7 +51,7 @@ Please create cinematography that:
 1. Serves the exact script content
 2. Implements the user's "${scriptModeUserContext.settings.visualStyle}" visual style
 3. Matches the "${scriptModeUserContext.settings.pacing}" pacing with appropriate camera work
-4. Enhances "${scriptModeUserContext.scriptContext?.content_type || 'general'}" content appropriately
+4. Enhances "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}" content appropriately
 5. GENERATES EXACTLY ${expectedBeatCount} SHOTS (one for each Director beat)
 
 CRITICAL: Every shot must specify gaze direction for any characters.`;
@@ -69,7 +69,7 @@ CRITICAL: Every shot must specify gaze direction for any characters.`;
         }
       ],
       temperature: 0.3,
-      max_tokens: 15000
+      max_tokens: 30000
     };
     
     const startTime = Date.now();

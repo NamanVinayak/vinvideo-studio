@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PIPELINE_ROUTER_SYSTEM_MESSAGE } from '@/agents/pipelineRouter';
+import { PIPELINE_ROUTER_SYSTEM_MESSAGE } from '@/agents/infrastructure/pipeline-router';
 
 /**
  * Universal Pipeline Router API endpoint

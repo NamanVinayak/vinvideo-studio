@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnderstanding';
+import { VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/music-pipeline/music-vision-understanding';
 
 /**
  * Vision Understanding Agent API endpoint for Music Video Pipeline Stage 1

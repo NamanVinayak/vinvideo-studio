@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DOP_SYSTEM_MESSAGE } from '@/agents/dop';
+import { DOP_SYSTEM_MESSAGE } from '@/agents/shared/base-dop';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 import type { UserContext } from '@/types/userContext';
 
@@ -74,17 +74,17 @@ ${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artisti
 🚀 ENHANCED DoP GUIDANCE (Vision Agent Strategist):
 
 MANDATORY CINEMATOGRAPHY:
-${dop_instructions.mandatory_cinematography?.map(req => `- ${req}`).join('\n')}
+${dop_instructions.mandatory_cinematography?.map((req: string) => `- ${req}`).join('\n')}
 
 TECHNICAL CONSTRAINTS:
-${dop_instructions.technical_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+${dop_instructions.technical_constraints?.map((constraint: string) => `- ${constraint}`).join('\n')}
 
 LIGHTING PHILOSOPHY: ${dop_instructions.lighting_philosophy}
 
 MOVEMENT STYLE: ${dop_instructions.movement_style}
 
 COMPOSITION RULES:
-${dop_instructions.composition_rules?.map(rule => `- ${rule}`).join('\n')}
+${dop_instructions.composition_rules?.map((rule: string) => `- ${rule}`).join('\n')}
 
 ARTISTIC STYLE SUPPORT: ${dop_instructions.artistic_style_support}
 

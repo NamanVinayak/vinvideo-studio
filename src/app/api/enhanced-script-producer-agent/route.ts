@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { ENHANCED_SCRIPT_PRODUCER_SYSTEM_MESSAGE } from '@/agents/enhancedScriptProducer';
-import type { EnhancedScriptProducerInput } from '@/agents/enhancedScriptProducer';
+import { ENHANCED_SCRIPT_PRODUCER_SYSTEM_MESSAGE } from '@/agents/enhanced-script-pipeline/enhanced-script-producer';
+import type { EnhancedScriptProducerInput } from '@/agents/enhanced-script-pipeline/enhanced-script-producer';
 import type { ScriptModeUserContext } from '@/types/scriptModeUserContext';
 
 export async function POST(request: Request) {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       calculated_duration: scriptModeUserContext.settings.calculatedDuration,
       user_pacing: scriptModeUserContext.settings.pacing,
       user_visual_style: scriptModeUserContext.settings.visualStyle,
-      content_type: scriptModeUserContext.scriptContext?.content_type
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type
     });
     
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -43,7 +43,7 @@ Please analyze this script and create intelligent cut points that respect the us
 CRITICAL REMINDERS:
 - TTS audio duration is ${scriptModeUserContext.settings.calculatedDuration} seconds (auto-calculated from script)
 - User selected "${scriptModeUserContext.settings.pacing}" pacing
-- Script type is "${scriptModeUserContext.scriptContext?.content_type || 'general'}"
+- Script type is "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}"
 - Visual style preference is "${scriptModeUserContext.settings.visualStyle}"`;
     
     const payload = {
@@ -59,7 +59,7 @@ CRITICAL REMINDERS:
         }
       ],
       temperature: 0,
-      max_tokens: 8000
+      max_tokens: 16000
     };
     
     const startTime = Date.now();

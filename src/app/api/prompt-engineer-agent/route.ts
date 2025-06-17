@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineer';
+import { FLUX_SYSTEM_MESSAGE } from '@/agents/shared/base-prompt-engineer';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 import type { UserContext } from '@/types/userContext';
 
@@ -130,11 +130,11 @@ ${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artisti
 🚀 ENHANCED PROMPT ENGINEER GUIDANCE (Vision Agent Strategist):
 
 MANDATORY STYLE REQUIREMENTS:
-${prompt_engineer_instructions.mandatory_style?.map(req => `- ${req}`).join('\n')}
+${prompt_engineer_instructions.mandatory_style?.map((req: string) => `- ${req}`).join('\n')}
 
 VISUAL CONSISTENCY RULES:
 ${Array.isArray(prompt_engineer_instructions.visual_consistency_rules) 
-  ? prompt_engineer_instructions.visual_consistency_rules.map(rule => `- ${rule}`).join('\n')
+  ? prompt_engineer_instructions.visual_consistency_rules.map((rule: string) => `- ${rule}`).join('\n')
   : prompt_engineer_instructions.visual_consistency_rules || 'None specified'}
 
 CHARACTER REQUIREMENTS: ${prompt_engineer_instructions.character_requirements || 'None specified'}
@@ -142,7 +142,7 @@ CHARACTER REQUIREMENTS: ${prompt_engineer_instructions.character_requirements ||
 SETTING DETAILS: ${prompt_engineer_instructions.setting_details}
 
 FORBIDDEN ELEMENTS:
-${prompt_engineer_instructions.forbidden_elements?.map(element => `- ${element}`).join('\n')}
+${prompt_engineer_instructions.forbidden_elements?.map((element: string) => `- ${element}`).join('\n')}
 
 TECHNICAL SPECIFICATIONS: ${prompt_engineer_instructions.technical_specifications}
 
@@ -309,7 +309,7 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
           console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
           
           // Return a structured error with the raw response
-          throw new Error(`Could not parse prompt engineer response: ${secondParseError.message}`);
+          throw new Error(`Could not parse prompt engineer response: ${secondParseError instanceof Error ? secondParseError.message : String(secondParseError)}`);
         }
       }
       

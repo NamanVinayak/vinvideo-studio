@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { VISION_ENHANCED_PRODUCER_SYSTEM_MESSAGE } from '@/agents/visionEnhancedProducer';
+import { VISION_ENHANCED_PRODUCER_SYSTEM_MESSAGE } from '@/agents/shared/vision-enhanced-producer';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 import type { UserContext } from '@/types/userContext';
 

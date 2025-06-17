@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DIRECTOR_SYSTEM_MESSAGE } from '@/agents/director';
+import { DIRECTOR_SYSTEM_MESSAGE } from '@/agents/shared/base-director';
 import { passThroughRawJson } from '@/utils/passThroughRawJson';
 import { saveApiResponse, generateSessionId } from '@/utils/responseSaver';
 import type { UserContext } from '@/types/userContext';
@@ -73,10 +73,10 @@ ${visionDocument.detected_artistic_style !== 'not_mentioned' ? `Detected Artisti
 🚀 ENHANCED DIRECTOR GUIDANCE (Vision Agent Strategist):
 
 MANDATORY REQUIREMENTS:
-${director_instructions.mandatory_requirements?.map(req => `- ${req}`).join('\n')}
+${director_instructions.mandatory_requirements?.map((req: string) => `- ${req}`).join('\n')}
 
 CREATIVE CONSTRAINTS:
-${director_instructions.creative_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+${director_instructions.creative_constraints?.map((constraint: string) => `- ${constraint}`).join('\n')}
 
 NARRATIVE BEATS GUIDANCE: ${director_instructions.narrative_beats_guidance}
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PRODUCER_SYSTEM_MESSAGE } from '@/agents/producer';
+import { PRODUCER_SYSTEM_MESSAGE } from '@/agents/shared/base-producer';
 import type { UserContext } from '@/types/userContext';
 
 /**
@@ -66,12 +66,12 @@ export async function POST(request: Request) {
 TARGET CUT TIMING: ${producer_instructions.target_cut_timing}
 
 PACING RULES:
-${producer_instructions.pacing_rules?.map(rule => `- ${rule}`).join('\n')}
+${producer_instructions.pacing_rules?.map((rule: string) => `- ${rule}`).join('\n')}
 
 AUDIO ANALYSIS ENHANCEMENT: ${producer_instructions.audio_analysis_enhancement}
 
 INTELLIGENT CONSTRAINTS:
-${producer_instructions.intelligent_constraints?.map(constraint => `- ${constraint}`).join('\n')}
+${producer_instructions.intelligent_constraints?.map((constraint: string) => `- ${constraint}`).join('\n')}
 
 Use this strategic guidance to make smarter cut decisions while respecting the natural speech flow.
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { ENHANCED_SCRIPT_PROMPT_ENGINEER_SYSTEM_MESSAGE } from '@/agents/enhancedScriptPromptEngineer';
-import type { EnhancedScriptPromptEngineerInput } from '@/agents/enhancedScriptPromptEngineer';
+import { ENHANCED_SCRIPT_PROMPT_ENGINEER_SYSTEM_MESSAGE } from '@/agents/enhanced-script-pipeline/enhanced-script-prompt-engineer';
+import type { EnhancedScriptPromptEngineerInput } from '@/agents/enhanced-script-pipeline/enhanced-script-prompt-engineer';
 
 // Manual prompt extraction when JSON parsing fails
 function extractPromptsFromRawText(rawText: string, expectedCount?: number): string[] {
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     
     console.log('Enhanced Script Prompt Engineer called with:', {
       user_visual_style: scriptModeUserContext.settings.visualStyle,
-      content_type: scriptModeUserContext.scriptContext?.content_type,
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type,
       beat_count: director_output.narrative_beats?.length
     });
     
@@ -94,7 +94,7 @@ Please create FLUX prompts that:
 2. Apply the user's "${scriptModeUserContext.settings.visualStyle}" visual style consistently
 3. Follow the cinematographic specifications from DoP
 4. Include mandatory gaze direction for every character
-5. Optimize for "${scriptModeUserContext.scriptContext?.content_type || 'general'}" content
+5. Optimize for "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}" content
 
 Generate exactly ${director_output.narrative_beats?.length || 10} prompts, one for each beat.`;
     
@@ -111,7 +111,7 @@ Generate exactly ${director_output.narrative_beats?.length || 10} prompts, one f
         }
       ],
       temperature: 0.4,
-      max_tokens: 15000
+      max_tokens: 30000
     };
     
     const startTime = Date.now();

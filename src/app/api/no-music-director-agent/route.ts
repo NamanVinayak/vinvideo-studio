@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE } from '@/agents/directorNoMusic';
+import { NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE } from '@/agents/no-music-pipeline/no-music-director';
 
 /**
  * No-Music Director Agent endpoint for Visual-Only Pipeline Stage 2
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
           console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
           
           // Return a structured error with the raw response
-          throw new Error(`Could not parse no-music director response: ${secondParseError.message}`);
+          throw new Error(`Could not parse no-music director response: ${secondParseError instanceof Error ? secondParseError.message : String(secondParseError)}`);
         }
       }
       

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/dopNoMusic';
+import { NO_MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/no-music-pipeline/no-music-dop';
 
 /**
  * No-Music DoP Agent endpoint for Visual-Only Pipeline Stage 3

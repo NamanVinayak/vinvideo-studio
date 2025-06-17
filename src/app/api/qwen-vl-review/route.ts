@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { QWEN_VL_SYSTEM_MESSAGE } from '@/agents/qwenVL';
+import { QWEN_VL_SYSTEM_MESSAGE } from '@/agents/infrastructure/qwen-vision-language';
 import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 

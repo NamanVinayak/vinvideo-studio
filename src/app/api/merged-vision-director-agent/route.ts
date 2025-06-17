@@ -7,8 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { callOpenRouterAPI } from '@/services/openrouter';
-import { VISION_DIRECTOR_NO_MUSIC_SYSTEM_MESSAGE } from '@/agents/visionDirectorNoMusic';
+import { createOpenRouterService } from '@/services/openrouter';
+import { MERGED_VISION_DIRECTOR_NO_MUSIC_SYSTEM_MESSAGE } from '@/agents/no-music-pipeline/merged-vision-director';
 
 interface UserInput {
   userInput: string;
@@ -63,17 +63,24 @@ export async function POST(request: NextRequest) {
     console.log('📝 Calling LLM with enhanced story-focused prompt...');
     
     // Call LLM with story-optimized parameters
-    const llmResponse = await callOpenRouterAPI(
-      VISION_DIRECTOR_NO_MUSIC_SYSTEM_MESSAGE,
-      enhancedPrompt,
-      {
-        model: 'google/gemini-2.5-flash-preview-05-20:thinking',
-        temperature: 0.15, // Lower temperature for more consistent story quality
-        max_tokens: 12000,  // Increased for detailed story beats
-        top_p: 0.9,
-        presence_penalty: 0.1 // Slight penalty to encourage variety
-      }
-    );
+    const openRouterService = createOpenRouterService();
+    const llmResult = await openRouterService.chat({
+      model: 'google/gemini-2.5-flash-preview-05-20:thinking',
+      messages: [
+        {
+          role: 'system',
+          content: MERGED_VISION_DIRECTOR_NO_MUSIC_SYSTEM_MESSAGE
+        },
+        {
+          role: 'user',
+          content: enhancedPrompt
+        }
+      ],
+      temperature: 0.15, // Lower temperature for more consistent story quality
+      max_tokens: 12000,  // Increased for detailed story beats
+      top_p: 0.9
+    });
+    const llmResponse = llmResult.choices[0]?.message?.content || '';
 
     console.log('🔍 Parsing and validating story quality...');
     

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineer';
+import { FLUX_SYSTEM_MESSAGE } from '@/agents/shared/base-prompt-engineer';
 
 /**
  * Music-Video Prompt Engineer API endpoint for Music Video Pipeline Stage 6

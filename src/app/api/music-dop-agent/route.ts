@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/musicDoP';
+import { MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/music-pipeline/music-dop';
 
 /**
  * Music-Aware DoP Agent API endpoint for Music Video Pipeline Stage 5
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     console.log('Calling Music-Aware DoP Agent...');
     
     // Extract visual beats count properly
-    let visualBeatsCount = 0;
+    let visualBeatsCount: number | string = 0;
     if (directorVisualBeats?.visual_beats?.length) {
       visualBeatsCount = directorVisualBeats.visual_beats.length;
     } else if (Array.isArray(directorVisualBeats)) {

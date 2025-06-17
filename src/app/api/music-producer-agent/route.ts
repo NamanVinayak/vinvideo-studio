@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MUSIC_PRODUCER_SYSTEM_MESSAGE } from '@/agents/musicProducer';
+import { MUSIC_PRODUCER_SYSTEM_MESSAGE } from '@/agents/music-pipeline/music-producer';
 
 /**
  * Music-Aware Producer Agent API endpoint for Music Video Pipeline Stage 3
