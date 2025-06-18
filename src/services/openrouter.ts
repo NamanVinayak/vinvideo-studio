@@ -71,7 +71,7 @@ export class OpenRouterService {
   constructor(config: OpenRouterConfig) {
     this.config = {
       apiKey: config.apiKey,
-      defaultModel: config.defaultModel || 'anthropic/claude-3.5-sonnet',
+      defaultModel: config.defaultModel || 'google/gemini-2.5-flash-preview-05-20',
       baseUrl: config.baseUrl || 'https://openrouter.ai/api/v1',
       maxRetries: config.maxRetries || 3,
       retryDelay: config.retryDelay || 1000,
@@ -312,7 +312,7 @@ export function createOpenRouterService(
   
   return new OpenRouterService({
     apiKey,
-    defaultModel: modelOverride || process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet',
+    defaultModel: modelOverride || process.env.OPENROUTER_DEFAULT_MODEL || 'google/gemini-2.5-flash-preview-05-20',
     headers: additionalHeaders
   });
 }

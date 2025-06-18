@@ -1,0 +1,426 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_director",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750271961874-9358eb40",
+    "projectFolder": "script-1750271961874-9358eb40",
+    "timestamp": "2025-06-18T18:42:08.867Z",
+    "executionTime": 404,
+    "model": "unknown"
+  },
+  "input": {
+    "producer_output": [
+      {
+        "cut_number": 1,
+        "cut_time_s": 0,
+        "reason": "Opening shot - establish the factory setting and first-person perspective, aligning with 'Welcome... to the heart of automotive innovation'."
+      },
+      {
+        "cut_number": 2,
+        "cut_time_s": 11.68,
+        "reason": "Transition to raw materials, as narration shifts to 'It begins with raw materials... transformed into precise components'."
+      },
+      {
+        "cut_number": 3,
+        "cut_time_s": 17.44,
+        "reason": "Focus on steel stamping, following 'Steel sheets are stamped, molded into body panels'."
+      },
+      {
+        "cut_number": 4,
+        "cut_time_s": 23.44,
+        "reason": "Shift to chassis formation, as narration states 'Then, the chassis takes shape'."
+      },
+      {
+        "cut_number": 5,
+        "cut_time_s": 27.6,
+        "reason": "Highlight robot welding, aligning with 'Robots, with their mesmerizing precision, weld thousands of points'."
+      },
+      {
+        "cut_number": 6,
+        "cut_time_s": 35.2,
+        "reason": "Move to the paint shop, as narration says 'Next, the paint shop'."
+      },
+      {
+        "cut_number": 7,
+        "cut_time_s": 43.12,
+        "reason": "Introduce engine installation, following 'The engine... is carefully lowered into place'."
+      },
+      {
+        "cut_number": 8,
+        "cut_time_s": 51.12,
+        "reason": "Transition to interior assembly, as narration shifts to 'Inside, the cabin comes alive'."
+      },
+      {
+        "cut_number": 9,
+        "cut_time_s": 60.8,
+        "reason": "Focus on final assembly steps (wheels, fluids, testing), aligning with 'Finally, the wheels are bolted on, fluids are added, and every system is tested'."
+      },
+      {
+        "cut_number": 10,
+        "cut_time_s": 68.4,
+        "reason": "Show the completed car emerging, matching 'From a mere collection of parts, a complex machine emerges'."
+      },
+      {
+        "cut_number": 11,
+        "cut_time_s": 72.88,
+        "reason": "Concluding shot, emphasizing the final product and the overall achievement, aligning with 'It's a testament to human ingenuity... and technological prowess'."
+      },
+      {
+        "cut_number": 12,
+        "cut_time_s": 80,
+        "reason": "Maintain pacing and extend duration with a shot of the car moving on a test track or being prepared for shipment."
+      },
+      {
+        "cut_number": 13,
+        "cut_time_s": 88,
+        "reason": "Maintain pacing and extend duration with a shot showcasing the factory floor from a wider perspective, still maintaining POV."
+      },
+      {
+        "cut_number": 14,
+        "cut_time_s": 96,
+        "reason": "Maintain pacing and extend duration with a shot focusing on a specific detail of the car's exterior or interior, emphasizing craftsmanship."
+      },
+      {
+        "cut_number": 15,
+        "cut_time_s": 104,
+        "reason": "Maintain pacing and extend duration with a shot of the car being driven, perhaps on a scenic road, to show its purpose."
+      },
+      {
+        "cut_number": 16,
+        "cut_time_s": 112,
+        "reason": "Maintain pacing and extend duration with a final, impactful shot of the car, perhaps with a subtle camera movement."
+      },
+      {
+        "cut_number": 17,
+        "cut_time_s": 120,
+        "reason": "End of video, precisely meeting the 120-second duration requirement."
+      }
+    ],
+    "script": "Welcome... to the heart of automotive innovation. From my perspective, we'll journey through the incredible process... of how a car truly comes to life.\n\nIt begins with raw materials... transformed into precise components. Steel sheets are stamped, molded into body panels with immense force. Then, the chassis takes shape—the very skeleton of our vehicle. Robots, with their mesmerizing precision, weld thousands of points, creating an unyielding structure.\n\nNext, the paint shop: a pristine, automated ballet of color application, ensuring a flawless finish. The engine, a marvel of engineering, is carefully lowered into place, connecting to the intricate wiring harness.\n\nInside, the cabin comes alive. Seats, dashboards, and electronics are meticulously installed, creating a comfortable and functional space. Finally, the wheels are bolted on, fluids are added, and every system is tested.\n\nFrom a mere collection of parts, a complex machine emerges... ready for the open road. It's a testament to human ingenuity... and technological prowess.",
+    "visionDocument": {
+      "core_concept": "Experience the intricate dance of modern car assembly from a first-person perspective, revealing the precision and scale of factory automation.",
+      "emotion_arc": [
+        "curiosity",
+        "awe",
+        "understanding",
+        "satisfaction"
+      ],
+      "pacing": "medium",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 120,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Industrial cool tones, metallic grays, and vibrant safety colors, emphasizing precision and technological advancement.",
+      "narration_optimization": {
+        "vocal_style": "informative",
+        "emphasis_points": [
+          "initial raw materials",
+          "robot precision",
+          "human-robot collaboration",
+          "final product"
+        ],
+        "natural_pauses": [
+          "between major assembly stages",
+          "for dramatic reveals of completed sections"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "How Cars Are Assembled In Factories\nCreate fast paced 2 minute long explainer youtube short from a first person POV on 'How cars are assembled in factories' Make all the shots from the first person POV and keep the angle of the shots consistent. Use clear canadian male voice for narration.",
+      "settings": {
+        "duration": 120,
+        "pacing": "medium",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T18:39:21.877Z",
+        "sessionId": "script-1750271961874-9358eb40"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "directorOutput": {
+      "project_metadata": {
+        "target_platform": "YouTube",
+        "content_type": "Explainer Short",
+        "primary_concept": "First-person journey through modern car assembly",
+        "entity_summary": [
+          {
+            "name": "Factory machinery",
+            "type": "Equipment",
+            "role_in_scene": "primary",
+            "entity_context": "Automated assembly line systems"
+          },
+          {
+            "name": "Steel sheets",
+            "type": "Material",
+            "role_in_scene": "primary",
+            "entity_context": "Raw material being transformed"
+          },
+          {
+            "name": "Welding robots",
+            "type": "Machine",
+            "role_in_scene": "primary",
+            "entity_context": "Precision assembly robots"
+          },
+          {
+            "name": "Paint system",
+            "type": "Equipment",
+            "role_in_scene": "primary",
+            "entity_context": "Automated painting machinery"
+          },
+          {
+            "name": "Engine unit",
+            "type": "Component",
+            "role_in_scene": "primary",
+            "entity_context": "Powerplant being installed"
+          }
+        ]
+      },
+      "narrative_beats": [
+        {
+          "beat_no": 1,
+          "timecode_start": "0",
+          "estimated_duration_s": 11,
+          "script_phrase": "Welcome... to the heart of automotive innovation",
+          "narrative_function": "setup",
+          "emotional_tone": "curiosity",
+          "creative_vision": "POV approaching factory entrance with massive hydraulic presses in motion",
+          "audience_retention_strategy": "Immersive first-person perspective hook",
+          "turning_point": false,
+          "entities": [
+            "Factory machinery"
+          ]
+        },
+        {
+          "beat_no": 2,
+          "timecode_start": "11.68",
+          "estimated_duration_s": 6,
+          "script_phrase": "It begins with raw materials... transformed into precise components",
+          "narrative_function": "rise",
+          "emotional_tone": "fascination",
+          "creative_vision": "Close POV of steel sheets loading onto conveyor, hydraulic stamp descending",
+          "audience_retention_strategy": "Raw material transformation reveal",
+          "turning_point": false,
+          "entities": [
+            "Steel sheets"
+          ]
+        },
+        {
+          "beat_no": 3,
+          "timecode_start": "17.44",
+          "estimated_duration_s": 6,
+          "script_phrase": "Steel sheets are stamped, molded into body panels",
+          "narrative_function": "escalation",
+          "emotional_tone": "awe",
+          "creative_vision": "Extreme close-up of stamping die impact with metal deformation",
+          "audience_retention_strategy": "Industrial power demonstration",
+          "turning_point": false,
+          "entities": [
+            "Steel sheets"
+          ]
+        },
+        {
+          "beat_no": 4,
+          "timecode_start": "23.44",
+          "estimated_duration_s": 4,
+          "script_phrase": "Then, the chassis takes shape",
+          "narrative_function": "development",
+          "emotional_tone": "anticipation",
+          "creative_vision": "POV tracking along emerging chassis structure with welding sparks",
+          "audience_retention_strategy": "Structural revelation",
+          "turning_point": false,
+          "entities": [
+            "Factory machinery"
+          ]
+        },
+        {
+          "beat_no": 5,
+          "timecode_start": "27.6",
+          "estimated_duration_s": 8,
+          "script_phrase": "Robots, with their mesmerizing precision, weld thousands of points",
+          "narrative_function": "intensification",
+          "emotional_tone": "wonder",
+          "creative_vision": "Low-angle POV of welding arm dancing around chassis components",
+          "audience_retention_strategy": "Robotic ballet visual spectacle",
+          "turning_point": true,
+          "entities": [
+            "Welding robots"
+          ]
+        },
+        {
+          "beat_no": 6,
+          "timecode_start": "35.2",
+          "estimated_duration_s": 8,
+          "script_phrase": "Next, the paint shop",
+          "narrative_function": "transition",
+          "emotional_tone": "surprise",
+          "creative_vision": "POV inside paint booth with rotating car body and mist clouds",
+          "audience_retention_strategy": "Color explosion contrast",
+          "turning_point": false,
+          "entities": [
+            "Paint system"
+          ]
+        },
+        {
+          "beat_no": 7,
+          "timecode_start": "43.12",
+          "estimated_duration_s": 8,
+          "script_phrase": "The engine... is carefully lowered into place",
+          "narrative_function": "precision",
+          "emotional_tone": "tension",
+          "creative_vision": "Overhead POV of engine descending into bay with alignment guides",
+          "audience_retention_strategy": "Mechanical mating suspense",
+          "turning_point": false,
+          "entities": [
+            "Engine unit"
+          ]
+        },
+        {
+          "beat_no": 8,
+          "timecode_start": "51.12",
+          "estimated_duration_s": 10,
+          "script_phrase": "Inside, the cabin comes alive",
+          "narrative_function": "humanization",
+          "emotional_tone": "warmth",
+          "creative_vision": "POV of dashboard installation with glowing instrument cluster",
+          "audience_retention_strategy": "Technological intimacy reveal",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 9,
+          "timecode_start": "60.8",
+          "estimated_duration_s": 8,
+          "script_phrase": "Finally, the wheels are bolted on, fluids are added, and every system is tested",
+          "narrative_function": "culmination",
+          "emotional_tone": "satisfaction",
+          "creative_vision": "POV along assembly line showing final components snapping into place",
+          "audience_retention_strategy": "Completion anticipation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 10,
+          "timecode_start": "68.4",
+          "estimated_duration_s": 4,
+          "script_phrase": "From a mere collection of parts, a complex machine emerges",
+          "narrative_function": "revelation",
+          "emotional_tone": "achievement",
+          "creative_vision": "POV reveal of completed car body rotating on final platform",
+          "audience_retention_strategy": "Transformation payoff",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 11,
+          "timecode_start": "72.88",
+          "estimated_duration_s": 7,
+          "script_phrase": "It's a testament to human ingenuity... and technological prowess",
+          "narrative_function": "reflection",
+          "emotional_tone": "pride",
+          "creative_vision": "POV close inspection of car's emblem with factory lights reflecting",
+          "audience_retention_strategy": "Emotional brand connection",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 12,
+          "timecode_start": "80",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "extension",
+          "emotional_tone": "movement",
+          "creative_vision": "POV from test driver seat during track performance evaluation",
+          "audience_retention_strategy": "Operational validation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 13,
+          "timecode_start": "88",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "perspective",
+          "emotional_tone": "scale",
+          "creative_vision": "POV looking down production line with endless identical vehicles",
+          "audience_retention_strategy": "Industrial scale reveal",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 14,
+          "timecode_start": "96",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "detail",
+          "emotional_tone": "appreciation",
+          "creative_vision": "POV extreme close-up of panel gaps being measured digitally",
+          "audience_retention_strategy": "Craftsmanship emphasis",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 15,
+          "timecode_start": "104",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "purpose",
+          "emotional_tone": "freedom",
+          "creative_vision": "POV through windshield on scenic road with hands on steering wheel",
+          "audience_retention_strategy": "Aspirational payoff",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 16,
+          "timecode_start": "112",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "closure",
+          "emotional_tone": "fulfillment",
+          "creative_vision": "POV rearview mirror reflection of factory complex shrinking in distance",
+          "audience_retention_strategy": "Narrative bookend",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 17,
+          "timecode_start": "120",
+          "estimated_duration_s": 0,
+          "script_phrase": "",
+          "narrative_function": "resolution",
+          "emotional_tone": "completion",
+          "creative_vision": "POV fade to black with final bolt tightening sound effect",
+          "audience_retention_strategy": "Sensory memory trigger",
+          "turning_point": false,
+          "entities": []
+        }
+      ],
+      "requires_user_clarification": ""
+    },
+    "executionTime": 404,
+    "rawResponse": "```json\n{\n  \"project_metadata\": {\n    \"target_platform\": \"YouTube\",\n    \"content_type\": \"Explainer Short\",\n    \"primary_concept\": \"First-person journey through modern car assembly\",\n    \"entity_summary\": [\n      {\n        \"name\": \"Factory machinery\",\n        \"type\": \"Equipment\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Automated assembly line systems\"\n      },\n      {\n        \"name\": \"Steel sheets\",\n        \"type\": \"Material\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Raw material being transformed\"\n      },\n      {\n        \"name\": \"Welding robots\",\n        \"type\": \"Machine\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Precision assembly robots\"\n      },\n      {\n        \"name\": \"Paint system\",\n        \"type\": \"Equipment\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Automated painting machinery\"\n      },\n      {\n        \"name\": \"Engine unit\",\n        \"type\": \"Component\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Powerplant being installed\"\n      }\n    ]\n  },\n  \"narrative_beats\": [\n    {\n      \"beat_no\": 1,\n      \"timecode_start\": \"0\",\n      \"estimated_duration_s\": 11,\n      \"script_phrase\": \"Welcome... to the heart of automotive innovation\",\n      \"narrative_function\": \"setup\",\n      \"emotional_tone\": \"curiosity\",\n      \"creative_vision\": \"POV approaching factory entrance with massive hydraulic presses in motion\",\n      \"audience_retention_strategy\": \"Immersive first-person perspective hook\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory machinery\"]\n    },\n    {\n      \"beat_no\": 2,\n      \"timecode_start\": \"11.68\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"It begins with raw materials... transformed into precise components\",\n      \"narrative_function\": \"rise\",\n      \"emotional_tone\": \"fascination\",\n      \"creative_vision\": \"Close POV of steel sheets loading onto conveyor, hydraulic stamp descending\",\n      \"audience_retention_strategy\": \"Raw material transformation reveal\",\n      \"turning_point\": false,\n      \"entities\": [\"Steel sheets\"]\n    },\n    {\n      \"beat_no\": 3,\n      \"timecode_start\": \"17.44\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"Steel sheets are stamped, molded into body panels\",\n      \"narrative_function\": \"escalation\",\n      \"emotional_tone\": \"awe\",\n      \"creative_vision\": \"Extreme close-up of stamping die impact with metal deformation\",\n      \"audience_retention_strategy\": \"Industrial power demonstration\",\n      \"turning_point\": false,\n      \"entities\": [\"Steel sheets\"]\n    },\n    {\n      \"beat_no\": 4,\n      \"timecode_start\": \"23.44\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"Then, the chassis takes shape\",\n      \"narrative_function\": \"development\",\n      \"emotional_tone\": \"anticipation\",\n      \"creative_vision\": \"POV tracking along emerging chassis structure with welding sparks\",\n      \"audience_retention_strategy\": \"Structural revelation\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory machinery\"]\n    },\n    {\n      \"beat_no\": 5,\n      \"timecode_start\": \"27.6\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Robots, with their mesmerizing precision, weld thousands of points\",\n      \"narrative_function\": \"intensification\",\n      \"emotional_tone\": \"wonder\",\n      \"creative_vision\": \"Low-angle POV of welding arm dancing around chassis components\",\n      \"audience_retention_strategy\": \"Robotic ballet visual spectacle\",\n      \"turning_point\": true,\n      \"entities\": [\"Welding robots\"]\n    },\n    {\n      \"beat_no\": 6,\n      \"timecode_start\": \"35.2\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Next, the paint shop\",\n      \"narrative_function\": \"transition\",\n      \"emotional_tone\": \"surprise\",\n      \"creative_vision\": \"POV inside paint booth with rotating car body and mist clouds\",\n      \"audience_retention_strategy\": \"Color explosion contrast\",\n      \"turning_point\": false,\n      \"entities\": [\"Paint system\"]\n    },\n    {\n      \"beat_no\": 7,\n      \"timecode_start\": \"43.12\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"The engine... is carefully lowered into place\",\n      \"narrative_function\": \"precision\",\n      \"emotional_tone\": \"tension\",\n      \"creative_vision\": \"Overhead POV of engine descending into bay with alignment guides\",\n      \"audience_retention_strategy\": \"Mechanical mating suspense\",\n      \"turning_point\": false,\n      \"entities\": [\"Engine unit\"]\n    },\n    {\n      \"beat_no\": 8,\n      \"timecode_start\": \"51.12\",\n      \"estimated_duration_s\": 10,\n      \"script_phrase\": \"Inside, the cabin comes alive\",\n      \"narrative_function\": \"humanization\",\n      \"emotional_tone\": \"warmth\",\n      \"creative_vision\": \"POV of dashboard installation with glowing instrument cluster\",\n      \"audience_retention_strategy\": \"Technological intimacy reveal\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 9,\n      \"timecode_start\": \"60.8\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Finally, the wheels are bolted on, fluids are added, and every system is tested\",\n      \"narrative_function\": \"culmination\",\n      \"emotional_tone\": \"satisfaction\",\n      \"creative_vision\": \"POV along assembly line showing final components snapping into place\",\n      \"audience_retention_strategy\": \"Completion anticipation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 10,\n      \"timecode_start\": \"68.4\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"From a mere collection of parts, a complex machine emerges\",\n      \"narrative_function\": \"revelation\",\n      \"emotional_tone\": \"achievement\",\n      \"creative_vision\": \"POV reveal of completed car body rotating on final platform\",\n      \"audience_retention_strategy\": \"Transformation payoff\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 11,\n      \"timecode_start\": \"72.88\",\n      \"estimated_duration_s\": 7,\n      \"script_phrase\": \"It's a testament to human ingenuity... and technological prowess\",\n      \"narrative_function\": \"reflection\",\n      \"emotional_tone\": \"pride\",\n      \"creative_vision\": \"POV close inspection of car's emblem with factory lights reflecting\",\n      \"audience_retention_strategy\": \"Emotional brand connection\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 12,\n      \"timecode_start\": \"80\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"extension\",\n      \"emotional_tone\": \"movement\",\n      \"creative_vision\": \"POV from test driver seat during track performance evaluation\",\n      \"audience_retention_strategy\": \"Operational validation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 13,\n      \"timecode_start\": \"88\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"perspective\",\n      \"emotional_tone\": \"scale\",\n      \"creative_vision\": \"POV looking down production line with endless identical vehicles\",\n      \"audience_retention_strategy\": \"Industrial scale reveal\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 14,\n      \"timecode_start\": \"96\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"detail\",\n      \"emotional_tone\": \"appreciation\",\n      \"creative_vision\": \"POV extreme close-up of panel gaps being measured digitally\",\n      \"audience_retention_strategy\": \"Craftsmanship emphasis\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 15,\n      \"timecode_start\": \"104\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"purpose\",\n      \"emotional_tone\": \"freedom\",\n      \"creative_vision\": \"POV through windshield on scenic road with hands on steering wheel\",\n      \"audience_retention_strategy\": \"Aspirational payoff\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 16,\n      \"timecode_start\": \"112\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"closure\",\n      \"emotional_tone\": \"fulfillment\",\n      \"creative_vision\": \"POV rearview mirror reflection of factory complex shrinking in distance\",\n      \"audience_retention_strategy\": \"Narrative bookend\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 17,\n      \"timecode_start\": \"120\",\n      \"estimated_duration_s\": 0,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"resolution\",\n      \"emotional_tone\": \"completion\",\n      \"creative_vision\": \"POV fade to black with final bolt tightening sound effect\",\n      \"audience_retention_strategy\": \"Sensory memory trigger\",\n      \"turning_point\": false,\n      \"entities\": []\n    }\n  ],\n  \"requires_user_clarification\": \"\"\n}\n```",
+    "parsingStatus": "malformed",
+    "usage": {
+      "prompt_tokens": 3838,
+      "completion_tokens": 2894,
+      "total_tokens": 6732
+    },
+    "sessionId": "Test_72",
+    "parseWarning": "JSON found in markdown block"
+  },
+  "rawResponse": "```json\n{\n  \"project_metadata\": {\n    \"target_platform\": \"YouTube\",\n    \"content_type\": \"Explainer Short\",\n    \"primary_concept\": \"First-person journey through modern car assembly\",\n    \"entity_summary\": [\n      {\n        \"name\": \"Factory machinery\",\n        \"type\": \"Equipment\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Automated assembly line systems\"\n      },\n      {\n        \"name\": \"Steel sheets\",\n        \"type\": \"Material\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Raw material being transformed\"\n      },\n      {\n        \"name\": \"Welding robots\",\n        \"type\": \"Machine\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Precision assembly robots\"\n      },\n      {\n        \"name\": \"Paint system\",\n        \"type\": \"Equipment\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Automated painting machinery\"\n      },\n      {\n        \"name\": \"Engine unit\",\n        \"type\": \"Component\",\n        \"role_in_scene\": \"primary\",\n        \"entity_context\": \"Powerplant being installed\"\n      }\n    ]\n  },\n  \"narrative_beats\": [\n    {\n      \"beat_no\": 1,\n      \"timecode_start\": \"0\",\n      \"estimated_duration_s\": 11,\n      \"script_phrase\": \"Welcome... to the heart of automotive innovation\",\n      \"narrative_function\": \"setup\",\n      \"emotional_tone\": \"curiosity\",\n      \"creative_vision\": \"POV approaching factory entrance with massive hydraulic presses in motion\",\n      \"audience_retention_strategy\": \"Immersive first-person perspective hook\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory machinery\"]\n    },\n    {\n      \"beat_no\": 2,\n      \"timecode_start\": \"11.68\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"It begins with raw materials... transformed into precise components\",\n      \"narrative_function\": \"rise\",\n      \"emotional_tone\": \"fascination\",\n      \"creative_vision\": \"Close POV of steel sheets loading onto conveyor, hydraulic stamp descending\",\n      \"audience_retention_strategy\": \"Raw material transformation reveal\",\n      \"turning_point\": false,\n      \"entities\": [\"Steel sheets\"]\n    },\n    {\n      \"beat_no\": 3,\n      \"timecode_start\": \"17.44\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"Steel sheets are stamped, molded into body panels\",\n      \"narrative_function\": \"escalation\",\n      \"emotional_tone\": \"awe\",\n      \"creative_vision\": \"Extreme close-up of stamping die impact with metal deformation\",\n      \"audience_retention_strategy\": \"Industrial power demonstration\",\n      \"turning_point\": false,\n      \"entities\": [\"Steel sheets\"]\n    },\n    {\n      \"beat_no\": 4,\n      \"timecode_start\": \"23.44\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"Then, the chassis takes shape\",\n      \"narrative_function\": \"development\",\n      \"emotional_tone\": \"anticipation\",\n      \"creative_vision\": \"POV tracking along emerging chassis structure with welding sparks\",\n      \"audience_retention_strategy\": \"Structural revelation\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory machinery\"]\n    },\n    {\n      \"beat_no\": 5,\n      \"timecode_start\": \"27.6\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Robots, with their mesmerizing precision, weld thousands of points\",\n      \"narrative_function\": \"intensification\",\n      \"emotional_tone\": \"wonder\",\n      \"creative_vision\": \"Low-angle POV of welding arm dancing around chassis components\",\n      \"audience_retention_strategy\": \"Robotic ballet visual spectacle\",\n      \"turning_point\": true,\n      \"entities\": [\"Welding robots\"]\n    },\n    {\n      \"beat_no\": 6,\n      \"timecode_start\": \"35.2\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Next, the paint shop\",\n      \"narrative_function\": \"transition\",\n      \"emotional_tone\": \"surprise\",\n      \"creative_vision\": \"POV inside paint booth with rotating car body and mist clouds\",\n      \"audience_retention_strategy\": \"Color explosion contrast\",\n      \"turning_point\": false,\n      \"entities\": [\"Paint system\"]\n    },\n    {\n      \"beat_no\": 7,\n      \"timecode_start\": \"43.12\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"The engine... is carefully lowered into place\",\n      \"narrative_function\": \"precision\",\n      \"emotional_tone\": \"tension\",\n      \"creative_vision\": \"Overhead POV of engine descending into bay with alignment guides\",\n      \"audience_retention_strategy\": \"Mechanical mating suspense\",\n      \"turning_point\": false,\n      \"entities\": [\"Engine unit\"]\n    },\n    {\n      \"beat_no\": 8,\n      \"timecode_start\": \"51.12\",\n      \"estimated_duration_s\": 10,\n      \"script_phrase\": \"Inside, the cabin comes alive\",\n      \"narrative_function\": \"humanization\",\n      \"emotional_tone\": \"warmth\",\n      \"creative_vision\": \"POV of dashboard installation with glowing instrument cluster\",\n      \"audience_retention_strategy\": \"Technological intimacy reveal\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 9,\n      \"timecode_start\": \"60.8\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"Finally, the wheels are bolted on, fluids are added, and every system is tested\",\n      \"narrative_function\": \"culmination\",\n      \"emotional_tone\": \"satisfaction\",\n      \"creative_vision\": \"POV along assembly line showing final components snapping into place\",\n      \"audience_retention_strategy\": \"Completion anticipation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 10,\n      \"timecode_start\": \"68.4\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"From a mere collection of parts, a complex machine emerges\",\n      \"narrative_function\": \"revelation\",\n      \"emotional_tone\": \"achievement\",\n      \"creative_vision\": \"POV reveal of completed car body rotating on final platform\",\n      \"audience_retention_strategy\": \"Transformation payoff\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 11,\n      \"timecode_start\": \"72.88\",\n      \"estimated_duration_s\": 7,\n      \"script_phrase\": \"It's a testament to human ingenuity... and technological prowess\",\n      \"narrative_function\": \"reflection\",\n      \"emotional_tone\": \"pride\",\n      \"creative_vision\": \"POV close inspection of car's emblem with factory lights reflecting\",\n      \"audience_retention_strategy\": \"Emotional brand connection\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 12,\n      \"timecode_start\": \"80\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"extension\",\n      \"emotional_tone\": \"movement\",\n      \"creative_vision\": \"POV from test driver seat during track performance evaluation\",\n      \"audience_retention_strategy\": \"Operational validation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 13,\n      \"timecode_start\": \"88\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"perspective\",\n      \"emotional_tone\": \"scale\",\n      \"creative_vision\": \"POV looking down production line with endless identical vehicles\",\n      \"audience_retention_strategy\": \"Industrial scale reveal\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 14,\n      \"timecode_start\": \"96\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"detail\",\n      \"emotional_tone\": \"appreciation\",\n      \"creative_vision\": \"POV extreme close-up of panel gaps being measured digitally\",\n      \"audience_retention_strategy\": \"Craftsmanship emphasis\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 15,\n      \"timecode_start\": \"104\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"purpose\",\n      \"emotional_tone\": \"freedom\",\n      \"creative_vision\": \"POV through windshield on scenic road with hands on steering wheel\",\n      \"audience_retention_strategy\": \"Aspirational payoff\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 16,\n      \"timecode_start\": \"112\",\n      \"estimated_duration_s\": 8,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"closure\",\n      \"emotional_tone\": \"fulfillment\",\n      \"creative_vision\": \"POV rearview mirror reflection of factory complex shrinking in distance\",\n      \"audience_retention_strategy\": \"Narrative bookend\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 17,\n      \"timecode_start\": \"120\",\n      \"estimated_duration_s\": 0,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"resolution\",\n      \"emotional_tone\": \"completion\",\n      \"creative_vision\": \"POV fade to black with final bolt tightening sound effect\",\n      \"audience_retention_strategy\": \"Sensory memory trigger\",\n      \"turning_point\": false,\n      \"entities\": []\n    }\n  ],\n  \"requires_user_clarification\": \"\"\n}\n```"
+}

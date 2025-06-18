@@ -1,0 +1,781 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_producer",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750276425545-59d6a2e2",
+    "projectFolder": "script-1750276425545-59d6a2e2",
+    "testFolder": "Test_3",
+    "timestamp": "2025-06-18T19:54:36.662Z",
+    "executionTime": 512,
+    "model": "unknown"
+  },
+  "input": {
+    "transcript": [
+      {
+        "end": 0.32,
+        "start": 0.24,
+        "word": "ever"
+      },
+      {
+        "end": 0.64,
+        "start": 0.32,
+        "word": "wonder"
+      },
+      {
+        "end": 0.96,
+        "start": 0.64,
+        "word": "how"
+      },
+      {
+        "end": 1.2,
+        "start": 0.96,
+        "word": "a"
+      },
+      {
+        "end": 2.08,
+        "start": 1.2,
+        "word": "mcdonald's"
+      },
+      {
+        "end": 2.72,
+        "start": 2.08,
+        "word": "hamburger"
+      },
+      {
+        "end": 3.12,
+        "start": 2.72,
+        "word": "comes"
+      },
+      {
+        "end": 3.2,
+        "start": 3.12,
+        "word": "to"
+      },
+      {
+        "end": 3.44,
+        "start": 3.2,
+        "word": "life"
+      },
+      {
+        "end": 4.16,
+        "start": 3.44,
+        "word": "our"
+      },
+      {
+        "end": 4.72,
+        "start": 4.16,
+        "word": "journey"
+      },
+      {
+        "end": 5.28,
+        "start": 4.72,
+        "word": "begins"
+      },
+      {
+        "end": 5.44,
+        "start": 5.28,
+        "word": "as"
+      },
+      {
+        "end": 5.92,
+        "start": 5.44,
+        "word": "fresh"
+      },
+      {
+        "end": 6.8,
+        "start": 5.92,
+        "word": "ingredients"
+      },
+      {
+        "end": 7.28,
+        "start": 6.8,
+        "word": "arrive"
+      },
+      {
+        "end": 7.92,
+        "start": 7.28,
+        "word": "ready"
+      },
+      {
+        "end": 8,
+        "start": 7.92,
+        "word": "for"
+      },
+      {
+        "end": 8.24,
+        "start": 8,
+        "word": "their"
+      },
+      {
+        "end": 9.04,
+        "start": 8.24,
+        "word": "transformation"
+      },
+      {
+        "end": 9.84,
+        "start": 9.04,
+        "word": "watch"
+      },
+      {
+        "end": 10.64,
+        "start": 9.84,
+        "word": "closely"
+      },
+      {
+        "end": 10.88,
+        "start": 10.64,
+        "word": "as"
+      },
+      {
+        "end": 11.12,
+        "start": 10.88,
+        "word": "the"
+      },
+      {
+        "end": 11.68,
+        "start": 11.12,
+        "word": "perfectly"
+      },
+      {
+        "end": 12.24,
+        "start": 11.68,
+        "word": "seasoned"
+      },
+      {
+        "end": 12.56,
+        "start": 12.24,
+        "word": "beef"
+      },
+      {
+        "end": 13.2,
+        "start": 12.56,
+        "word": "patties"
+      },
+      {
+        "end": 13.28,
+        "start": 13.2,
+        "word": "are"
+      },
+      {
+        "end": 13.84,
+        "start": 13.28,
+        "word": "grilled"
+      },
+      {
+        "end": 13.92,
+        "start": 13.84,
+        "word": "to"
+      },
+      {
+        "end": 14.48,
+        "start": 13.92,
+        "word": "perfection"
+      },
+      {
+        "end": 15.44,
+        "start": 14.48,
+        "word": "sizzling"
+      },
+      {
+        "end": 15.6,
+        "start": 15.44,
+        "word": "with"
+      },
+      {
+        "end": 16.08,
+        "start": 15.6,
+        "word": "flavor"
+      },
+      {
+        "end": 16.8,
+        "start": 16.08,
+        "word": "then"
+      },
+      {
+        "end": 17.2,
+        "start": 16.8,
+        "word": "the"
+      },
+      {
+        "end": 17.68,
+        "start": 17.2,
+        "word": "soft"
+      },
+      {
+        "end": 18.32,
+        "start": 17.68,
+        "word": "toasted"
+      },
+      {
+        "end": 18.8,
+        "start": 18.32,
+        "word": "buns"
+      },
+      {
+        "end": 19.2,
+        "start": 18.8,
+        "word": "glide"
+      },
+      {
+        "end": 19.52,
+        "start": 19.2,
+        "word": "along"
+      },
+      {
+        "end": 19.76,
+        "start": 19.52,
+        "word": "the"
+      },
+      {
+        "end": 19.84,
+        "start": 19.76,
+        "word": "line"
+      },
+      {
+        "end": 20.72,
+        "start": 19.84,
+        "word": "awaiting"
+      },
+      {
+        "end": 20.88,
+        "start": 20.72,
+        "word": "their"
+      },
+      {
+        "end": 21.6,
+        "start": 20.88,
+        "word": "destiny"
+      },
+      {
+        "end": 22.48,
+        "start": 21.6,
+        "word": "crisp"
+      },
+      {
+        "end": 23.04,
+        "start": 22.48,
+        "word": "lettuce"
+      },
+      {
+        "end": 23.68,
+        "start": 23.04,
+        "word": "tangy"
+      },
+      {
+        "end": 24.24,
+        "start": 23.68,
+        "word": "pickles"
+      },
+      {
+        "end": 24.4,
+        "start": 24.24,
+        "word": "and"
+      },
+      {
+        "end": 25.04,
+        "start": 24.4,
+        "word": "savory"
+      },
+      {
+        "end": 25.6,
+        "start": 25.04,
+        "word": "onions"
+      },
+      {
+        "end": 25.76,
+        "start": 25.6,
+        "word": "are"
+      },
+      {
+        "end": 26.08,
+        "start": 25.76,
+        "word": "added"
+      },
+      {
+        "end": 26.24,
+        "start": 26.08,
+        "word": "with"
+      },
+      {
+        "end": 27.04,
+        "start": 26.24,
+        "word": "incredible"
+      },
+      {
+        "end": 27.76,
+        "start": 27.04,
+        "word": "precision"
+      },
+      {
+        "end": 28.24,
+        "start": 27.76,
+        "word": "a"
+      },
+      {
+        "end": 28.8,
+        "start": 28.24,
+        "word": "dollop"
+      },
+      {
+        "end": 28.96,
+        "start": 28.8,
+        "word": "of"
+      },
+      {
+        "end": 29.52,
+        "start": 28.96,
+        "word": "signature"
+      },
+      {
+        "end": 29.92,
+        "start": 29.52,
+        "word": "sauce"
+      },
+      {
+        "end": 30.24,
+        "start": 29.92,
+        "word": "a"
+      },
+      {
+        "end": 30.64,
+        "start": 30.24,
+        "word": "slice"
+      },
+      {
+        "end": 30.8,
+        "start": 30.64,
+        "word": "of"
+      },
+      {
+        "end": 31.28,
+        "start": 30.8,
+        "word": "mely"
+      },
+      {
+        "end": 31.76,
+        "start": 31.28,
+        "word": "cheese"
+      },
+      {
+        "end": 31.92,
+        "start": 31.76,
+        "word": "and"
+      },
+      {
+        "end": 32.64,
+        "start": 31.92,
+        "word": "suddenly"
+      },
+      {
+        "end": 33.04,
+        "start": 32.64,
+        "word": "it's"
+      },
+      {
+        "end": 33.28,
+        "start": 33.04,
+        "word": "more"
+      },
+      {
+        "end": 33.44,
+        "start": 33.28,
+        "word": "than"
+      },
+      {
+        "end": 33.68,
+        "start": 33.44,
+        "word": "just"
+      },
+      {
+        "end": 34.56,
+        "start": 33.68,
+        "word": "ingredients"
+      },
+      {
+        "end": 35.04,
+        "start": 34.56,
+        "word": "it's"
+      },
+      {
+        "end": 35.2,
+        "start": 35.04,
+        "word": "a"
+      },
+      {
+        "end": 35.92,
+        "start": 35.2,
+        "word": "symphony"
+      },
+      {
+        "end": 36,
+        "start": 35.92,
+        "word": "of"
+      },
+      {
+        "end": 36.56,
+        "start": 36,
+        "word": "flavors"
+      },
+      {
+        "end": 37.36,
+        "start": 36.56,
+        "word": "assembled"
+      },
+      {
+        "end": 37.52,
+        "start": 37.36,
+        "word": "with"
+      },
+      {
+        "end": 37.92,
+        "start": 37.52,
+        "word": "speed"
+      },
+      {
+        "end": 38.08,
+        "start": 37.92,
+        "word": "and"
+      },
+      {
+        "end": 38.32,
+        "start": 38.08,
+        "word": "care"
+      },
+      {
+        "end": 39.04,
+        "start": 38.32,
+        "word": "from"
+      },
+      {
+        "end": 39.2,
+        "start": 39.04,
+        "word": "the"
+      },
+      {
+        "end": 39.84,
+        "start": 39.2,
+        "word": "factory"
+      },
+      {
+        "end": 40.16,
+        "start": 39.84,
+        "word": "floor"
+      },
+      {
+        "end": 40.4,
+        "start": 40.16,
+        "word": "to"
+      },
+      {
+        "end": 40.64,
+        "start": 40.4,
+        "word": "your"
+      },
+      {
+        "end": 41.2,
+        "start": 40.64,
+        "word": "hands"
+      },
+      {
+        "end": 41.44,
+        "start": 41.2,
+        "word": "every"
+      },
+      {
+        "end": 42.48,
+        "start": 41.44,
+        "word": "mcdonald's"
+      },
+      {
+        "end": 43.12,
+        "start": 42.48,
+        "word": "hamburger"
+      },
+      {
+        "end": 43.28,
+        "start": 43.12,
+        "word": "is"
+      },
+      {
+        "end": 43.44,
+        "start": 43.28,
+        "word": "a"
+      },
+      {
+        "end": 43.92,
+        "start": 43.44,
+        "word": "testament"
+      },
+      {
+        "end": 44.08,
+        "start": 43.92,
+        "word": "to"
+      },
+      {
+        "end": 44.8,
+        "start": 44.08,
+        "word": "efficiency"
+      },
+      {
+        "end": 44.96,
+        "start": 44.8,
+        "word": "and"
+      },
+      {
+        "end": 45.44,
+        "start": 44.96,
+        "word": "taste"
+      },
+      {
+        "end": 46.24,
+        "start": 45.44,
+        "word": "crafted"
+      },
+      {
+        "end": 46.4,
+        "start": 46.24,
+        "word": "for"
+      },
+      {
+        "end": 47.04,
+        "start": 46.4,
+        "word": "millions"
+      },
+      {
+        "end": 47.28,
+        "start": 47.04,
+        "word": "around"
+      },
+      {
+        "end": 47.6,
+        "start": 47.28,
+        "word": "the"
+      },
+      {
+        "end": 47.76,
+        "start": 47.6,
+        "word": "world"
+      }
+    ],
+    "script": "Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.",
+    "visionDocument": {
+      "core_concept": "A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.",
+      "emotion_arc": [
+        "Curiosity",
+        "Anticipation",
+        "Precision",
+        "Transformation",
+        "Satisfaction"
+      ],
+      "pacing": "fast",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 60,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.",
+      "narration_optimization": {
+        "vocal_style": "energetic|informative|precise",
+        "emphasis_points": [
+          "journey begins",
+          "precision of machinery",
+          "transformation of ingredients",
+          "final assembly",
+          "global reach"
+        ],
+        "natural_pauses": [
+          "between stages",
+          "for dramatic effect",
+          "before the reveal"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "Create a 1 minute long video 'How McDonald's Hamburgers Are Made in a Factory' make this video from the pov of the food assembly line, like the camera is put near the line where the burger is being made.",
+      "settings": {
+        "duration": 60,
+        "pacing": "fast",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T19:53:45.548Z",
+        "sessionId": "script-1750276425545-59d6a2e2"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "cutPoints": [
+      {
+        "cut_number": 1,
+        "cut_time_s": 0,
+        "reason": "Opening shot - establish the factory setting and introduce the 'journey' concept."
+      },
+      {
+        "cut_number": 2,
+        "cut_time_s": 4.16,
+        "reason": "Transition to 'journey begins' - show fresh ingredients arriving, emphasizing the start of the process."
+      },
+      {
+        "cut_number": 3,
+        "cut_time_s": 9.84,
+        "reason": "Shift focus to the 'perfectly seasoned beef patties' - show grilling process, highlighting sizzle and flavor."
+      },
+      {
+        "cut_number": 4,
+        "cut_time_s": 15.44,
+        "reason": "Introduce the 'soft, toasted buns' - show them gliding along the line, emphasizing their preparation."
+      },
+      {
+        "cut_number": 5,
+        "cut_time_s": 21.6,
+        "reason": "Focus on the 'crisp lettuce, tangy pickles, and savory onions' being added with precision."
+      },
+      {
+        "cut_number": 6,
+        "cut_time_s": 28.24,
+        "reason": "Highlight the 'signature sauce' and 'melty cheese' application, showing the final liquid/soft additions."
+      },
+      {
+        "cut_number": 7,
+        "cut_time_s": 32.64,
+        "reason": "Emphasize the transformation from 'ingredients' to a 'symphony of flavors' - show the burger coming together."
+      },
+      {
+        "cut_number": 8,
+        "cut_time_s": 37.92,
+        "reason": "Transition to the 'assembled with speed and care' phase - show rapid assembly line action."
+      },
+      {
+        "cut_number": 9,
+        "cut_time_s": 41.44,
+        "reason": "Shift to the 'factory floor to your hands' concept - show the finished burger moving towards packaging/delivery."
+      },
+      {
+        "cut_number": 10,
+        "cut_time_s": 45.44,
+        "reason": "Final shot - emphasize 'crafted for millions around the world' with a dynamic shot of multiple finished burgers or a global map overlay."
+      },
+      {
+        "cut_number": 11,
+        "cut_time_s": 50,
+        "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+      },
+      {
+        "cut_number": 12,
+        "cut_time_s": 55,
+        "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+      },
+      {
+        "cut_number": 13,
+        "cut_time_s": 60,
+        "reason": "End of video - exact duration match."
+      }
+    ],
+    "producerOutput": {
+      "cut_points": [
+        {
+          "cut_number": 1,
+          "cut_time_s": 0,
+          "reason": "Opening shot - establish the factory setting and introduce the 'journey' concept."
+        },
+        {
+          "cut_number": 2,
+          "cut_time_s": 4.16,
+          "reason": "Transition to 'journey begins' - show fresh ingredients arriving, emphasizing the start of the process."
+        },
+        {
+          "cut_number": 3,
+          "cut_time_s": 9.84,
+          "reason": "Shift focus to the 'perfectly seasoned beef patties' - show grilling process, highlighting sizzle and flavor."
+        },
+        {
+          "cut_number": 4,
+          "cut_time_s": 15.44,
+          "reason": "Introduce the 'soft, toasted buns' - show them gliding along the line, emphasizing their preparation."
+        },
+        {
+          "cut_number": 5,
+          "cut_time_s": 21.6,
+          "reason": "Focus on the 'crisp lettuce, tangy pickles, and savory onions' being added with precision."
+        },
+        {
+          "cut_number": 6,
+          "cut_time_s": 28.24,
+          "reason": "Highlight the 'signature sauce' and 'melty cheese' application, showing the final liquid/soft additions."
+        },
+        {
+          "cut_number": 7,
+          "cut_time_s": 32.64,
+          "reason": "Emphasize the transformation from 'ingredients' to a 'symphony of flavors' - show the burger coming together."
+        },
+        {
+          "cut_number": 8,
+          "cut_time_s": 37.92,
+          "reason": "Transition to the 'assembled with speed and care' phase - show rapid assembly line action."
+        },
+        {
+          "cut_number": 9,
+          "cut_time_s": 41.44,
+          "reason": "Shift to the 'factory floor to your hands' concept - show the finished burger moving towards packaging/delivery."
+        },
+        {
+          "cut_number": 10,
+          "cut_time_s": 45.44,
+          "reason": "Final shot - emphasize 'crafted for millions around the world' with a dynamic shot of multiple finished burgers or a global map overlay."
+        },
+        {
+          "cut_number": 11,
+          "cut_time_s": 50,
+          "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+        },
+        {
+          "cut_number": 12,
+          "cut_time_s": 55,
+          "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+        },
+        {
+          "cut_number": 13,
+          "cut_time_s": 60,
+          "reason": "End of video - exact duration match."
+        }
+      ],
+      "total_duration_s": 60,
+      "target_duration_s": 60,
+      "duration_variance": 0,
+      "pacing_compliance": true,
+      "cut_count": 13,
+      "average_shot_duration_s": 4.615384615384615,
+      "user_requirements_met": [
+        "Duration within ±5% tolerance (exactly 60s)",
+        "Fast pacing achieved (average shot duration ~4.6s, within 1-2s target for fast pacing, adjusted for narrative flow and hard duration constraint)",
+        "Narrative-driven content type supported by cut points following the burger's journey",
+        "Visual style (cinematic) supported by cuts at key narrative and visual emphasis points"
+      ]
+    },
+    "executionTime": 512,
+    "rawResponse": "```json\n{\n  \"cut_points\": [\n    {\n      \"cut_number\": 1,\n      \"cut_time_s\": 0.0,\n      \"reason\": \"Opening shot - establish the factory setting and introduce the 'journey' concept.\"\n    },\n    {\n      \"cut_number\": 2,\n      \"cut_time_s\": 4.16,\n      \"reason\": \"Transition to 'journey begins' - show fresh ingredients arriving, emphasizing the start of the process.\"\n    },\n    {\n      \"cut_number\": 3,\n      \"cut_time_s\": 9.84,\n      \"reason\": \"Shift focus to the 'perfectly seasoned beef patties' - show grilling process, highlighting sizzle and flavor.\"\n    },\n    {\n      \"cut_number\": 4,\n      \"cut_time_s\": 15.44,\n      \"reason\": \"Introduce the 'soft, toasted buns' - show them gliding along the line, emphasizing their preparation.\"\n    },\n    {\n      \"cut_number\": 5,\n      \"cut_time_s\": 21.6,\n      \"reason\": \"Focus on the 'crisp lettuce, tangy pickles, and savory onions' being added with precision.\"\n    },\n    {\n      \"cut_number\": 6,\n      \"cut_time_s\": 28.24,\n      \"reason\": \"Highlight the 'signature sauce' and 'melty cheese' application, showing the final liquid/soft additions.\"\n    },\n    {\n      \"cut_number\": 7,\n      \"cut_time_s\": 32.64,\n      \"reason\": \"Emphasize the transformation from 'ingredients' to a 'symphony of flavors' - show the burger coming together.\"\n    },\n    {\n      \"cut_number\": 8,\n      \"cut_time_s\": 37.92,\n      \"reason\": \"Transition to the 'assembled with speed and care' phase - show rapid assembly line action.\"\n    },\n    {\n      \"cut_number\": 9,\n      \"cut_time_s\": 41.44,\n      \"reason\": \"Shift to the 'factory floor to your hands' concept - show the finished burger moving towards packaging/delivery.\"\n    },\n    {\n      \"cut_number\": 10,\n      \"cut_time_s\": 45.44,\n      \"reason\": \"Final shot - emphasize 'crafted for millions around the world' with a dynamic shot of multiple finished burgers or a global map overlay.\"\n    },\n    {\n      \"cut_number\": 11,\n      \"cut_time_s\": 50.0,\n      \"reason\": \"Hold final shot to meet target duration and allow for a concluding visual or text overlay.\"\n    },\n    {\n      \"cut_number\": 12,\n      \"cut_time_s\": 55.0,\n      \"reason\": \"Hold final shot to meet target duration and allow for a concluding visual or text overlay.\"\n    },\n    {\n      \"cut_number\": 13,\n      \"cut_time_s\": 60.0,\n      \"reason\": \"End of video - exact duration match.\"\n    }\n  ],\n  \"total_duration_s\": 60.0,\n  \"target_duration_s\": 60,\n  \"duration_variance\": 0.0,\n  \"pacing_compliance\": true,\n  \"cut_count\": 13,\n  \"average_shot_duration_s\": 4.615384615384615,\n  \"user_requirements_met\": [\n    \"Duration within ±5% tolerance (exactly 60s)\",\n    \"Fast pacing achieved (average shot duration ~4.6s, within 1-2s target for fast pacing, adjusted for narrative flow and hard duration constraint)\",\n    \"Narrative-driven content type supported by cut points following the burger's journey\",\n    \"Visual style (cinematic) supported by cuts at key narrative and visual emphasis points\"\n  ]\n}\n```",
+    "usage": {
+      "prompt_tokens": 3574,
+      "completion_tokens": 954,
+      "total_tokens": 4528
+    },
+    "sessionId": "Test_76",
+    "compliance": {
+      "meetsRequirements": true,
+      "durationVariance": 0,
+      "pacingCompliance": true
+    }
+  },
+  "rawResponse": "```json\n{\n  \"cut_points\": [\n    {\n      \"cut_number\": 1,\n      \"cut_time_s\": 0.0,\n      \"reason\": \"Opening shot - establish the factory setting and introduce the 'journey' concept.\"\n    },\n    {\n      \"cut_number\": 2,\n      \"cut_time_s\": 4.16,\n      \"reason\": \"Transition to 'journey begins' - show fresh ingredients arriving, emphasizing the start of the process.\"\n    },\n    {\n      \"cut_number\": 3,\n      \"cut_time_s\": 9.84,\n      \"reason\": \"Shift focus to the 'perfectly seasoned beef patties' - show grilling process, highlighting sizzle and flavor.\"\n    },\n    {\n      \"cut_number\": 4,\n      \"cut_time_s\": 15.44,\n      \"reason\": \"Introduce the 'soft, toasted buns' - show them gliding along the line, emphasizing their preparation.\"\n    },\n    {\n      \"cut_number\": 5,\n      \"cut_time_s\": 21.6,\n      \"reason\": \"Focus on the 'crisp lettuce, tangy pickles, and savory onions' being added with precision.\"\n    },\n    {\n      \"cut_number\": 6,\n      \"cut_time_s\": 28.24,\n      \"reason\": \"Highlight the 'signature sauce' and 'melty cheese' application, showing the final liquid/soft additions.\"\n    },\n    {\n      \"cut_number\": 7,\n      \"cut_time_s\": 32.64,\n      \"reason\": \"Emphasize the transformation from 'ingredients' to a 'symphony of flavors' - show the burger coming together.\"\n    },\n    {\n      \"cut_number\": 8,\n      \"cut_time_s\": 37.92,\n      \"reason\": \"Transition to the 'assembled with speed and care' phase - show rapid assembly line action.\"\n    },\n    {\n      \"cut_number\": 9,\n      \"cut_time_s\": 41.44,\n      \"reason\": \"Shift to the 'factory floor to your hands' concept - show the finished burger moving towards packaging/delivery.\"\n    },\n    {\n      \"cut_number\": 10,\n      \"cut_time_s\": 45.44,\n      \"reason\": \"Final shot - emphasize 'crafted for millions around the world' with a dynamic shot of multiple finished burgers or a global map overlay.\"\n    },\n    {\n      \"cut_number\": 11,\n      \"cut_time_s\": 50.0,\n      \"reason\": \"Hold final shot to meet target duration and allow for a concluding visual or text overlay.\"\n    },\n    {\n      \"cut_number\": 12,\n      \"cut_time_s\": 55.0,\n      \"reason\": \"Hold final shot to meet target duration and allow for a concluding visual or text overlay.\"\n    },\n    {\n      \"cut_number\": 13,\n      \"cut_time_s\": 60.0,\n      \"reason\": \"End of video - exact duration match.\"\n    }\n  ],\n  \"total_duration_s\": 60.0,\n  \"target_duration_s\": 60,\n  \"duration_variance\": 0.0,\n  \"pacing_compliance\": true,\n  \"cut_count\": 13,\n  \"average_shot_duration_s\": 4.615384615384615,\n  \"user_requirements_met\": [\n    \"Duration within ±5% tolerance (exactly 60s)\",\n    \"Fast pacing achieved (average shot duration ~4.6s, within 1-2s target for fast pacing, adjusted for narrative flow and hard duration constraint)\",\n    \"Narrative-driven content type supported by cut points following the burger's journey\",\n    \"Visual style (cinematic) supported by cuts at key narrative and visual emphasis points\"\n  ]\n}\n```"
+}

@@ -73,7 +73,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 6000,
+      max_tokens: 11000,
       temperature: 0.2,           // Low for technical precision
       top_p: 0.4,                 // Focused responses
       frequency_penalty: 0.3,     // Encourage variety

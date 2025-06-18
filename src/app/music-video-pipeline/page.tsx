@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
 interface MusicVideoState {
   stage: number;
@@ -561,6 +562,30 @@ export default function MusicVideoPipelinePage() {
         
         console.log('Stage 1 Complete: Vision Understanding', result);
         
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'vision_understanding',
+          response: result,
+          pipelineType: isNoMusic ? 'NO_MUSIC_VIDEO' : 'MUSIC_VIDEO',
+          sessionId: `music_video_${Date.now()}`, // Generate session ID
+          projectFolder: `music_video_${Date.now()}`, // Generate project folder ID
+          input: {
+            userInput: formData.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: formData.pacing,
+                visualStyle: formData.style,
+                duration: formData.duration
+              },
+              technicalRequirements: {
+                contentType: formData.contentType
+              }
+            }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
+        
         // Stage 2 will auto-trigger via useEffect when visionDocument is ready
       } else {
         throw new Error(result.error || 'Vision understanding failed');
@@ -708,6 +733,24 @@ export default function MusicVideoPipelinePage() {
       });
       console.log('Stage 2 Complete: Music Analysis', result);
       
+      // Save agent response for debugging
+      await saveAgentResponse({
+        agentName: 'music_analysis',
+        response: result,
+        pipelineType: 'MUSIC_VIDEO',
+        sessionId: `music_video_${Date.now()}`,
+        projectFolder: `music_video_${Date.now()}`,
+        input: {
+          visionDocument: cleanVisionDocument,
+          musicPreference: formData.musicPreference,
+          originalUserInput: originalUserInput,
+          rawVisionAnalysis: rawVisionAnalysis,
+          ...(formData.musicPreference === 'upload' && { preAnalyzedMusic: clientSideMusicAnalysis })
+        },
+        rawResponse: result.rawResponse,
+        executionTime: result.executionTime
+      });
+      
       // Stage 4 will auto-trigger via useEffect when musicAnalysis is ready
     } catch (error) {
       console.error('❌ API call failed:', error);
@@ -778,6 +821,23 @@ export default function MusicVideoPipelinePage() {
           currentStep: 'Stage 4 complete! Moving to cinematography...'
         }));
         console.log('Stage 4 Complete: Music Director', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'music_director',
+          response: result,
+          pipelineType: 'MUSIC_VIDEO',
+          sessionId: `music_video_${Date.now()}`,
+          projectFolder: `music_video_${Date.now()}`,
+          input: {
+            userVisionDocument: state.visionDocument,
+            musicAnalysis: musicAnalysisData,
+            producerCutPoints: cutPoints,
+            contentClassification: { type: formData.contentType }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
         
         // Stage 5 will auto-trigger via useEffect when directorBeats is ready
       } else {
@@ -884,6 +944,23 @@ export default function MusicVideoPipelinePage() {
           currentStep: 'Stage 5 complete! Moving to prompt engineering...'
         }));
         console.log('Stage 5 Complete: Music DoP', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'music_dop',
+          response: result,
+          pipelineType: 'MUSIC_VIDEO',
+          sessionId: `music_video_${Date.now()}`,
+          projectFolder: `music_video_${Date.now()}`,
+          input: {
+            directorVisualBeats,
+            musicAnalysis,
+            visionDocument: state.visionDocument,
+            contentClassification: { type: formData.contentType }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
         
         // Stage 6 will auto-trigger via useEffect when dopSpecs is ready
       } else {
@@ -1011,6 +1088,23 @@ export default function MusicVideoPipelinePage() {
           loading: false
         }));
         console.log('Stage 6 Complete: Prompt Engineer', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'music_prompt_engineer',
+          response: result,
+          pipelineType: 'MUSIC_VIDEO',
+          sessionId: `music_video_${Date.now()}`,
+          projectFolder: `music_video_${Date.now()}`,
+          input: {
+            userVisionDocument: state.visionDocument,
+            directorBeats,
+            dopSpecs,
+            contentClassification: { type: formData.contentType }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
         
         // Stage 7 will auto-trigger via useEffect when promptEngineerResult is ready
       } else {
@@ -1346,6 +1440,21 @@ export default function MusicVideoPipelinePage() {
           loading: false,
           currentStep: 'Stage 2 complete! Moving to cinematography...'
         }));
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_director',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            userVisionDocument: state.visionDocument,
+            contentClassification: { type: formData.contentType }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'No-music director failed');
       }
@@ -1389,6 +1498,22 @@ export default function MusicVideoPipelinePage() {
           loading: false,
           currentStep: 'Stage 3 complete! Moving to prompt engineering...'
         }));
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_dop',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            directorVisualBeats,
+            visionDocument: state.visionDocument,
+            contentClassification: { type: formData.contentType }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'No-music DoP failed');
       }
@@ -1443,6 +1568,22 @@ export default function MusicVideoPipelinePage() {
           loading: false,
           currentStep: 'Stage 4 complete! Moving to image generation...'
         }));
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_prompt_engineer',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            visionDocument: state.visionDocument,
+            directorBeats,
+            dopSpecs
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'No-music prompt engineer failed');
       }

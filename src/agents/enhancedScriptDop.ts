@@ -65,7 +65,13 @@ STEP 3: TECHNICAL EXECUTION
    • Apply style-appropriate lighting and composition
    • Create visual flow that respects script rhythm
 
-STEP 4: GAZE DIRECTION (CRITICAL)
+STEP 4: LOCATION CONSISTENCY TRACKING
+   • Analyze script content and Director beats to identify locations
+   • Assign consistent location_id when same location appears across beats
+   • Create detailed location_description for environmental continuity
+   • Use incremental location_id (loc_01, loc_02, etc.) for location changes
+
+STEP 5: GAZE DIRECTION (CRITICAL)
    • ALWAYS specify where subjects look
    • Default: Task/environment focus, NOT camera
    • Only "looking at camera" when script explicitly requires
@@ -147,6 +153,11 @@ You MUST return EXACTLY this JSON structure (no deviations):
       "depth_layers": "foreground|midground|background",
       "leading_lines": "none|diagonal|vertical|horizontal|curved|converging"
     },
+    "location": {
+      "location_id": "loc_01",
+      "location_name": "[Location Name from Script Context]",
+      "location_description": "[Detailed description of location from script/story needs]"
+    },
     "script_sync": {
       "content_motivation": "how cinematography serves script content [10-20 words]",
       "user_style_application": "how user's visual style is applied [10-20 words]",
@@ -198,6 +209,13 @@ MINIMAL STYLE:
 • Visual style must be consistent throughout
 • Gaze direction MANDATORY for every shot
 
+**LOCATION CONSISTENCY REQUIREMENTS**:
+• MANDATORY: Include "location" object in every shot with location_id, location_name, location_description
+• Same location_id = IDENTICAL location_description for visual consistency
+• New location = new location_id (loc_01, loc_02, etc.) with unique description
+• Location description should be detailed enough for environmental consistency in image generation
+• Extract locations dynamically from script content and story context
+
 **FINAL REMINDER: GENERATE COMPLETE ARRAY WITH ALL BEATS**
 • Technical choices must match user preferences
 • No arbitrary "cinematic" choices - follow user's style
@@ -241,6 +259,11 @@ export interface EnhancedScriptDopShot {
     visual_weight: 'balanced' | 'left_heavy' | 'right_heavy' | 'top_heavy' | 'bottom_heavy';
     depth_layers: 'foreground' | 'midground' | 'background';
     leading_lines: 'none' | 'diagonal' | 'vertical' | 'horizontal' | 'curved' | 'converging';
+  };
+  location: {
+    location_id: string;
+    location_name: string;
+    location_description: string;
   };
   script_sync: {
     content_motivation: string;

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import styles from './page.module.css';
 import type { UserContext } from '@/types/userContext';
 import type { ScriptModeUserContext } from '@/types/scriptModeUserContext';
+import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
 interface CutPoint {
   cut_number: number;
@@ -580,6 +581,18 @@ export default function TestTTS() {
         // Save vision results
         await saveAgentOutput('vision-understanding', visionData);
         
+        // NEW: Save to agent_responses directory for debugging
+        await saveAgentResponse({
+          agentName: 'vision_understanding',
+          response: visionData,
+          pipelineType: 'VISION_ENHANCED',
+          sessionId: sessionId || projectFolderId,
+          projectFolder: projectFolderId,
+          input: { userContext },
+          rawResponse: visionData.rawResponse,
+          executionTime: visionData.executionTime
+        });
+        
         updateStepStatus(1, 'completed', visionData, undefined, Date.now() - step2Start);
 
         // Step 3: Generate Audio from Script (Separate step)
@@ -868,6 +881,20 @@ export default function TestTTS() {
       // Save Producer Agent output
       await saveAgentOutput('producer', producerData, producerData.rawResponse);
       
+      // NEW: Save to agent_responses directory for debugging
+      await saveAgentResponse({
+        agentName: useVisionMode ? 'vision_enhanced_producer' : 'enhanced_script_producer',
+        response: producerData,
+        pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
+        sessionId: sessionId || projectFolderId,
+        projectFolder: projectFolderId,
+        input: useVisionMode 
+          ? { transcript: transcriptData, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
+          : { transcript: transcriptData, formatted_script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },
+        rawResponse: producerData.rawResponse,
+        executionTime: producerData.executionTime
+      });
+      
       updateStepStatus(4, 'completed', producerData, undefined, Date.now() - step5Start);
 
       // Step 6: Generate Creative Vision using Director Agent
@@ -954,6 +981,20 @@ export default function TestTTS() {
       
       // Save Director Agent output (including failed parsing attempts)
       await saveAgentOutput('director', directorData, directorData.rawResponse || 'No raw response available');
+      
+      // NEW: Save to agent_responses directory for debugging
+      await saveAgentResponse({
+        agentName: useVisionMode ? 'vision_enhanced_director' : 'enhanced_script_director',
+        response: directorData,
+        pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
+        sessionId: sessionId || projectFolderId,
+        projectFolder: projectFolderId,
+        input: useVisionMode 
+          ? { producer_output: producerOutput, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
+          : { producer_output: producerData.producer_output || producerOutput, script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },
+        rawResponse: directorData.rawResponse,
+        executionTime: directorData.executionTime
+      });
       
       updateStepStatus(5, 'completed', directorData, undefined, Date.now() - step6Start);
 
@@ -1052,6 +1093,20 @@ export default function TestTTS() {
       
       // Save DoP Agent output
       await saveAgentOutput('dop', dopData, dopData.rawResponse);
+      
+      // NEW: Save to agent_responses directory for debugging
+      await saveAgentResponse({
+        agentName: useVisionMode ? 'vision_enhanced_dop' : 'enhanced_script_dop',
+        response: dopData,
+        pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
+        sessionId: sessionId || projectFolderId,
+        projectFolder: projectFolderId,
+        input: useVisionMode 
+          ? { producer_output: producerOutputForDoP, director_output: directorOutputForDoP, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
+          : { director_output: directorData.director_output || directorOutputForDoP, script: generatedFormattedScript, producer_output: producerData.producer_output || producerOutputForDoP, scriptModeUserContext: currentScriptModeUserContext },
+        rawResponse: dopData.rawResponse,
+        executionTime: dopData.executionTime
+      });
       
       updateStepStatus(6, 'completed', dopData, undefined, Date.now() - step7Start);
 
@@ -1172,11 +1227,29 @@ export default function TestTTS() {
       // Save Prompt Engineer Agent output
       await saveAgentOutput('prompt-engineer', promptEngineerData, promptEngineerData.rawResponse);
       
+      // NEW: Save to agent_responses directory for debugging
+      await saveAgentResponse({
+        agentName: useVisionMode ? 'vision_enhanced_prompt_engineer' : 'enhanced_script_prompt_engineer',
+        response: promptEngineerData,
+        pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
+        sessionId: sessionId || projectFolderId,
+        projectFolder: projectFolderId,
+        input: useVisionMode 
+          ? { director_output: directorOutputForPE, dop_output: dopOutputForPE, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
+          : { director_output: directorData.director_output || directorOutputForPE, dop_output: dopData.dop_output || dopOutputForPE, script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },
+        rawResponse: promptEngineerData.rawResponse,
+        executionTime: promptEngineerData.executionTime
+      });
+      
       updateStepStatus(7, 'completed', promptEngineerData, undefined, Date.now() - step8Start);
 
-      // Step 9: Generate Images using ComfyUI
-      console.log('🎯 Script Mode: Proceeding with image generation using Enhanced Script prompts');
+      // COMMENTED OUT FOR TESTING - Step 9: Generate Images using ComfyUI
+      console.log('🎯 TESTING MODE: Skipping image generation to test agent response saving');
       
+      // Mark image generation as completed (skipped for testing)
+      updateStepStatus(8, 'completed', { skipped: true, reason: 'Image generation commented out for testing agent response saving' });
+      
+      /*
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
       
@@ -1405,6 +1478,7 @@ export default function TestTTS() {
       if (!isComplete) {
         throw new Error('Image generation did not complete properly');
       }
+      */
 
       // Mark remaining steps as completed (skipped for testing)
       updateStepStatus(9, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });

@@ -13,32 +13,32 @@ export interface ModelConfig {
 
 export const AGENT_MODELS: Record<string, ModelConfig> = {
   producer: {
-    primary: process.env.OPENROUTER_PRODUCER_MODEL || 'anthropic/claude-3.5-sonnet',
-    fallback: ['openai/gpt-4o', 'mistralai/mixtral-8x7b-instruct'],
+    primary: process.env.OPENROUTER_PRODUCER_MODEL || 'google/gemini-2.5-flash-preview-05-20',
+    fallback: ['google/gemini-2.5-flash-preview-05-20', 'openai/gpt-4o'],
     temperature: 0,
     maxTokens: 15000,
     description: 'Producer agent - generates precise cut points for video editing'
   },
   
   director: {
-    primary: process.env.OPENROUTER_DIRECTOR_MODEL || 'anthropic/claude-3.5-sonnet',
-    fallback: ['openai/gpt-4', 'anthropic/claude-3-opus'],
+    primary: process.env.OPENROUTER_DIRECTOR_MODEL || 'google/gemini-2.5-flash-preview-05-20',
+    fallback: ['google/gemini-2.5-flash-preview-05-20', 'openai/gpt-4'],
     temperature: 0.1,
     maxTokens: 15000,
     description: 'Director agent - creates creative vision and story beats'
   },
   
   dop: {
-    primary: process.env.OPENROUTER_DOP_MODEL || 'anthropic/claude-3.5-sonnet',
-    fallback: ['openai/gpt-4o', 'mistralai/mixtral-8x7b-instruct'],
+    primary: process.env.OPENROUTER_DOP_MODEL || 'google/gemini-2.5-flash-preview-05-20',
+    fallback: ['google/gemini-2.5-flash-preview-05-20', 'openai/gpt-4o'],
     temperature: 0,
     maxTokens: 15000,
     description: 'DoP agent - generates cinematography directions'
   },
   
   promptEngineer: {
-    primary: process.env.OPENROUTER_PROMPT_ENGINEER_MODEL || 'anthropic/claude-3.5-sonnet',
-    fallback: ['openai/gpt-4o', 'anthropic/claude-3-opus'],
+    primary: process.env.OPENROUTER_PROMPT_ENGINEER_MODEL || 'google/gemini-2.5-flash-preview-05-20',
+    fallback: ['google/gemini-2.5-flash-preview-05-20', 'openai/gpt-4o'],
     temperature: 0.1,
     maxTokens: 15000,
     description: 'Prompt Engineer agent - creates FLUX image generation prompts'

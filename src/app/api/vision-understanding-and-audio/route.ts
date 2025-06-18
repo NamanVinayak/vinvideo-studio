@@ -206,7 +206,7 @@ export async function POST(request: Request) {
     console.log(`Total processing time: ${totalTime}s`);
     
     // Return the processed data with mode indication
-    const response = {
+    const response: any = {
       success: true,
       mode: useVisionMode ? 'vision' : 'script',
       formattedScript,

@@ -1,0 +1,232 @@
+{
+  "metadata": {
+    "agentName": "vision_understanding",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750276425545-59d6a2e2",
+    "projectFolder": "script-1750276425545-59d6a2e2",
+    "testFolder": "Test_2",
+    "timestamp": "2025-06-18T19:54:00.664Z",
+    "executionTime": 14945,
+    "model": "unknown"
+  },
+  "input": {
+    "userContext": {
+      "originalPrompt": "Create a 1 minute long video 'How McDonald's Hamburgers Are Made in a Factory' make this video from the pov of the food assembly line, like the camera is put near the line where the burger is being made.",
+      "settings": {
+        "duration": 60,
+        "pacing": "fast",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T19:53:45.548Z",
+        "sessionId": "script-1750276425545-59d6a2e2"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "visionDocument": {
+      "core_concept": "A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.",
+      "emotion_arc": [
+        "Curiosity",
+        "Anticipation",
+        "Precision",
+        "Transformation",
+        "Satisfaction"
+      ],
+      "pacing": "fast",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 60,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.",
+      "narration_optimization": {
+        "vocal_style": "energetic|informative|precise",
+        "emphasis_points": [
+          "journey begins",
+          "precision of machinery",
+          "transformation of ingredients",
+          "final assembly",
+          "global reach"
+        ],
+        "natural_pauses": [
+          "between stages",
+          "for dramatic effect",
+          "before the reveal"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "narrationScript": "Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.",
+    "visionAgentData": {
+      "success": true,
+      "stage1_vision_analysis": {
+        "vision_document": {
+          "core_concept": "A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.",
+          "emotion_arc": [
+            "Curiosity",
+            "Anticipation",
+            "Precision",
+            "Transformation",
+            "Satisfaction"
+          ],
+          "pacing": "fast",
+          "visual_style": "cinematic",
+          "detected_artistic_style": "not_mentioned",
+          "duration_s": 60,
+          "content_classification": {
+            "type": "narrative_driven"
+          },
+          "visual_complexity": "complex",
+          "color_philosophy": "Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.",
+          "narration_optimization": {
+            "vocal_style": "energetic|informative|precise",
+            "emphasis_points": [
+              "journey begins",
+              "precision of machinery",
+              "transformation of ingredients",
+              "final assembly",
+              "global reach"
+            ],
+            "natural_pauses": [
+              "between stages",
+              "for dramatic effect",
+              "before the reveal"
+            ],
+            "audio_visual_sync": "tight"
+          }
+        },
+        "narration_script": "Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.",
+        "audio_optimization": {
+          "concept_speakability": "excellent",
+          "vocal_performance_potential": "high",
+          "tts_friendliness": "optimized",
+          "recommended_voice_characteristics": "Clear, enthusiastic, and slightly fast-paced, with a confident and informative tone."
+        },
+        "timing_validation": {
+          "target_duration": 60,
+          "target_word_count": 108,
+          "actual_word_count": 108,
+          "words_per_second": 1.8,
+          "duration_compliance": "exact"
+        },
+        "agent_instructions": {
+          "producer_instructions": {
+            "target_cut_timing": "Fast cuts, averaging 1-3 seconds, to maintain high energy and match the rapid pace of the assembly line.",
+            "pacing_rules": [
+              "Quick cuts for ingredient introduction and assembly steps.",
+              "Slightly longer shots for key transformation moments (grilling, final assembly).",
+              "Maintain a consistent, driving rhythm throughout the video."
+            ],
+            "audio_analysis_enhancement": "Prioritize cuts at natural speech breaks and emphasis points to enhance the feeling of rapid, precise action. Ensure visual transitions align with the narrative flow of the assembly process.",
+            "intelligent_constraints": [
+              "Avoid lingering shots that slow down the 'factory' feel.",
+              "Ensure visual changes are synchronized with key words in the narration (e.g., 'grilled', 'toasted', 'added')."
+            ]
+          },
+          "director_instructions": {
+            "scene_direction_philosophy": "Emphasize the journey of the hamburger from the perspective of the food itself, creating an immersive, almost 'first-person' view of the assembly line. Focus on the precision, speed, and scale of the operation.",
+            "emotional_architecture": "Start with a sense of wonder and curiosity, build anticipation as ingredients come together, highlight the precision and efficiency of the process, and conclude with a feeling of satisfaction and global reach.",
+            "character_relationship_dynamics": null,
+            "visual_storytelling_mastery": "Utilize close-ups and dynamic camera movements that mimic the movement of the food on the line. Show the transformation of raw ingredients into a finished product. Highlight the cleanliness and automation of the factory.",
+            "pacing_and_rhythm_guidance": "Maintain a relentless, forward-moving pace. Each shot should contribute to the sense of continuous motion and efficient production. Use quick transitions to convey speed.",
+            "environmental_integration": "The factory environment should feel clean, modern, and highly automated. Emphasize the machinery and the organized flow of ingredients and products.",
+            "mandatory_requirements": [
+              "Maintain a consistent 'food's eye view' perspective.",
+              "Show distinct stages of hamburger assembly.",
+              "Convey a sense of scale and industrial efficiency."
+            ],
+            "creative_constraints": [
+              "Avoid showing human faces prominently; focus on hands and machinery.",
+              "Do not include any external shots of the factory or restaurant.",
+              "No slow-motion shots that break the fast pacing."
+            ],
+            "narrative_beats_guidance": "Introduction of raw materials → Grilling of patties → Bun preparation → Ingredient layering → Final assembly → Packaging/ready for delivery.",
+            "character_elements": null,
+            "setting_requirements": "A clean, modern, and highly automated food production factory assembly line.",
+            "perspective_requirements": "From the POV of the food assembly line, as if the camera is on or very near the line where the burger is being made."
+          },
+          "dop_instructions": {
+            "mandatory_cinematography": [
+              "Use wide-angle lenses for immersive POV shots.",
+              "Employ smooth, continuous tracking shots along the assembly line.",
+              "Utilize macro shots for detailed views of ingredients and textures."
+            ],
+            "technical_constraints": [
+              "Maintain a low camera angle to simulate the 'food's perspective'.",
+              "Focus on dynamic movement and the flow of the line.",
+              "Ensure sharp focus on the food and machinery."
+            ],
+            "lighting_philosophy": "Bright, even, and clean industrial lighting to emphasize hygiene and efficiency. Use highlights to make ingredients look fresh and appealing.",
+            "movement_style": "Fluid, continuous, and fast-paced camera movements that mimic the conveyor belt and the rapid assembly process. Pans and tilts should be precise and quick.",
+            "composition_rules": [
+              "Frame shots to emphasize the linear progression of the assembly line.",
+              "Use leading lines to draw the eye along the production process.",
+              "Employ close-ups to highlight the texture and quality of ingredients."
+            ],
+            "artistic_style_support": "not_applicable"
+          },
+          "prompt_engineer_instructions": {
+            "mandatory_style": [
+              "cinematic",
+              "high-definition",
+              "industrial photography",
+              "clean aesthetic"
+            ],
+            "visual_consistency_rules": [
+              "Maintain consistent lighting and color grading throughout.",
+              "Ensure the appearance of ingredients (buns, patties, vegetables) is uniform and high-quality.",
+              "Keep the factory environment looking clean and modern across all shots."
+            ],
+            "character_requirements": null,
+            "setting_details": "Modern, sterile, and highly automated food factory assembly line with stainless steel machinery and conveyor belts.",
+            "forbidden_elements": [
+              "Any visible dirt or grime.",
+              "Outdated or manual machinery.",
+              "Unappetizing close-ups of raw meat.",
+              "Human faces (focus on hands or machinery only).",
+              "External shots of buildings or logos outside the assembly line."
+            ],
+            "technical_specifications": "High resolution, sharp focus, vibrant colors, dynamic compositions.",
+            "artistic_style_enforcement": "not_applicable"
+          }
+        }
+      },
+      "executionTime": 1538,
+      "validation": {
+        "hasVisionDocument": true,
+        "hasAudioOptimization": true,
+        "hasNarrationOptimization": true,
+        "hasAgentInstructions": true,
+        "hasProducerInstructions": true,
+        "hasDirectorInstructions": true,
+        "hasDopInstructions": true,
+        "hasPromptEngineerInstructions": true,
+        "hasDetectedArtisticStyle": true,
+        "pipelineReady": true
+      },
+      "rawResponse": "```json\n{\n  \"success\": true,\n  \"needs_clarification\": false,\n  \"stage1_vision_analysis\": {\n    \"vision_document\": {\n      \"core_concept\": \"A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.\",\n      \"emotion_arc\": [\n        \"Curiosity\",\n        \"Anticipation\",\n        \"Precision\",\n        \"Transformation\",\n        \"Satisfaction\"\n      ],\n      \"pacing\": \"fast\",\n      \"visual_style\": \"cinematic\",\n      \"detected_artistic_style\": \"not_mentioned\",\n      \"duration_s\": 60,\n      \"content_classification\": {\n        \"type\": \"narrative_driven\"\n      },\n      \"visual_complexity\": \"complex\",\n      \"color_philosophy\": \"Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.\",\n      \"narration_optimization\": {\n        \"vocal_style\": \"energetic|informative|precise\",\n        \"emphasis_points\": [\n          \"journey begins\",\n          \"precision of machinery\",\n          \"transformation of ingredients\",\n          \"final assembly\",\n          \"global reach\"\n        ],\n        \"natural_pauses\": [\n          \"between stages\",\n          \"for dramatic effect\",\n          \"before the reveal\"\n        ],\n        \"audio_visual_sync\": \"tight\"\n      }\n    },\n    \"narration_script\": \"Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.\",\n    \"audio_optimization\": {\n      \"concept_speakability\": \"excellent\",\n      \"vocal_performance_potential\": \"high\",\n      \"tts_friendliness\": \"optimized\",\n      \"recommended_voice_characteristics\": \"Clear, enthusiastic, and slightly fast-paced, with a confident and informative tone.\"\n    },\n    \"timing_validation\": {\n      \"target_duration\": 60,\n      \"target_word_count\": 108,\n      \"actual_word_count\": 108,\n      \"words_per_second\": 1.8,\n      \"duration_compliance\": \"exact\"\n    },\n    \"agent_instructions\": {\n      \"producer_instructions\": {\n        \"target_cut_timing\": \"Fast cuts, averaging 1-3 seconds, to maintain high energy and match the rapid pace of the assembly line.\",\n        \"pacing_rules\": [\n          \"Quick cuts for ingredient introduction and assembly steps.\",\n          \"Slightly longer shots for key transformation moments (grilling, final assembly).\",\n          \"Maintain a consistent, driving rhythm throughout the video.\"\n        ],\n        \"audio_analysis_enhancement\": \"Prioritize cuts at natural speech breaks and emphasis points to enhance the feeling of rapid, precise action. Ensure visual transitions align with the narrative flow of the assembly process.\",\n        \"intelligent_constraints\": [\n          \"Avoid lingering shots that slow down the 'factory' feel.\",\n          \"Ensure visual changes are synchronized with key words in the narration (e.g., 'grilled', 'toasted', 'added').\"\n        ]\n      },\n      \"director_instructions\": {\n        \"scene_direction_philosophy\": \"Emphasize the journey of the hamburger from the perspective of the food itself, creating an immersive, almost 'first-person' view of the assembly line. Focus on the precision, speed, and scale of the operation.\",\n        \"emotional_architecture\": \"Start with a sense of wonder and curiosity, build anticipation as ingredients come together, highlight the precision and efficiency of the process, and conclude with a feeling of satisfaction and global reach.\",\n        \"character_relationship_dynamics\": null,\n        \"visual_storytelling_mastery\": \"Utilize close-ups and dynamic camera movements that mimic the movement of the food on the line. Show the transformation of raw ingredients into a finished product. Highlight the cleanliness and automation of the factory.\",\n        \"pacing_and_rhythm_guidance\": \"Maintain a relentless, forward-moving pace. Each shot should contribute to the sense of continuous motion and efficient production. Use quick transitions to convey speed.\",\n        \"environmental_integration\": \"The factory environment should feel clean, modern, and highly automated. Emphasize the machinery and the organized flow of ingredients and products.\",\n        \"mandatory_requirements\": [\n          \"Maintain a consistent 'food's eye view' perspective.\",\n          \"Show distinct stages of hamburger assembly.\",\n          \"Convey a sense of scale and industrial efficiency.\"\n        ],\n        \"creative_constraints\": [\n          \"Avoid showing human faces prominently; focus on hands and machinery.\",\n          \"Do not include any external shots of the factory or restaurant.\",\n          \"No slow-motion shots that break the fast pacing.\"\n        ],\n        \"narrative_beats_guidance\": \"Introduction of raw materials → Grilling of patties → Bun preparation → Ingredient layering → Final assembly → Packaging/ready for delivery.\",\n        \"character_elements\": null,\n        \"setting_requirements\": \"A clean, modern, and highly automated food production factory assembly line.\",\n        \"perspective_requirements\": \"From the POV of the food assembly line, as if the camera is on or very near the line where the burger is being made.\"\n      },\n      \"dop_instructions\": {\n        \"mandatory_cinematography\": [\n          \"Use wide-angle lenses for immersive POV shots.\",\n          \"Employ smooth, continuous tracking shots along the assembly line.\",\n          \"Utilize macro shots for detailed views of ingredients and textures.\"\n        ],\n        \"technical_constraints\": [\n          \"Maintain a low camera angle to simulate the 'food's perspective'.\",\n          \"Focus on dynamic movement and the flow of the line.\",\n          \"Ensure sharp focus on the food and machinery.\"\n        ],\n        \"lighting_philosophy\": \"Bright, even, and clean industrial lighting to emphasize hygiene and efficiency. Use highlights to make ingredients look fresh and appealing.\",\n        \"movement_style\": \"Fluid, continuous, and fast-paced camera movements that mimic the conveyor belt and the rapid assembly process. Pans and tilts should be precise and quick.\",\n        \"composition_rules\": [\n          \"Frame shots to emphasize the linear progression of the assembly line.\",\n          \"Use leading lines to draw the eye along the production process.\",\n          \"Employ close-ups to highlight the texture and quality of ingredients.\"\n        ],\n        \"artistic_style_support\": \"not_applicable\"\n      },\n      \"prompt_engineer_instructions\": {\n        \"mandatory_style\": [\n          \"cinematic\",\n          \"high-definition\",\n          \"industrial photography\",\n          \"clean aesthetic\"\n        ],\n        \"visual_consistency_rules\": [\n          \"Maintain consistent lighting and color grading throughout.\",\n          \"Ensure the appearance of ingredients (buns, patties, vegetables) is uniform and high-quality.\",\n          \"Keep the factory environment looking clean and modern across all shots.\"\n        ],\n        \"character_requirements\": null,\n        \"setting_details\": \"Modern, sterile, and highly automated food factory assembly line with stainless steel machinery and conveyor belts.\",\n        \"forbidden_elements\": [\n          \"Any visible dirt or grime.\",\n          \"Outdated or manual machinery.\",\n          \"Unappetizing close-ups of raw meat.\",\n          \"Human faces (focus on hands or machinery only).\",\n          \"External shots of buildings or logos outside the assembly line.\"\n        ],\n        \"technical_specifications\": \"High resolution, sharp focus, vibrant colors, dynamic compositions.\",\n        \"artistic_style_enforcement\": \"not_applicable\"\n      }\n    }\n  },\n  \"validation\": {\n    \"audio_visual_coherence\": 0.95,\n    \"narration_quality_score\": 0.9,\n    \"concept_specificity_score\": 0.95,\n    \"emotional_coherence_score\": 0.9,\n    \"technical_completeness_score\": 0.98,\n    \"agent_instruction_quality\": 0.95,\n    \"artistic_style_detection_score\": 1.0,\n    \"issues\": []\n  },\n  \"pipeline_ready\": true\n}\n```",
+      "usage": {
+        "prompt_tokens": 4851,
+        "completion_tokens": 1944,
+        "total_tokens": 6795
+      },
+      "pipeline_ready": true,
+      "needs_clarification": false,
+      "pipeline_type": "audio_enhanced"
+    },
+    "executionTime": 14945,
+    "stage": "vision_understanding"
+  },
+  "rawResponse": null
+}

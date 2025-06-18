@@ -1,0 +1,352 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_director",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750276425545-59d6a2e2",
+    "projectFolder": "script-1750276425545-59d6a2e2",
+    "testFolder": "Test_4",
+    "timestamp": "2025-06-18T19:56:14.199Z",
+    "executionTime": 527,
+    "model": "unknown"
+  },
+  "input": {
+    "producer_output": [
+      {
+        "cut_number": 1,
+        "cut_time_s": 0,
+        "reason": "Opening shot - establish the factory setting and introduce the 'journey' concept."
+      },
+      {
+        "cut_number": 2,
+        "cut_time_s": 4.16,
+        "reason": "Transition to 'journey begins' - show fresh ingredients arriving, emphasizing the start of the process."
+      },
+      {
+        "cut_number": 3,
+        "cut_time_s": 9.84,
+        "reason": "Shift focus to the 'perfectly seasoned beef patties' - show grilling process, highlighting sizzle and flavor."
+      },
+      {
+        "cut_number": 4,
+        "cut_time_s": 15.44,
+        "reason": "Introduce the 'soft, toasted buns' - show them gliding along the line, emphasizing their preparation."
+      },
+      {
+        "cut_number": 5,
+        "cut_time_s": 21.6,
+        "reason": "Focus on the 'crisp lettuce, tangy pickles, and savory onions' being added with precision."
+      },
+      {
+        "cut_number": 6,
+        "cut_time_s": 28.24,
+        "reason": "Highlight the 'signature sauce' and 'melty cheese' application, showing the final liquid/soft additions."
+      },
+      {
+        "cut_number": 7,
+        "cut_time_s": 32.64,
+        "reason": "Emphasize the transformation from 'ingredients' to a 'symphony of flavors' - show the burger coming together."
+      },
+      {
+        "cut_number": 8,
+        "cut_time_s": 37.92,
+        "reason": "Transition to the 'assembled with speed and care' phase - show rapid assembly line action."
+      },
+      {
+        "cut_number": 9,
+        "cut_time_s": 41.44,
+        "reason": "Shift to the 'factory floor to your hands' concept - show the finished burger moving towards packaging/delivery."
+      },
+      {
+        "cut_number": 10,
+        "cut_time_s": 45.44,
+        "reason": "Final shot - emphasize 'crafted for millions around the world' with a dynamic shot of multiple finished burgers or a global map overlay."
+      },
+      {
+        "cut_number": 11,
+        "cut_time_s": 50,
+        "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+      },
+      {
+        "cut_number": 12,
+        "cut_time_s": 55,
+        "reason": "Hold final shot to meet target duration and allow for a concluding visual or text overlay."
+      },
+      {
+        "cut_number": 13,
+        "cut_time_s": 60,
+        "reason": "End of video - exact duration match."
+      }
+    ],
+    "script": "Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.",
+    "visionDocument": {
+      "core_concept": "A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.",
+      "emotion_arc": [
+        "Curiosity",
+        "Anticipation",
+        "Precision",
+        "Transformation",
+        "Satisfaction"
+      ],
+      "pacing": "fast",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 60,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.",
+      "narration_optimization": {
+        "vocal_style": "energetic|informative|precise",
+        "emphasis_points": [
+          "journey begins",
+          "precision of machinery",
+          "transformation of ingredients",
+          "final assembly",
+          "global reach"
+        ],
+        "natural_pauses": [
+          "between stages",
+          "for dramatic effect",
+          "before the reveal"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "Create a 1 minute long video 'How McDonald's Hamburgers Are Made in a Factory' make this video from the pov of the food assembly line, like the camera is put near the line where the burger is being made.",
+      "settings": {
+        "duration": 60,
+        "pacing": "fast",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T19:53:45.548Z",
+        "sessionId": "script-1750276425545-59d6a2e2"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "directorOutput": {
+      "project_metadata": {
+        "target_platform": "General",
+        "content_type": "Explainer/Process",
+        "primary_concept": "Food's-eye-view journey through burger creation",
+        "entity_summary": [
+          {
+            "name": "Factory environment",
+            "type": "Location",
+            "role_in_scene": "primary",
+            "entity_context": "Modern automated food production facility"
+          },
+          {
+            "name": "Beef patty",
+            "type": "Food",
+            "role_in_scene": "primary",
+            "entity_context": "Grilling centerpiece of burger assembly"
+          },
+          {
+            "name": "Bun",
+            "type": "Food",
+            "role_in_scene": "primary",
+            "entity_context": "Base structure for ingredient stacking"
+          },
+          {
+            "name": "Assembly machinery",
+            "type": "Object",
+            "role_in_scene": "secondary",
+            "entity_context": "Precision food handling equipment"
+          }
+        ]
+      },
+      "narrative_beats": [
+        {
+          "beat_no": 1,
+          "timecode_start": "0:00",
+          "estimated_duration_s": 4,
+          "script_phrase": "Ever wonder how a McDonald's hamburger comes to life?",
+          "narrative_function": "Atmospheric setup",
+          "emotional_tone": "Curious anticipation",
+          "creative_vision": "Low-angle tracking shot through sterile factory corridor",
+          "audience_retention_strategy": "Mysterious environment reveal",
+          "turning_point": false,
+          "entities": [
+            "Factory environment"
+          ]
+        },
+        {
+          "beat_no": 2,
+          "timecode_start": "0:04",
+          "estimated_duration_s": 6,
+          "script_phrase": "Our journey begins as fresh ingredients arrive",
+          "narrative_function": "Process initiation",
+          "emotional_tone": "Mechanical precision",
+          "creative_vision": "Overhead conveyor POV with vegetable crates descending",
+          "audience_retention_strategy": "Scale demonstration",
+          "turning_point": true,
+          "entities": [
+            "Factory environment"
+          ]
+        },
+        {
+          "beat_no": 3,
+          "timecode_start": "0:09",
+          "estimated_duration_s": 6,
+          "script_phrase": "perfectly seasoned beef patties are grilled to perfection",
+          "narrative_function": "Core element focus",
+          "emotional_tone": "Intense heat",
+          "creative_vision": "Extreme close-up of patty sizzling on grill surface",
+          "audience_retention_strategy": "Sensory immersion",
+          "turning_point": false,
+          "entities": [
+            "Beef patty"
+          ]
+        },
+        {
+          "beat_no": 4,
+          "timecode_start": "0:15",
+          "estimated_duration_s": 6,
+          "script_phrase": "soft, toasted buns glide along the line",
+          "narrative_function": "Structural foundation",
+          "emotional_tone": "Delicate handling",
+          "creative_vision": "Bun's-eye-view of conveyor with steam rising around edges",
+          "audience_retention_strategy": "Perspective reversal",
+          "turning_point": false,
+          "entities": [
+            "Bun"
+          ]
+        },
+        {
+          "beat_no": 5,
+          "timecode_start": "0:21",
+          "estimated_duration_s": 7,
+          "script_phrase": "crisp lettuce, tangy pickles, and savory onions",
+          "narrative_function": "Layered complexity",
+          "emotional_tone": "Fresh crispness",
+          "creative_vision": "High-speed overhead shots of ingredients cascading downward",
+          "audience_retention_strategy": "Kinetic energy",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 6,
+          "timecode_start": "0:28",
+          "estimated_duration_s": 4,
+          "script_phrase": "signature sauce and melty cheese application",
+          "narrative_function": "Flavor enhancement",
+          "emotional_tone": "Visceral satisfaction",
+          "creative_vision": "Extreme close-up of sauce nozzle depositing precise spiral",
+          "audience_retention_strategy": "Hypnotic precision",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 7,
+          "timecode_start": "0:32",
+          "estimated_duration_s": 5,
+          "script_phrase": "symphony of flavors assembled with speed",
+          "narrative_function": "Culmination",
+          "emotional_tone": "Harmonic convergence",
+          "creative_vision": "360-degree burger rotation under assembly lights",
+          "audience_retention_strategy": "Product glamorization",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 8,
+          "timecode_start": "0:37",
+          "estimated_duration_s": 4,
+          "script_phrase": "assembled with speed and care",
+          "narrative_function": "Process demonstration",
+          "emotional_tone": "Industrial efficiency",
+          "creative_vision": "Low-angle tracking shot through packaging machinery",
+          "audience_retention_strategy": "Mechanical ballet",
+          "turning_point": false,
+          "entities": [
+            "Assembly machinery"
+          ]
+        },
+        {
+          "beat_no": 9,
+          "timecode_start": "0:41",
+          "estimated_duration_s": 4,
+          "script_phrase": "from factory floor to your hands",
+          "narrative_function": "Journey completion",
+          "emotional_tone": "Purposeful motion",
+          "creative_vision": "POV shot moving through packaging into dark delivery chute",
+          "audience_retention_strategy": "Journey continuation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 10,
+          "timecode_start": "0:45",
+          "estimated_duration_s": 5,
+          "script_phrase": "crafted for millions around the world",
+          "narrative_function": "Global scale",
+          "emotional_tone": "Expansive achievement",
+          "creative_vision": "Grid pattern of identical burgers extending to horizon",
+          "audience_retention_strategy": "Pattern hypnosis",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 11,
+          "timecode_start": "0:50",
+          "estimated_duration_s": 5,
+          "script_phrase": "",
+          "narrative_function": "Brand reinforcement",
+          "emotional_tone": "Satisfied resolution",
+          "creative_vision": "Slow zoom out from burger grid to golden arches logo",
+          "audience_retention_strategy": "Brand imprinting",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 12,
+          "timecode_start": "0:55",
+          "estimated_duration_s": 5,
+          "script_phrase": "",
+          "narrative_function": "Final emphasis",
+          "emotional_tone": "Completion",
+          "creative_vision": "Text overlay animation over burger close-up",
+          "audience_retention_strategy": "Information delivery",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 13,
+          "timecode_start": "1:00",
+          "estimated_duration_s": 0,
+          "script_phrase": "",
+          "narrative_function": "Conclusion",
+          "emotional_tone": "Finality",
+          "creative_vision": "Black screen with final logo/message",
+          "audience_retention_strategy": "Clean finish",
+          "turning_point": false,
+          "entities": []
+        }
+      ],
+      "requires_user_clarification": ""
+    },
+    "executionTime": 527,
+    "rawResponse": "```json\n{\n  \"project_metadata\": {\n    \"target_platform\": \"General\",\n    \"content_type\": \"Explainer/Process\",\n    \"primary_concept\": \"Food's-eye-view journey through burger creation\",\n    \"entity_summary\": [\n      {\"name\": \"Factory environment\", \"type\": \"Location\", \"role_in_scene\": \"primary\", \"entity_context\": \"Modern automated food production facility\"},\n      {\"name\": \"Beef patty\", \"type\": \"Food\", \"role_in_scene\": \"primary\", \"entity_context\": \"Grilling centerpiece of burger assembly\"},\n      {\"name\": \"Bun\", \"type\": \"Food\", \"role_in_scene\": \"primary\", \"entity_context\": \"Base structure for ingredient stacking\"},\n      {\"name\": \"Assembly machinery\", \"type\": \"Object\", \"role_in_scene\": \"secondary\", \"entity_context\": \"Precision food handling equipment\"}\n    ]\n  },\n  \"narrative_beats\": [\n    {\n      \"beat_no\": 1,\n      \"timecode_start\": \"0:00\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"Ever wonder how a McDonald's hamburger comes to life?\",\n      \"narrative_function\": \"Atmospheric setup\",\n      \"emotional_tone\": \"Curious anticipation\",\n      \"creative_vision\": \"Low-angle tracking shot through sterile factory corridor\",\n      \"audience_retention_strategy\": \"Mysterious environment reveal\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory environment\"]\n    },\n    {\n      \"beat_no\": 2,\n      \"timecode_start\": \"0:04\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"Our journey begins as fresh ingredients arrive\",\n      \"narrative_function\": \"Process initiation\",\n      \"emotional_tone\": \"Mechanical precision\",\n      \"creative_vision\": \"Overhead conveyor POV with vegetable crates descending\",\n      \"audience_retention_strategy\": \"Scale demonstration\",\n      \"turning_point\": true,\n      \"entities\": [\"Factory environment\"]\n    },\n    {\n      \"beat_no\": 3,\n      \"timecode_start\": \"0:09\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"perfectly seasoned beef patties are grilled to perfection\",\n      \"narrative_function\": \"Core element focus\",\n      \"emotional_tone\": \"Intense heat\",\n      \"creative_vision\": \"Extreme close-up of patty sizzling on grill surface\",\n      \"audience_retention_strategy\": \"Sensory immersion\",\n      \"turning_point\": false,\n      \"entities\": [\"Beef patty\"]\n    },\n    {\n      \"beat_no\": 4,\n      \"timecode_start\": \"0:15\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"soft, toasted buns glide along the line\",\n      \"narrative_function\": \"Structural foundation\",\n      \"emotional_tone\": \"Delicate handling\",\n      \"creative_vision\": \"Bun's-eye-view of conveyor with steam rising around edges\",\n      \"audience_retention_strategy\": \"Perspective reversal\",\n      \"turning_point\": false,\n      \"entities\": [\"Bun\"]\n    },\n    {\n      \"beat_no\": 5,\n      \"timecode_start\": \"0:21\",\n      \"estimated_duration_s\": 7,\n      \"script_phrase\": \"crisp lettuce, tangy pickles, and savory onions\",\n      \"narrative_function\": \"Layered complexity\",\n      \"emotional_tone\": \"Fresh crispness\",\n      \"creative_vision\": \"High-speed overhead shots of ingredients cascading downward\",\n      \"audience_retention_strategy\": \"Kinetic energy\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 6,\n      \"timecode_start\": \"0:28\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"signature sauce and melty cheese application\",\n      \"narrative_function\": \"Flavor enhancement\",\n      \"emotional_tone\": \"Visceral satisfaction\",\n      \"creative_vision\": \"Extreme close-up of sauce nozzle depositing precise spiral\",\n      \"audience_retention_strategy\": \"Hypnotic precision\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 7,\n      \"timecode_start\": \"0:32\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"symphony of flavors assembled with speed\",\n      \"narrative_function\": \"Culmination\",\n      \"emotional_tone\": \"Harmonic convergence\",\n      \"creative_vision\": \"360-degree burger rotation under assembly lights\",\n      \"audience_retention_strategy\": \"Product glamorization\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 8,\n      \"timecode_start\": \"0:37\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"assembled with speed and care\",\n      \"narrative_function\": \"Process demonstration\",\n      \"emotional_tone\": \"Industrial efficiency\",\n      \"creative_vision\": \"Low-angle tracking shot through packaging machinery\",\n      \"audience_retention_strategy\": \"Mechanical ballet\",\n      \"turning_point\": false,\n      \"entities\": [\"Assembly machinery\"]\n    },\n    {\n      \"beat_no\": 9,\n      \"timecode_start\": \"0:41\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"from factory floor to your hands\",\n      \"narrative_function\": \"Journey completion\",\n      \"emotional_tone\": \"Purposeful motion\",\n      \"creative_vision\": \"POV shot moving through packaging into dark delivery chute\",\n      \"audience_retention_strategy\": \"Journey continuation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 10,\n      \"timecode_start\": \"0:45\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"crafted for millions around the world\",\n      \"narrative_function\": \"Global scale\",\n      \"emotional_tone\": \"Expansive achievement\",\n      \"creative_vision\": \"Grid pattern of identical burgers extending to horizon\",\n      \"audience_retention_strategy\": \"Pattern hypnosis\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 11,\n      \"timecode_start\": \"0:50\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Brand reinforcement\",\n      \"emotional_tone\": \"Satisfied resolution\",\n      \"creative_vision\": \"Slow zoom out from burger grid to golden arches logo\",\n      \"audience_retention_strategy\": \"Brand imprinting\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 12,\n      \"timecode_start\": \"0:55\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Final emphasis\",\n      \"emotional_tone\": \"Completion\",\n      \"creative_vision\": \"Text overlay animation over burger close-up\",\n      \"audience_retention_strategy\": \"Information delivery\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 13,\n      \"timecode_start\": \"1:00\",\n      \"estimated_duration_s\": 0,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Conclusion\",\n      \"emotional_tone\": \"Finality\",\n      \"creative_vision\": \"Black screen with final logo/message\",\n      \"audience_retention_strategy\": \"Clean finish\",\n      \"turning_point\": false,\n      \"entities\": []\n    }\n  ],\n  \"requires_user_clarification\": \"\"\n}\n```",
+    "parsingStatus": "malformed",
+    "usage": {
+      "prompt_tokens": 3579,
+      "completion_tokens": 2420,
+      "total_tokens": 5999
+    },
+    "sessionId": "Test_77",
+    "parseWarning": "JSON found in markdown block"
+  },
+  "rawResponse": "```json\n{\n  \"project_metadata\": {\n    \"target_platform\": \"General\",\n    \"content_type\": \"Explainer/Process\",\n    \"primary_concept\": \"Food's-eye-view journey through burger creation\",\n    \"entity_summary\": [\n      {\"name\": \"Factory environment\", \"type\": \"Location\", \"role_in_scene\": \"primary\", \"entity_context\": \"Modern automated food production facility\"},\n      {\"name\": \"Beef patty\", \"type\": \"Food\", \"role_in_scene\": \"primary\", \"entity_context\": \"Grilling centerpiece of burger assembly\"},\n      {\"name\": \"Bun\", \"type\": \"Food\", \"role_in_scene\": \"primary\", \"entity_context\": \"Base structure for ingredient stacking\"},\n      {\"name\": \"Assembly machinery\", \"type\": \"Object\", \"role_in_scene\": \"secondary\", \"entity_context\": \"Precision food handling equipment\"}\n    ]\n  },\n  \"narrative_beats\": [\n    {\n      \"beat_no\": 1,\n      \"timecode_start\": \"0:00\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"Ever wonder how a McDonald's hamburger comes to life?\",\n      \"narrative_function\": \"Atmospheric setup\",\n      \"emotional_tone\": \"Curious anticipation\",\n      \"creative_vision\": \"Low-angle tracking shot through sterile factory corridor\",\n      \"audience_retention_strategy\": \"Mysterious environment reveal\",\n      \"turning_point\": false,\n      \"entities\": [\"Factory environment\"]\n    },\n    {\n      \"beat_no\": 2,\n      \"timecode_start\": \"0:04\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"Our journey begins as fresh ingredients arrive\",\n      \"narrative_function\": \"Process initiation\",\n      \"emotional_tone\": \"Mechanical precision\",\n      \"creative_vision\": \"Overhead conveyor POV with vegetable crates descending\",\n      \"audience_retention_strategy\": \"Scale demonstration\",\n      \"turning_point\": true,\n      \"entities\": [\"Factory environment\"]\n    },\n    {\n      \"beat_no\": 3,\n      \"timecode_start\": \"0:09\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"perfectly seasoned beef patties are grilled to perfection\",\n      \"narrative_function\": \"Core element focus\",\n      \"emotional_tone\": \"Intense heat\",\n      \"creative_vision\": \"Extreme close-up of patty sizzling on grill surface\",\n      \"audience_retention_strategy\": \"Sensory immersion\",\n      \"turning_point\": false,\n      \"entities\": [\"Beef patty\"]\n    },\n    {\n      \"beat_no\": 4,\n      \"timecode_start\": \"0:15\",\n      \"estimated_duration_s\": 6,\n      \"script_phrase\": \"soft, toasted buns glide along the line\",\n      \"narrative_function\": \"Structural foundation\",\n      \"emotional_tone\": \"Delicate handling\",\n      \"creative_vision\": \"Bun's-eye-view of conveyor with steam rising around edges\",\n      \"audience_retention_strategy\": \"Perspective reversal\",\n      \"turning_point\": false,\n      \"entities\": [\"Bun\"]\n    },\n    {\n      \"beat_no\": 5,\n      \"timecode_start\": \"0:21\",\n      \"estimated_duration_s\": 7,\n      \"script_phrase\": \"crisp lettuce, tangy pickles, and savory onions\",\n      \"narrative_function\": \"Layered complexity\",\n      \"emotional_tone\": \"Fresh crispness\",\n      \"creative_vision\": \"High-speed overhead shots of ingredients cascading downward\",\n      \"audience_retention_strategy\": \"Kinetic energy\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 6,\n      \"timecode_start\": \"0:28\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"signature sauce and melty cheese application\",\n      \"narrative_function\": \"Flavor enhancement\",\n      \"emotional_tone\": \"Visceral satisfaction\",\n      \"creative_vision\": \"Extreme close-up of sauce nozzle depositing precise spiral\",\n      \"audience_retention_strategy\": \"Hypnotic precision\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 7,\n      \"timecode_start\": \"0:32\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"symphony of flavors assembled with speed\",\n      \"narrative_function\": \"Culmination\",\n      \"emotional_tone\": \"Harmonic convergence\",\n      \"creative_vision\": \"360-degree burger rotation under assembly lights\",\n      \"audience_retention_strategy\": \"Product glamorization\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 8,\n      \"timecode_start\": \"0:37\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"assembled with speed and care\",\n      \"narrative_function\": \"Process demonstration\",\n      \"emotional_tone\": \"Industrial efficiency\",\n      \"creative_vision\": \"Low-angle tracking shot through packaging machinery\",\n      \"audience_retention_strategy\": \"Mechanical ballet\",\n      \"turning_point\": false,\n      \"entities\": [\"Assembly machinery\"]\n    },\n    {\n      \"beat_no\": 9,\n      \"timecode_start\": \"0:41\",\n      \"estimated_duration_s\": 4,\n      \"script_phrase\": \"from factory floor to your hands\",\n      \"narrative_function\": \"Journey completion\",\n      \"emotional_tone\": \"Purposeful motion\",\n      \"creative_vision\": \"POV shot moving through packaging into dark delivery chute\",\n      \"audience_retention_strategy\": \"Journey continuation\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 10,\n      \"timecode_start\": \"0:45\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"crafted for millions around the world\",\n      \"narrative_function\": \"Global scale\",\n      \"emotional_tone\": \"Expansive achievement\",\n      \"creative_vision\": \"Grid pattern of identical burgers extending to horizon\",\n      \"audience_retention_strategy\": \"Pattern hypnosis\",\n      \"turning_point\": true,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 11,\n      \"timecode_start\": \"0:50\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Brand reinforcement\",\n      \"emotional_tone\": \"Satisfied resolution\",\n      \"creative_vision\": \"Slow zoom out from burger grid to golden arches logo\",\n      \"audience_retention_strategy\": \"Brand imprinting\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 12,\n      \"timecode_start\": \"0:55\",\n      \"estimated_duration_s\": 5,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Final emphasis\",\n      \"emotional_tone\": \"Completion\",\n      \"creative_vision\": \"Text overlay animation over burger close-up\",\n      \"audience_retention_strategy\": \"Information delivery\",\n      \"turning_point\": false,\n      \"entities\": []\n    },\n    {\n      \"beat_no\": 13,\n      \"timecode_start\": \"1:00\",\n      \"estimated_duration_s\": 0,\n      \"script_phrase\": \"\",\n      \"narrative_function\": \"Conclusion\",\n      \"emotional_tone\": \"Finality\",\n      \"creative_vision\": \"Black screen with final logo/message\",\n      \"audience_retention_strategy\": \"Clean finish\",\n      \"turning_point\": false,\n      \"entities\": []\n    }\n  ],\n  \"requires_user_clarification\": \"\"\n}\n```"
+}

@@ -49,24 +49,25 @@ export async function POST(request: Request) {
     let formattedScript = '';
     let processingSteps = [];
     
-    // Step 1: Format the narration script for TTS (skip if already formatted by Script Formatting Agent)
+    // Step 1: Format the narration script for TTS (skip if already formatted by Vision Understanding Agent)
     console.log('Step 1: Checking if script needs TTS formatting...');
     const formatStartTime = Date.now();
     
-    // If the script is already well-formatted narrative (from Script Formatting Agent), skip additional formatting
-    const isPreFormattedNarrative = 
-      narrationScript.length > 200 && 
+    // Check if script is already TTS-optimized from Vision Understanding Agent or Script Formatting Agent
+    const isTTSOptimized = 
+      narrationScript.length > 50 && 
       !narrationScript.includes('INT.') && 
       !narrationScript.includes('EXT.') &&
       !narrationScript.includes('CUT TO') &&
-      (narrationScript.includes(' lies in bed') || 
-       narrationScript.includes(' stands ') || 
-       narrationScript.includes(' walks ') ||
-       narrationScript.includes('A woman') ||
-       narrationScript.includes('A man'));
+      !narrationScript.includes('FADE IN') &&
+      !narrationScript.includes('CLOSE-UP') &&
+      // Vision Understanding Agent typically outputs clean narrative text
+      (narrationScript.includes('...') || // Uses ellipses for pauses
+       narrationScript.includes('—') || // Uses em dashes
+       narrationScript.length < 1000); // Vision scripts are typically shorter and cleaner
     
-    if (isPreFormattedNarrative) {
-      console.log('🎯 Script is pre-formatted narrative from Script Formatting Agent - skipping additional TTS formatting');
+    if (isTTSOptimized) {
+      console.log('🎯 Script is already TTS-optimized (from Vision Understanding or Script Formatting Agent) - skipping additional formatting');
       formattedScript = narrationScript;
     } else {
       console.log('🎯 Script needs TTS formatting - applying dramatic formatting');
@@ -135,9 +136,9 @@ function cleanScriptResponse(response: string): string {
     .replace(/^#+\s.*$/gm, '')
     // Remove meta-commentary sections
     .replace(/^\*\*Final Review\*\*[\s\S]*?(?=\n\n|\n[A-Z]|$)/gm, '')
-    .replace(/I'm now conducting.*?(?=\n\n|\n[A-Z]|$)/gms, '')
-    .replace(/The goal is to.*?(?=\n\n|\n[A-Z]|$)/gms, '')
-    .replace(/Final review.*?(?=\n\n|\n[A-Z]|$)/gms, '')
+    .replace(/I'm now conducting.*?(?=\n\n|\n[A-Z]|$)/gm, '')
+    .replace(/The goal is to.*?(?=\n\n|\n[A-Z]|$)/gm, '')
+    .replace(/Final review.*?(?=\n\n|\n[A-Z]|$)/gm, '')
     .replace(/via gemini t t s/gi, '')
     // Remove empty lines and trim
     .replace(/^\s*$/gm, '')

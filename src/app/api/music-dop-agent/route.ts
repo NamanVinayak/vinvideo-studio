@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     console.log('Calling Music-Aware DoP Agent...');
     
     // Extract visual beats count properly
-    let visualBeatsCount = 0;
+    let visualBeatsCount: number | string = 0;
     if (directorVisualBeats?.visual_beats?.length) {
       visualBeatsCount = directorVisualBeats.visual_beats.length;
     } else if (Array.isArray(directorVisualBeats)) {

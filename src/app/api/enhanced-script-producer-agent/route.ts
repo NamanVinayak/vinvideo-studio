@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       calculated_duration: scriptModeUserContext.settings.calculatedDuration,
       user_pacing: scriptModeUserContext.settings.pacing,
       user_visual_style: scriptModeUserContext.settings.visualStyle,
-      content_type: scriptModeUserContext.scriptContext?.content_type
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type
     });
     
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -43,11 +43,11 @@ Please analyze this script and create intelligent cut points that respect the us
 CRITICAL REMINDERS:
 - TTS audio duration is ${scriptModeUserContext.settings.calculatedDuration} seconds (auto-calculated from script)
 - User selected "${scriptModeUserContext.settings.pacing}" pacing
-- Script type is "${scriptModeUserContext.scriptContext?.content_type || 'general'}"
+- Script type is "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}"
 - Visual style preference is "${scriptModeUserContext.settings.visualStyle}"`;
     
     const payload = {
-      model: "anthropic/claude-3.5-sonnet",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
@@ -59,7 +59,7 @@ CRITICAL REMINDERS:
         }
       ],
       temperature: 0,
-      max_tokens: 8000
+      max_tokens: 13000
     };
     
     const startTime = Date.now();

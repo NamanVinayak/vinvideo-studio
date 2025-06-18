@@ -1,0 +1,1052 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_producer",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750271961874-9358eb40",
+    "projectFolder": "script-1750271961874-9358eb40",
+    "timestamp": "2025-06-18T18:40:35.883Z",
+    "executionTime": 819,
+    "model": "unknown"
+  },
+  "input": {
+    "transcript": [
+      {
+        "end": 0.72,
+        "start": 0.32,
+        "word": "welcome"
+      },
+      {
+        "end": 1.2,
+        "start": 0.72,
+        "word": "to"
+      },
+      {
+        "end": 1.36,
+        "start": 1.2,
+        "word": "the"
+      },
+      {
+        "end": 1.76,
+        "start": 1.36,
+        "word": "heart"
+      },
+      {
+        "end": 2,
+        "start": 1.76,
+        "word": "of"
+      },
+      {
+        "end": 2.8,
+        "start": 2,
+        "word": "automotive"
+      },
+      {
+        "end": 3.6,
+        "start": 2.8,
+        "word": "innovation"
+      },
+      {
+        "end": 4.16,
+        "start": 3.6,
+        "word": "from"
+      },
+      {
+        "end": 4.4,
+        "start": 4.16,
+        "word": "my"
+      },
+      {
+        "end": 5.12,
+        "start": 4.4,
+        "word": "perspective"
+      },
+      {
+        "end": 5.6,
+        "start": 5.12,
+        "word": "we'll"
+      },
+      {
+        "end": 6.08,
+        "start": 5.6,
+        "word": "journey"
+      },
+      {
+        "end": 6.24,
+        "start": 6.08,
+        "word": "through"
+      },
+      {
+        "end": 6.56,
+        "start": 6.24,
+        "word": "the"
+      },
+      {
+        "end": 7.36,
+        "start": 6.56,
+        "word": "incredible"
+      },
+      {
+        "end": 7.68,
+        "start": 7.36,
+        "word": "process"
+      },
+      {
+        "end": 8.4,
+        "start": 7.68,
+        "word": "of"
+      },
+      {
+        "end": 8.64,
+        "start": 8.4,
+        "word": "how"
+      },
+      {
+        "end": 8.88,
+        "start": 8.64,
+        "word": "a"
+      },
+      {
+        "end": 9.12,
+        "start": 8.88,
+        "word": "car"
+      },
+      {
+        "end": 10,
+        "start": 9.12,
+        "word": "truly"
+      },
+      {
+        "end": 10.4,
+        "start": 10,
+        "word": "comes"
+      },
+      {
+        "end": 10.56,
+        "start": 10.4,
+        "word": "to"
+      },
+      {
+        "end": 10.72,
+        "start": 10.56,
+        "word": "life"
+      },
+      {
+        "end": 11.68,
+        "start": 10.72,
+        "word": "it"
+      },
+      {
+        "end": 12.4,
+        "start": 11.68,
+        "word": "begins"
+      },
+      {
+        "end": 12.56,
+        "start": 12.4,
+        "word": "with"
+      },
+      {
+        "end": 12.96,
+        "start": 12.56,
+        "word": "raw"
+      },
+      {
+        "end": 13.76,
+        "start": 12.96,
+        "word": "materials"
+      },
+      {
+        "end": 14.8,
+        "start": 13.76,
+        "word": "transformed"
+      },
+      {
+        "end": 15.04,
+        "start": 14.8,
+        "word": "into"
+      },
+      {
+        "end": 15.76,
+        "start": 15.04,
+        "word": "precise"
+      },
+      {
+        "end": 16.56,
+        "start": 15.76,
+        "word": "components"
+      },
+      {
+        "end": 17.44,
+        "start": 16.56,
+        "word": "steel"
+      },
+      {
+        "end": 18,
+        "start": 17.44,
+        "word": "sheets"
+      },
+      {
+        "end": 18.16,
+        "start": 18,
+        "word": "are"
+      },
+      {
+        "end": 18.72,
+        "start": 18.16,
+        "word": "stamped"
+      },
+      {
+        "end": 19.44,
+        "start": 18.72,
+        "word": "molded"
+      },
+      {
+        "end": 19.6,
+        "start": 19.44,
+        "word": "into"
+      },
+      {
+        "end": 20.08,
+        "start": 19.6,
+        "word": "body"
+      },
+      {
+        "end": 20.64,
+        "start": 20.08,
+        "word": "panels"
+      },
+      {
+        "end": 20.8,
+        "start": 20.64,
+        "word": "with"
+      },
+      {
+        "end": 21.44,
+        "start": 20.8,
+        "word": "immense"
+      },
+      {
+        "end": 21.84,
+        "start": 21.44,
+        "word": "force"
+      },
+      {
+        "end": 22.56,
+        "start": 21.84,
+        "word": "then"
+      },
+      {
+        "end": 22.88,
+        "start": 22.56,
+        "word": "the"
+      },
+      {
+        "end": 23.44,
+        "start": 22.88,
+        "word": "chassis"
+      },
+      {
+        "end": 23.84,
+        "start": 23.44,
+        "word": "takes"
+      },
+      {
+        "end": 24.08,
+        "start": 23.84,
+        "word": "shape"
+      },
+      {
+        "end": 24.48,
+        "start": 24.08,
+        "word": "the"
+      },
+      {
+        "end": 24.64,
+        "start": 24.48,
+        "word": "very"
+      },
+      {
+        "end": 25.52,
+        "start": 24.64,
+        "word": "skeleton"
+      },
+      {
+        "end": 25.68,
+        "start": 25.52,
+        "word": "of"
+      },
+      {
+        "end": 25.84,
+        "start": 25.68,
+        "word": "our"
+      },
+      {
+        "end": 26.4,
+        "start": 25.84,
+        "word": "vehicle"
+      },
+      {
+        "end": 27.6,
+        "start": 26.4,
+        "word": "robots"
+      },
+      {
+        "end": 27.76,
+        "start": 27.6,
+        "word": "with"
+      },
+      {
+        "end": 27.92,
+        "start": 27.76,
+        "word": "their"
+      },
+      {
+        "end": 28.88,
+        "start": 27.92,
+        "word": "mesmerizing"
+      },
+      {
+        "end": 29.52,
+        "start": 28.88,
+        "word": "precision"
+      },
+      {
+        "end": 30.08,
+        "start": 29.52,
+        "word": "weld"
+      },
+      {
+        "end": 30.8,
+        "start": 30.08,
+        "word": "thousands"
+      },
+      {
+        "end": 30.88,
+        "start": 30.8,
+        "word": "of"
+      },
+      {
+        "end": 31.44,
+        "start": 30.88,
+        "word": "points"
+      },
+      {
+        "end": 32.16,
+        "start": 31.44,
+        "word": "creating"
+      },
+      {
+        "end": 32.32,
+        "start": 32.16,
+        "word": "an"
+      },
+      {
+        "end": 33.36,
+        "start": 32.32,
+        "word": "unyielding"
+      },
+      {
+        "end": 34,
+        "start": 33.36,
+        "word": "structure"
+      },
+      {
+        "end": 34.72,
+        "start": 34,
+        "word": "next"
+      },
+      {
+        "end": 35.2,
+        "start": 34.72,
+        "word": "the"
+      },
+      {
+        "end": 35.6,
+        "start": 35.2,
+        "word": "paint"
+      },
+      {
+        "end": 36,
+        "start": 35.6,
+        "word": "shop"
+      },
+      {
+        "end": 36.32,
+        "start": 36,
+        "word": "a"
+      },
+      {
+        "end": 37.04,
+        "start": 36.32,
+        "word": "pristine"
+      },
+      {
+        "end": 37.84,
+        "start": 37.04,
+        "word": "automated"
+      },
+      {
+        "end": 38.4,
+        "start": 37.84,
+        "word": "ballet"
+      },
+      {
+        "end": 38.72,
+        "start": 38.4,
+        "word": "of"
+      },
+      {
+        "end": 39.12,
+        "start": 38.72,
+        "word": "color"
+      },
+      {
+        "end": 39.36,
+        "start": 39.12,
+        "word": "application"
+      },
+      {
+        "end": 40.64,
+        "start": 39.36,
+        "word": "ensuring"
+      },
+      {
+        "end": 40.8,
+        "start": 40.64,
+        "word": "a"
+      },
+      {
+        "end": 41.44,
+        "start": 40.8,
+        "word": "flawless"
+      },
+      {
+        "end": 42,
+        "start": 41.44,
+        "word": "finish"
+      },
+      {
+        "end": 42.64,
+        "start": 42,
+        "word": "the"
+      },
+      {
+        "end": 43.12,
+        "start": 42.64,
+        "word": "engine"
+      },
+      {
+        "end": 43.6,
+        "start": 43.12,
+        "word": "a"
+      },
+      {
+        "end": 44.08,
+        "start": 43.6,
+        "word": "marvel"
+      },
+      {
+        "end": 44.24,
+        "start": 44.08,
+        "word": "of"
+      },
+      {
+        "end": 44.96,
+        "start": 44.24,
+        "word": "engineering"
+      },
+      {
+        "end": 45.28,
+        "start": 44.96,
+        "word": "is"
+      },
+      {
+        "end": 45.92,
+        "start": 45.28,
+        "word": "carefully"
+      },
+      {
+        "end": 46.48,
+        "start": 45.92,
+        "word": "lowered"
+      },
+      {
+        "end": 46.64,
+        "start": 46.48,
+        "word": "into"
+      },
+      {
+        "end": 46.88,
+        "start": 46.64,
+        "word": "place"
+      },
+      {
+        "end": 47.84,
+        "start": 46.88,
+        "word": "connecting"
+      },
+      {
+        "end": 48,
+        "start": 47.84,
+        "word": "to"
+      },
+      {
+        "end": 48.16,
+        "start": 48,
+        "word": "the"
+      },
+      {
+        "end": 48.8,
+        "start": 48.16,
+        "word": "intricate"
+      },
+      {
+        "end": 49.28,
+        "start": 48.8,
+        "word": "wiring"
+      },
+      {
+        "end": 49.76,
+        "start": 49.28,
+        "word": "harness"
+      },
+      {
+        "end": 50.64,
+        "start": 49.76,
+        "word": "inside"
+      },
+      {
+        "end": 51.12,
+        "start": 50.64,
+        "word": "the"
+      },
+      {
+        "end": 51.68,
+        "start": 51.12,
+        "word": "cabin"
+      },
+      {
+        "end": 52.08,
+        "start": 51.68,
+        "word": "comes"
+      },
+      {
+        "end": 52.48,
+        "start": 52.08,
+        "word": "alive"
+      },
+      {
+        "end": 53.36,
+        "start": 52.48,
+        "word": "seats"
+      },
+      {
+        "end": 54.32,
+        "start": 53.36,
+        "word": "dashboards"
+      },
+      {
+        "end": 54.4,
+        "start": 54.32,
+        "word": "and"
+      },
+      {
+        "end": 55.2,
+        "start": 54.4,
+        "word": "electronics"
+      },
+      {
+        "end": 55.44,
+        "start": 55.2,
+        "word": "are"
+      },
+      {
+        "end": 56.4,
+        "start": 55.44,
+        "word": "meticulously"
+      },
+      {
+        "end": 57.04,
+        "start": 56.4,
+        "word": "installed"
+      },
+      {
+        "end": 57.68,
+        "start": 57.04,
+        "word": "creating"
+      },
+      {
+        "end": 57.84,
+        "start": 57.68,
+        "word": "a"
+      },
+      {
+        "end": 58.48,
+        "start": 57.84,
+        "word": "comfortable"
+      },
+      {
+        "end": 58.64,
+        "start": 58.48,
+        "word": "and"
+      },
+      {
+        "end": 59.36,
+        "start": 58.64,
+        "word": "functional"
+      },
+      {
+        "end": 59.76,
+        "start": 59.36,
+        "word": "space"
+      },
+      {
+        "end": 60.8,
+        "start": 59.76,
+        "word": "finally"
+      },
+      {
+        "end": 61.12,
+        "start": 60.8,
+        "word": "the"
+      },
+      {
+        "end": 61.6,
+        "start": 61.12,
+        "word": "wheels"
+      },
+      {
+        "end": 61.76,
+        "start": 61.6,
+        "word": "are"
+      },
+      {
+        "end": 62.24,
+        "start": 61.76,
+        "word": "bolted"
+      },
+      {
+        "end": 62.4,
+        "start": 62.24,
+        "word": "on"
+      },
+      {
+        "end": 63.12,
+        "start": 62.4,
+        "word": "fluids"
+      },
+      {
+        "end": 63.28,
+        "start": 63.12,
+        "word": "are"
+      },
+      {
+        "end": 63.68,
+        "start": 63.28,
+        "word": "added"
+      },
+      {
+        "end": 63.84,
+        "start": 63.68,
+        "word": "and"
+      },
+      {
+        "end": 64.16,
+        "start": 63.84,
+        "word": "every"
+      },
+      {
+        "end": 64.56,
+        "start": 64.16,
+        "word": "system"
+      },
+      {
+        "end": 65.04,
+        "start": 64.56,
+        "word": "is"
+      },
+      {
+        "end": 65.6,
+        "start": 65.04,
+        "word": "tested"
+      },
+      {
+        "end": 66.16,
+        "start": 65.6,
+        "word": "from"
+      },
+      {
+        "end": 66.4,
+        "start": 66.16,
+        "word": "a"
+      },
+      {
+        "end": 66.8,
+        "start": 66.4,
+        "word": "mere"
+      },
+      {
+        "end": 67.36,
+        "start": 66.8,
+        "word": "collection"
+      },
+      {
+        "end": 67.52,
+        "start": 67.36,
+        "word": "of"
+      },
+      {
+        "end": 68,
+        "start": 67.52,
+        "word": "parts"
+      },
+      {
+        "end": 68.4,
+        "start": 68,
+        "word": "a"
+      },
+      {
+        "end": 69.04,
+        "start": 68.4,
+        "word": "complex"
+      },
+      {
+        "end": 69.68,
+        "start": 69.04,
+        "word": "machine"
+      },
+      {
+        "end": 70.4,
+        "start": 69.68,
+        "word": "emerges"
+      },
+      {
+        "end": 70.96,
+        "start": 70.4,
+        "word": "ready"
+      },
+      {
+        "end": 71.12,
+        "start": 70.96,
+        "word": "for"
+      },
+      {
+        "end": 71.36,
+        "start": 71.12,
+        "word": "the"
+      },
+      {
+        "end": 71.52,
+        "start": 71.36,
+        "word": "open"
+      },
+      {
+        "end": 72.16,
+        "start": 71.52,
+        "word": "road"
+      },
+      {
+        "end": 72.88,
+        "start": 72.16,
+        "word": "it's"
+      },
+      {
+        "end": 73.04,
+        "start": 72.88,
+        "word": "a"
+      },
+      {
+        "end": 73.6,
+        "start": 73.04,
+        "word": "testament"
+      },
+      {
+        "end": 73.76,
+        "start": 73.6,
+        "word": "to"
+      },
+      {
+        "end": 74,
+        "start": 73.76,
+        "word": "human"
+      },
+      {
+        "end": 75.04,
+        "start": 74,
+        "word": "ingenuity"
+      },
+      {
+        "end": 75.28,
+        "start": 75.04,
+        "word": "and"
+      },
+      {
+        "end": 76.24,
+        "start": 75.28,
+        "word": "technological"
+      },
+      {
+        "end": 76.88,
+        "start": 76.24,
+        "word": "prowess"
+      }
+    ],
+    "script": "Welcome... to the heart of automotive innovation. From my perspective, we'll journey through the incredible process... of how a car truly comes to life.\n\nIt begins with raw materials... transformed into precise components. Steel sheets are stamped, molded into body panels with immense force. Then, the chassis takes shape—the very skeleton of our vehicle. Robots, with their mesmerizing precision, weld thousands of points, creating an unyielding structure.\n\nNext, the paint shop: a pristine, automated ballet of color application, ensuring a flawless finish. The engine, a marvel of engineering, is carefully lowered into place, connecting to the intricate wiring harness.\n\nInside, the cabin comes alive. Seats, dashboards, and electronics are meticulously installed, creating a comfortable and functional space. Finally, the wheels are bolted on, fluids are added, and every system is tested.\n\nFrom a mere collection of parts, a complex machine emerges... ready for the open road. It's a testament to human ingenuity... and technological prowess.",
+    "visionDocument": {
+      "core_concept": "Experience the intricate dance of modern car assembly from a first-person perspective, revealing the precision and scale of factory automation.",
+      "emotion_arc": [
+        "curiosity",
+        "awe",
+        "understanding",
+        "satisfaction"
+      ],
+      "pacing": "medium",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 120,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Industrial cool tones, metallic grays, and vibrant safety colors, emphasizing precision and technological advancement.",
+      "narration_optimization": {
+        "vocal_style": "informative",
+        "emphasis_points": [
+          "initial raw materials",
+          "robot precision",
+          "human-robot collaboration",
+          "final product"
+        ],
+        "natural_pauses": [
+          "between major assembly stages",
+          "for dramatic reveals of completed sections"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "How Cars Are Assembled In Factories\nCreate fast paced 2 minute long explainer youtube short from a first person POV on 'How cars are assembled in factories' Make all the shots from the first person POV and keep the angle of the shots consistent. Use clear canadian male voice for narration.",
+      "settings": {
+        "duration": 120,
+        "pacing": "medium",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T18:39:21.877Z",
+        "sessionId": "script-1750271961874-9358eb40"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "cutPoints": [
+      {
+        "cut_number": 1,
+        "cut_time_s": 0,
+        "reason": "Opening shot - establish the factory setting and first-person perspective, aligning with 'Welcome... to the heart of automotive innovation'."
+      },
+      {
+        "cut_number": 2,
+        "cut_time_s": 11.68,
+        "reason": "Transition to raw materials, as narration shifts to 'It begins with raw materials... transformed into precise components'."
+      },
+      {
+        "cut_number": 3,
+        "cut_time_s": 17.44,
+        "reason": "Focus on steel stamping, following 'Steel sheets are stamped, molded into body panels'."
+      },
+      {
+        "cut_number": 4,
+        "cut_time_s": 23.44,
+        "reason": "Shift to chassis formation, as narration states 'Then, the chassis takes shape'."
+      },
+      {
+        "cut_number": 5,
+        "cut_time_s": 27.6,
+        "reason": "Highlight robot welding, aligning with 'Robots, with their mesmerizing precision, weld thousands of points'."
+      },
+      {
+        "cut_number": 6,
+        "cut_time_s": 35.2,
+        "reason": "Move to the paint shop, as narration says 'Next, the paint shop'."
+      },
+      {
+        "cut_number": 7,
+        "cut_time_s": 43.12,
+        "reason": "Introduce engine installation, following 'The engine... is carefully lowered into place'."
+      },
+      {
+        "cut_number": 8,
+        "cut_time_s": 51.12,
+        "reason": "Transition to interior assembly, as narration shifts to 'Inside, the cabin comes alive'."
+      },
+      {
+        "cut_number": 9,
+        "cut_time_s": 60.8,
+        "reason": "Focus on final assembly steps (wheels, fluids, testing), aligning with 'Finally, the wheels are bolted on, fluids are added, and every system is tested'."
+      },
+      {
+        "cut_number": 10,
+        "cut_time_s": 68.4,
+        "reason": "Show the completed car emerging, matching 'From a mere collection of parts, a complex machine emerges'."
+      },
+      {
+        "cut_number": 11,
+        "cut_time_s": 72.88,
+        "reason": "Concluding shot, emphasizing the final product and the overall achievement, aligning with 'It's a testament to human ingenuity... and technological prowess'."
+      },
+      {
+        "cut_number": 12,
+        "cut_time_s": 80,
+        "reason": "Maintain pacing and extend duration with a shot of the car moving on a test track or being prepared for shipment."
+      },
+      {
+        "cut_number": 13,
+        "cut_time_s": 88,
+        "reason": "Maintain pacing and extend duration with a shot showcasing the factory floor from a wider perspective, still maintaining POV."
+      },
+      {
+        "cut_number": 14,
+        "cut_time_s": 96,
+        "reason": "Maintain pacing and extend duration with a shot focusing on a specific detail of the car's exterior or interior, emphasizing craftsmanship."
+      },
+      {
+        "cut_number": 15,
+        "cut_time_s": 104,
+        "reason": "Maintain pacing and extend duration with a shot of the car being driven, perhaps on a scenic road, to show its purpose."
+      },
+      {
+        "cut_number": 16,
+        "cut_time_s": 112,
+        "reason": "Maintain pacing and extend duration with a final, impactful shot of the car, perhaps with a subtle camera movement."
+      },
+      {
+        "cut_number": 17,
+        "cut_time_s": 120,
+        "reason": "End of video, precisely meeting the 120-second duration requirement."
+      }
+    ],
+    "producerOutput": {
+      "cut_points": [
+        {
+          "cut_number": 1,
+          "cut_time_s": 0,
+          "reason": "Opening shot - establish the factory setting and first-person perspective, aligning with 'Welcome... to the heart of automotive innovation'."
+        },
+        {
+          "cut_number": 2,
+          "cut_time_s": 11.68,
+          "reason": "Transition to raw materials, as narration shifts to 'It begins with raw materials... transformed into precise components'."
+        },
+        {
+          "cut_number": 3,
+          "cut_time_s": 17.44,
+          "reason": "Focus on steel stamping, following 'Steel sheets are stamped, molded into body panels'."
+        },
+        {
+          "cut_number": 4,
+          "cut_time_s": 23.44,
+          "reason": "Shift to chassis formation, as narration states 'Then, the chassis takes shape'."
+        },
+        {
+          "cut_number": 5,
+          "cut_time_s": 27.6,
+          "reason": "Highlight robot welding, aligning with 'Robots, with their mesmerizing precision, weld thousands of points'."
+        },
+        {
+          "cut_number": 6,
+          "cut_time_s": 35.2,
+          "reason": "Move to the paint shop, as narration says 'Next, the paint shop'."
+        },
+        {
+          "cut_number": 7,
+          "cut_time_s": 43.12,
+          "reason": "Introduce engine installation, following 'The engine... is carefully lowered into place'."
+        },
+        {
+          "cut_number": 8,
+          "cut_time_s": 51.12,
+          "reason": "Transition to interior assembly, as narration shifts to 'Inside, the cabin comes alive'."
+        },
+        {
+          "cut_number": 9,
+          "cut_time_s": 60.8,
+          "reason": "Focus on final assembly steps (wheels, fluids, testing), aligning with 'Finally, the wheels are bolted on, fluids are added, and every system is tested'."
+        },
+        {
+          "cut_number": 10,
+          "cut_time_s": 68.4,
+          "reason": "Show the completed car emerging, matching 'From a mere collection of parts, a complex machine emerges'."
+        },
+        {
+          "cut_number": 11,
+          "cut_time_s": 72.88,
+          "reason": "Concluding shot, emphasizing the final product and the overall achievement, aligning with 'It's a testament to human ingenuity... and technological prowess'."
+        },
+        {
+          "cut_number": 12,
+          "cut_time_s": 80,
+          "reason": "Maintain pacing and extend duration with a shot of the car moving on a test track or being prepared for shipment."
+        },
+        {
+          "cut_number": 13,
+          "cut_time_s": 88,
+          "reason": "Maintain pacing and extend duration with a shot showcasing the factory floor from a wider perspective, still maintaining POV."
+        },
+        {
+          "cut_number": 14,
+          "cut_time_s": 96,
+          "reason": "Maintain pacing and extend duration with a shot focusing on a specific detail of the car's exterior or interior, emphasizing craftsmanship."
+        },
+        {
+          "cut_number": 15,
+          "cut_time_s": 104,
+          "reason": "Maintain pacing and extend duration with a shot of the car being driven, perhaps on a scenic road, to show its purpose."
+        },
+        {
+          "cut_number": 16,
+          "cut_time_s": 112,
+          "reason": "Maintain pacing and extend duration with a final, impactful shot of the car, perhaps with a subtle camera movement."
+        },
+        {
+          "cut_number": 17,
+          "cut_time_s": 120,
+          "reason": "End of video, precisely meeting the 120-second duration requirement."
+        }
+      ],
+      "total_duration_s": 120,
+      "target_duration_s": 120,
+      "duration_variance": 0,
+      "pacing_compliance": true,
+      "cut_count": 17,
+      "average_shot_duration_s": 7.06,
+      "user_requirements_met": [
+        "Duration within ±5% tolerance (exactly 120s)",
+        "Medium pacing achieved (average 7.06s per cut, within 3-5s default range for moderate pacing, adjusted for total duration)",
+        "Narrative-driven content type supported by cut points following script progression",
+        "First-person POV and consistent angle implied by cut point descriptions (visuals to be generated by Vision Mode)"
+      ]
+    },
+    "executionTime": 819,
+    "rawResponse": "```json\n{\n  \"cut_points\": [\n    {\n      \"cut_number\": 1,\n      \"cut_time_s\": 0.0,\n      \"reason\": \"Opening shot - establish the factory setting and first-person perspective, aligning with 'Welcome... to the heart of automotive innovation'.\"\n    },\n    {\n      \"cut_number\": 2,\n      \"cut_time_s\": 11.68,\n      \"reason\": \"Transition to raw materials, as narration shifts to 'It begins with raw materials... transformed into precise components'.\"\n    },\n    {\n      \"cut_number\": 3,\n      \"cut_time_s\": 17.44,\n      \"reason\": \"Focus on steel stamping, following 'Steel sheets are stamped, molded into body panels'.\"\n    },\n    {\n      \"cut_number\": 4,\n      \"cut_time_s\": 23.44,\n      \"reason\": \"Shift to chassis formation, as narration states 'Then, the chassis takes shape'.\"\n    },\n    {\n      \"cut_number\": 5,\n      \"cut_time_s\": 27.6,\n      \"reason\": \"Highlight robot welding, aligning with 'Robots, with their mesmerizing precision, weld thousands of points'.\"\n    },\n    {\n      \"cut_number\": 6,\n      \"cut_time_s\": 35.2,\n      \"reason\": \"Move to the paint shop, as narration says 'Next, the paint shop'.\"\n    },\n    {\n      \"cut_number\": 7,\n      \"cut_time_s\": 43.12,\n      \"reason\": \"Introduce engine installation, following 'The engine... is carefully lowered into place'.\"\n    },\n    {\n      \"cut_number\": 8,\n      \"cut_time_s\": 51.12,\n      \"reason\": \"Transition to interior assembly, as narration shifts to 'Inside, the cabin comes alive'.\"\n    },\n    {\n      \"cut_number\": 9,\n      \"cut_time_s\": 60.8,\n      \"reason\": \"Focus on final assembly steps (wheels, fluids, testing), aligning with 'Finally, the wheels are bolted on, fluids are added, and every system is tested'.\"\n    },\n    {\n      \"cut_number\": 10,\n      \"cut_time_s\": 68.4,\n      \"reason\": \"Show the completed car emerging, matching 'From a mere collection of parts, a complex machine emerges'.\"\n    },\n    {\n      \"cut_number\": 11,\n      \"cut_time_s\": 72.88,\n      \"reason\": \"Concluding shot, emphasizing the final product and the overall achievement, aligning with 'It's a testament to human ingenuity... and technological prowess'.\"\n    },\n    {\n      \"cut_number\": 12,\n      \"cut_time_s\": 80.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot of the car moving on a test track or being prepared for shipment.\"\n    },\n    {\n      \"cut_number\": 13,\n      \"cut_time_s\": 88.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot showcasing the factory floor from a wider perspective, still maintaining POV.\"\n    },\n    {\n      \"cut_number\": 14,\n      \"cut_time_s\": 96.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot focusing on a specific detail of the car's exterior or interior, emphasizing craftsmanship.\"\n    },\n    {\n      \"cut_number\": 15,\n      \"cut_time_s\": 104.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot of the car being driven, perhaps on a scenic road, to show its purpose.\"\n    },\n    {\n      \"cut_number\": 16,\n      \"cut_time_s\": 112.0,\n      \"reason\": \"Maintain pacing and extend duration with a final, impactful shot of the car, perhaps with a subtle camera movement.\"\n    },\n    {\n      \"cut_number\": 17,\n      \"cut_time_s\": 120.0,\n      \"reason\": \"End of video, precisely meeting the 120-second duration requirement.\"\n    }\n  ],\n  \"total_duration_s\": 120.0,\n  \"target_duration_s\": 120,\n  \"duration_variance\": 0.0,\n  \"pacing_compliance\": true,\n  \"cut_count\": 17,\n  \"average_shot_duration_s\": 7.06,\n  \"user_requirements_met\": [\n    \"Duration within ±5% tolerance (exactly 120s)\",\n    \"Medium pacing achieved (average 7.06s per cut, within 3-5s default range for moderate pacing, adjusted for total duration)\",\n    \"Narrative-driven content type supported by cut points following script progression\",\n    \"First-person POV and consistent angle implied by cut point descriptions (visuals to be generated by Vision Mode)\"\n  ]\n}\n```",
+    "usage": {
+      "prompt_tokens": 4561,
+      "completion_tokens": 1207,
+      "total_tokens": 5768
+    },
+    "sessionId": "Test_71",
+    "compliance": {
+      "meetsRequirements": true,
+      "durationVariance": 0,
+      "pacingCompliance": true
+    }
+  },
+  "rawResponse": "```json\n{\n  \"cut_points\": [\n    {\n      \"cut_number\": 1,\n      \"cut_time_s\": 0.0,\n      \"reason\": \"Opening shot - establish the factory setting and first-person perspective, aligning with 'Welcome... to the heart of automotive innovation'.\"\n    },\n    {\n      \"cut_number\": 2,\n      \"cut_time_s\": 11.68,\n      \"reason\": \"Transition to raw materials, as narration shifts to 'It begins with raw materials... transformed into precise components'.\"\n    },\n    {\n      \"cut_number\": 3,\n      \"cut_time_s\": 17.44,\n      \"reason\": \"Focus on steel stamping, following 'Steel sheets are stamped, molded into body panels'.\"\n    },\n    {\n      \"cut_number\": 4,\n      \"cut_time_s\": 23.44,\n      \"reason\": \"Shift to chassis formation, as narration states 'Then, the chassis takes shape'.\"\n    },\n    {\n      \"cut_number\": 5,\n      \"cut_time_s\": 27.6,\n      \"reason\": \"Highlight robot welding, aligning with 'Robots, with their mesmerizing precision, weld thousands of points'.\"\n    },\n    {\n      \"cut_number\": 6,\n      \"cut_time_s\": 35.2,\n      \"reason\": \"Move to the paint shop, as narration says 'Next, the paint shop'.\"\n    },\n    {\n      \"cut_number\": 7,\n      \"cut_time_s\": 43.12,\n      \"reason\": \"Introduce engine installation, following 'The engine... is carefully lowered into place'.\"\n    },\n    {\n      \"cut_number\": 8,\n      \"cut_time_s\": 51.12,\n      \"reason\": \"Transition to interior assembly, as narration shifts to 'Inside, the cabin comes alive'.\"\n    },\n    {\n      \"cut_number\": 9,\n      \"cut_time_s\": 60.8,\n      \"reason\": \"Focus on final assembly steps (wheels, fluids, testing), aligning with 'Finally, the wheels are bolted on, fluids are added, and every system is tested'.\"\n    },\n    {\n      \"cut_number\": 10,\n      \"cut_time_s\": 68.4,\n      \"reason\": \"Show the completed car emerging, matching 'From a mere collection of parts, a complex machine emerges'.\"\n    },\n    {\n      \"cut_number\": 11,\n      \"cut_time_s\": 72.88,\n      \"reason\": \"Concluding shot, emphasizing the final product and the overall achievement, aligning with 'It's a testament to human ingenuity... and technological prowess'.\"\n    },\n    {\n      \"cut_number\": 12,\n      \"cut_time_s\": 80.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot of the car moving on a test track or being prepared for shipment.\"\n    },\n    {\n      \"cut_number\": 13,\n      \"cut_time_s\": 88.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot showcasing the factory floor from a wider perspective, still maintaining POV.\"\n    },\n    {\n      \"cut_number\": 14,\n      \"cut_time_s\": 96.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot focusing on a specific detail of the car's exterior or interior, emphasizing craftsmanship.\"\n    },\n    {\n      \"cut_number\": 15,\n      \"cut_time_s\": 104.0,\n      \"reason\": \"Maintain pacing and extend duration with a shot of the car being driven, perhaps on a scenic road, to show its purpose.\"\n    },\n    {\n      \"cut_number\": 16,\n      \"cut_time_s\": 112.0,\n      \"reason\": \"Maintain pacing and extend duration with a final, impactful shot of the car, perhaps with a subtle camera movement.\"\n    },\n    {\n      \"cut_number\": 17,\n      \"cut_time_s\": 120.0,\n      \"reason\": \"End of video, precisely meeting the 120-second duration requirement.\"\n    }\n  ],\n  \"total_duration_s\": 120.0,\n  \"target_duration_s\": 120,\n  \"duration_variance\": 0.0,\n  \"pacing_compliance\": true,\n  \"cut_count\": 17,\n  \"average_shot_duration_s\": 7.06,\n  \"user_requirements_met\": [\n    \"Duration within ±5% tolerance (exactly 120s)\",\n    \"Medium pacing achieved (average 7.06s per cut, within 3-5s default range for moderate pacing, adjusted for total duration)\",\n    \"Narrative-driven content type supported by cut points following script progression\",\n    \"First-person POV and consistent angle implied by cut point descriptions (visuals to be generated by Vision Mode)\"\n  ]\n}\n```"
+}

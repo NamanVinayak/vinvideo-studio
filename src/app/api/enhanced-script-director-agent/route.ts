@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       script_preview: script.substring(0, 100) + '...',
       user_visual_style: scriptModeUserContext.settings.visualStyle,
       user_pacing: scriptModeUserContext.settings.pacing,
-      content_type: scriptModeUserContext.scriptContext?.content_type,
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type,
       cut_count: expectedCutCount
     });
     
@@ -49,7 +49,7 @@ Please create visual beats that:
 1. Serve the EXACT script content (no creative reinterpretation)
 2. Apply the user's "${scriptModeUserContext.settings.visualStyle}" visual style throughout
 3. Respect the "${scriptModeUserContext.settings.pacing}" pacing with appropriate visual complexity
-4. Consider this is "${scriptModeUserContext.scriptContext?.content_type || 'general'}" content
+4. Consider this is "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}" content
 5. GENERATE EXACTLY ${expectedCutCount} BEATS (one for each Producer cut)
 
 Remember: You're visualizing their exact words with their preferred aesthetic.`;
@@ -67,7 +67,7 @@ Remember: You're visualizing their exact words with their preferred aesthetic.`;
         }
       ],
       temperature: 0.5,
-      max_tokens: 25000,
+      max_tokens: 30000,
       top_p: 0.8
     };
     
@@ -101,8 +101,8 @@ Remember: You're visualizing their exact words with their preferred aesthetic.`;
     const processedResponse = passThroughRawJson(rawResponse, 'Enhanced Script Director');
     
     console.log('Enhanced Script Director successful:', {
-      beat_count: processedResponse.structuredData?.narrative_beats?.length,
-      user_style_applied: processedResponse.structuredData?.project_metadata?.user_visual_style,
+      beat_count: Array.isArray(processedResponse.structuredData?.narrative_beats) ? processedResponse.structuredData.narrative_beats.length : 0,
+      user_style_applied: (processedResponse.structuredData as any)?.project_metadata?.user_visual_style,
       execution_time_ms: executionTime
     });
     

@@ -206,7 +206,7 @@ export async function POST(request: Request) {
           console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
           
           // Return a structured error with the raw response
-          throw new Error(`Could not parse no-music prompt engineer response: ${secondParseError.message}`);
+          throw new Error(`Could not parse no-music prompt engineer response: ${secondParseError instanceof Error ? secondParseError.message : String(secondParseError)}`);
         }
       }
       

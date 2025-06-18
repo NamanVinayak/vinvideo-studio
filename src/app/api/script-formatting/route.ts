@@ -37,7 +37,7 @@ ${userContext ? `Additional context: This is intended to be ${userContext.durati
 Extract only the spoken content and provide comprehensive analysis as specified in your instructions.`;
     
     const payload = {
-      model: "anthropic/claude-3.5-sonnet",
+      model: "qwen/qwen-2.5-7b-instruct",
       messages: [
         {
           role: "system",

@@ -1,0 +1,614 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_prompt_engineer",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750271961874-9358eb40",
+    "projectFolder": "script-1750271961874-9358eb40",
+    "timestamp": "2025-06-18T18:42:34.751Z",
+    "executionTime": 555,
+    "model": "unknown"
+  },
+  "input": {
+    "director_output": {
+      "project_metadata": {
+        "target_platform": "YouTube",
+        "content_type": "Explainer Short",
+        "primary_concept": "First-person journey through modern car assembly",
+        "entity_summary": [
+          {
+            "name": "Factory machinery",
+            "type": "Equipment",
+            "role_in_scene": "primary",
+            "entity_context": "Automated assembly line systems"
+          },
+          {
+            "name": "Steel sheets",
+            "type": "Material",
+            "role_in_scene": "primary",
+            "entity_context": "Raw material being transformed"
+          },
+          {
+            "name": "Welding robots",
+            "type": "Machine",
+            "role_in_scene": "primary",
+            "entity_context": "Precision assembly robots"
+          },
+          {
+            "name": "Paint system",
+            "type": "Equipment",
+            "role_in_scene": "primary",
+            "entity_context": "Automated painting machinery"
+          },
+          {
+            "name": "Engine unit",
+            "type": "Component",
+            "role_in_scene": "primary",
+            "entity_context": "Powerplant being installed"
+          }
+        ]
+      },
+      "narrative_beats": [
+        {
+          "beat_no": 1,
+          "timecode_start": "0",
+          "estimated_duration_s": 11,
+          "script_phrase": "Welcome... to the heart of automotive innovation",
+          "narrative_function": "setup",
+          "emotional_tone": "curiosity",
+          "creative_vision": "POV approaching factory entrance with massive hydraulic presses in motion",
+          "audience_retention_strategy": "Immersive first-person perspective hook",
+          "turning_point": false,
+          "entities": [
+            "Factory machinery"
+          ]
+        },
+        {
+          "beat_no": 2,
+          "timecode_start": "11.68",
+          "estimated_duration_s": 6,
+          "script_phrase": "It begins with raw materials... transformed into precise components",
+          "narrative_function": "rise",
+          "emotional_tone": "fascination",
+          "creative_vision": "Close POV of steel sheets loading onto conveyor, hydraulic stamp descending",
+          "audience_retention_strategy": "Raw material transformation reveal",
+          "turning_point": false,
+          "entities": [
+            "Steel sheets"
+          ]
+        },
+        {
+          "beat_no": 3,
+          "timecode_start": "17.44",
+          "estimated_duration_s": 6,
+          "script_phrase": "Steel sheets are stamped, molded into body panels",
+          "narrative_function": "escalation",
+          "emotional_tone": "awe",
+          "creative_vision": "Extreme close-up of stamping die impact with metal deformation",
+          "audience_retention_strategy": "Industrial power demonstration",
+          "turning_point": false,
+          "entities": [
+            "Steel sheets"
+          ]
+        },
+        {
+          "beat_no": 4,
+          "timecode_start": "23.44",
+          "estimated_duration_s": 4,
+          "script_phrase": "Then, the chassis takes shape",
+          "narrative_function": "development",
+          "emotional_tone": "anticipation",
+          "creative_vision": "POV tracking along emerging chassis structure with welding sparks",
+          "audience_retention_strategy": "Structural revelation",
+          "turning_point": false,
+          "entities": [
+            "Factory machinery"
+          ]
+        },
+        {
+          "beat_no": 5,
+          "timecode_start": "27.6",
+          "estimated_duration_s": 8,
+          "script_phrase": "Robots, with their mesmerizing precision, weld thousands of points",
+          "narrative_function": "intensification",
+          "emotional_tone": "wonder",
+          "creative_vision": "Low-angle POV of welding arm dancing around chassis components",
+          "audience_retention_strategy": "Robotic ballet visual spectacle",
+          "turning_point": true,
+          "entities": [
+            "Welding robots"
+          ]
+        },
+        {
+          "beat_no": 6,
+          "timecode_start": "35.2",
+          "estimated_duration_s": 8,
+          "script_phrase": "Next, the paint shop",
+          "narrative_function": "transition",
+          "emotional_tone": "surprise",
+          "creative_vision": "POV inside paint booth with rotating car body and mist clouds",
+          "audience_retention_strategy": "Color explosion contrast",
+          "turning_point": false,
+          "entities": [
+            "Paint system"
+          ]
+        },
+        {
+          "beat_no": 7,
+          "timecode_start": "43.12",
+          "estimated_duration_s": 8,
+          "script_phrase": "The engine... is carefully lowered into place",
+          "narrative_function": "precision",
+          "emotional_tone": "tension",
+          "creative_vision": "Overhead POV of engine descending into bay with alignment guides",
+          "audience_retention_strategy": "Mechanical mating suspense",
+          "turning_point": false,
+          "entities": [
+            "Engine unit"
+          ]
+        },
+        {
+          "beat_no": 8,
+          "timecode_start": "51.12",
+          "estimated_duration_s": 10,
+          "script_phrase": "Inside, the cabin comes alive",
+          "narrative_function": "humanization",
+          "emotional_tone": "warmth",
+          "creative_vision": "POV of dashboard installation with glowing instrument cluster",
+          "audience_retention_strategy": "Technological intimacy reveal",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 9,
+          "timecode_start": "60.8",
+          "estimated_duration_s": 8,
+          "script_phrase": "Finally, the wheels are bolted on, fluids are added, and every system is tested",
+          "narrative_function": "culmination",
+          "emotional_tone": "satisfaction",
+          "creative_vision": "POV along assembly line showing final components snapping into place",
+          "audience_retention_strategy": "Completion anticipation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 10,
+          "timecode_start": "68.4",
+          "estimated_duration_s": 4,
+          "script_phrase": "From a mere collection of parts, a complex machine emerges",
+          "narrative_function": "revelation",
+          "emotional_tone": "achievement",
+          "creative_vision": "POV reveal of completed car body rotating on final platform",
+          "audience_retention_strategy": "Transformation payoff",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 11,
+          "timecode_start": "72.88",
+          "estimated_duration_s": 7,
+          "script_phrase": "It's a testament to human ingenuity... and technological prowess",
+          "narrative_function": "reflection",
+          "emotional_tone": "pride",
+          "creative_vision": "POV close inspection of car's emblem with factory lights reflecting",
+          "audience_retention_strategy": "Emotional brand connection",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 12,
+          "timecode_start": "80",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "extension",
+          "emotional_tone": "movement",
+          "creative_vision": "POV from test driver seat during track performance evaluation",
+          "audience_retention_strategy": "Operational validation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 13,
+          "timecode_start": "88",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "perspective",
+          "emotional_tone": "scale",
+          "creative_vision": "POV looking down production line with endless identical vehicles",
+          "audience_retention_strategy": "Industrial scale reveal",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 14,
+          "timecode_start": "96",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "detail",
+          "emotional_tone": "appreciation",
+          "creative_vision": "POV extreme close-up of panel gaps being measured digitally",
+          "audience_retention_strategy": "Craftsmanship emphasis",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 15,
+          "timecode_start": "104",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "purpose",
+          "emotional_tone": "freedom",
+          "creative_vision": "POV through windshield on scenic road with hands on steering wheel",
+          "audience_retention_strategy": "Aspirational payoff",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 16,
+          "timecode_start": "112",
+          "estimated_duration_s": 8,
+          "script_phrase": "",
+          "narrative_function": "closure",
+          "emotional_tone": "fulfillment",
+          "creative_vision": "POV rearview mirror reflection of factory complex shrinking in distance",
+          "audience_retention_strategy": "Narrative bookend",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 17,
+          "timecode_start": "120",
+          "estimated_duration_s": 0,
+          "script_phrase": "",
+          "narrative_function": "resolution",
+          "emotional_tone": "completion",
+          "creative_vision": "POV fade to black with final bolt tightening sound effect",
+          "audience_retention_strategy": "Sensory memory trigger",
+          "turning_point": false,
+          "entities": []
+        }
+      ],
+      "requires_user_clarification": ""
+    },
+    "dop_output": [
+      {
+        "beat_no": 1,
+        "timecode_start": "0",
+        "emotion": "curiosity",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "push in",
+        "movement_rationale": "Simulates approaching factory entrance, drawing viewer into scene.",
+        "lens": "35mm",
+        "focus_depth": "deep f/5.6",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking forward at factory entrance",
+        "handoff_notes": "Establishes first-person POV and factory setting."
+      },
+      {
+        "beat_no": 2,
+        "timecode_start": "11.68",
+        "emotion": "fascination",
+        "shot_size": "close-up",
+        "composition": "rule-of-thirds",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Focuses attention on the raw material, initiating transformation narrative.",
+        "lens": "50mm",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking down at steel sheets on conveyor",
+        "handoff_notes": "Shows steel sheets entering the production process."
+      },
+      {
+        "beat_no": 3,
+        "timecode_start": "17.44",
+        "emotion": "awe",
+        "shot_size": "extreme close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Emphasizes the force and precision of the stamping process.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/2.0",
+        "lighting": "bright, even industrial with practical highlights",
+        "gaze_direction": "looking directly at stamping die impact",
+        "handoff_notes": "Reveals the dramatic transformation of steel into body panels."
+      },
+      {
+        "beat_no": 4,
+        "timecode_start": "23.44",
+        "emotion": "anticipation",
+        "shot_size": "medium shot",
+        "composition": "leading lines",
+        "camera_angle": "eye-level",
+        "movement": "pan right",
+        "movement_rationale": "Follows the emerging chassis, building anticipation for its completion.",
+        "lens": "35mm",
+        "focus_depth": "deep f/4.0",
+        "lighting": "bright, even industrial with welding sparks",
+        "gaze_direction": "tracking chassis movement",
+        "handoff_notes": "Shows the chassis structure taking initial form."
+      },
+      {
+        "beat_no": 5,
+        "timecode_start": "27.6",
+        "emotion": "wonder",
+        "shot_size": "medium shot",
+        "composition": "dynamic",
+        "camera_angle": "low-angle",
+        "movement": "tilt up",
+        "movement_rationale": "Highlights the intricate movements of welding robots, emphasizing precision.",
+        "lens": "24mm",
+        "focus_depth": "deep f/5.6",
+        "lighting": "bright, even industrial with intense welding arcs",
+        "gaze_direction": "looking up at welding arms",
+        "handoff_notes": "Showcases robotic precision in chassis welding."
+      },
+      {
+        "beat_no": 6,
+        "timecode_start": "35.2",
+        "emotion": "surprise",
+        "shot_size": "wide shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Establishes the pristine environment of the paint shop.",
+        "lens": "24mm",
+        "focus_depth": "deep f/8.0",
+        "lighting": "bright, clean, diffused",
+        "gaze_direction": "looking forward at car body entering paint booth",
+        "handoff_notes": "Transitions to the automated paint application process."
+      },
+      {
+        "beat_no": 7,
+        "timecode_start": "43.12",
+        "emotion": "tension",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "push down",
+        "movement_rationale": "Mimics the engine being lowered, creating a sense of precise alignment.",
+        "lens": "50mm",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking down at engine descending into bay",
+        "handoff_notes": "Illustrates the careful installation of the engine."
+      },
+      {
+        "beat_no": 8,
+        "timecode_start": "51.12",
+        "emotion": "warmth",
+        "shot_size": "close-up",
+        "composition": "rule-of-thirds",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Focuses on the intricate details of the interior coming to life.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/1.8",
+        "lighting": "soft interior lighting with glowing instruments",
+        "gaze_direction": "looking at dashboard installation",
+        "handoff_notes": "Shows the interior assembly and activation of electronics."
+      },
+      {
+        "beat_no": 9,
+        "timecode_start": "60.8",
+        "emotion": "satisfaction",
+        "shot_size": "medium shot",
+        "composition": "leading lines",
+        "camera_angle": "eye-level",
+        "movement": "pan left",
+        "movement_rationale": "Follows the car along the final assembly line, showing completion.",
+        "lens": "35mm",
+        "focus_depth": "deep f/4.0",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "tracking car's movement on line",
+        "handoff_notes": "Depicts the final stages of assembly and testing."
+      },
+      {
+        "beat_no": 10,
+        "timecode_start": "68.4",
+        "emotion": "achievement",
+        "shot_size": "wide shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "pull back",
+        "movement_rationale": "Reveals the completed car, emphasizing its emergence from parts.",
+        "lens": "24mm",
+        "focus_depth": "deep f/5.6",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking at completed car rotating",
+        "handoff_notes": "Showcases the fully assembled vehicle."
+      },
+      {
+        "beat_no": 11,
+        "timecode_start": "72.88",
+        "emotion": "pride",
+        "shot_size": "close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Highlights the brand's identity and the quality of the finished product.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/2.0",
+        "lighting": "focused spotlight on emblem",
+        "gaze_direction": "looking at car's emblem",
+        "handoff_notes": "Emphasizes the craftsmanship and brand identity."
+      },
+      {
+        "beat_no": 12,
+        "timecode_start": "80",
+        "emotion": "movement",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "push forward",
+        "movement_rationale": "Simulates the car moving, showing its operational readiness.",
+        "lens": "35mm",
+        "focus_depth": "deep f/4.0",
+        "lighting": "bright, outdoor daylight",
+        "gaze_direction": "looking forward through windshield",
+        "handoff_notes": "Shows the car in motion on a test track."
+      },
+      {
+        "beat_no": 13,
+        "timecode_start": "88",
+        "emotion": "scale",
+        "shot_size": "wide shot",
+        "composition": "leading lines",
+        "camera_angle": "eye-level",
+        "movement": "pan right",
+        "movement_rationale": "Reveals the vastness of the production line, emphasizing scale.",
+        "lens": "24mm",
+        "focus_depth": "deep f/8.0",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking down the production line",
+        "handoff_notes": "Conveys the immense scale of the factory floor."
+      },
+      {
+        "beat_no": 14,
+        "timecode_start": "96",
+        "emotion": "appreciation",
+        "shot_size": "extreme close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Highlights the precision and quality control in manufacturing.",
+        "lens": "100mm macro",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "focused inspection light",
+        "gaze_direction": "looking at digital measurement display",
+        "handoff_notes": "Focuses on the meticulous quality control details."
+      },
+      {
+        "beat_no": 15,
+        "timecode_start": "104",
+        "emotion": "freedom",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Connects the car to its ultimate purpose: driving and freedom.",
+        "lens": "35mm",
+        "focus_depth": "deep f/5.6",
+        "lighting": "bright, natural daylight",
+        "gaze_direction": "looking forward at road ahead",
+        "handoff_notes": "Shows the car being driven on a scenic road."
+      },
+      {
+        "beat_no": 16,
+        "timecode_start": "112",
+        "emotion": "fulfillment",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "pull back",
+        "movement_rationale": "Creates a sense of departure and the journey's completion.",
+        "lens": "50mm",
+        "focus_depth": "deep f/4.0",
+        "lighting": "natural daylight",
+        "gaze_direction": "looking at rearview mirror reflection",
+        "handoff_notes": "Provides a concluding visual of the factory receding."
+      },
+      {
+        "beat_no": 17,
+        "timecode_start": "120",
+        "emotion": "completion",
+        "shot_size": "extreme close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "A final, impactful detail to signify the end of the process.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/1.8",
+        "lighting": "soft, ambient light",
+        "gaze_direction": "looking at a final bolt being tightened",
+        "handoff_notes": "Concludes the narrative with a symbolic final action."
+      }
+    ],
+    "script": "Welcome... to the heart of automotive innovation. From my perspective, we'll journey through the incredible process... of how a car truly comes to life.\n\nIt begins with raw materials... transformed into precise components. Steel sheets are stamped, molded into body panels with immense force. Then, the chassis takes shape—the very skeleton of our vehicle. Robots, with their mesmerizing precision, weld thousands of points, creating an unyielding structure.\n\nNext, the paint shop: a pristine, automated ballet of color application, ensuring a flawless finish. The engine, a marvel of engineering, is carefully lowered into place, connecting to the intricate wiring harness.\n\nInside, the cabin comes alive. Seats, dashboards, and electronics are meticulously installed, creating a comfortable and functional space. Finally, the wheels are bolted on, fluids are added, and every system is tested.\n\nFrom a mere collection of parts, a complex machine emerges... ready for the open road. It's a testament to human ingenuity... and technological prowess.",
+    "visionDocument": {
+      "core_concept": "Experience the intricate dance of modern car assembly from a first-person perspective, revealing the precision and scale of factory automation.",
+      "emotion_arc": [
+        "curiosity",
+        "awe",
+        "understanding",
+        "satisfaction"
+      ],
+      "pacing": "medium",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 120,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Industrial cool tones, metallic grays, and vibrant safety colors, emphasizing precision and technological advancement.",
+      "narration_optimization": {
+        "vocal_style": "informative",
+        "emphasis_points": [
+          "initial raw materials",
+          "robot precision",
+          "human-robot collaboration",
+          "final product"
+        ],
+        "natural_pauses": [
+          "between major assembly stages",
+          "for dramatic reveals of completed sections"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "How Cars Are Assembled In Factories\nCreate fast paced 2 minute long explainer youtube short from a first person POV on 'How cars are assembled in factories' Make all the shots from the first person POV and keep the angle of the shots consistent. Use clear canadian male voice for narration.",
+      "settings": {
+        "duration": 120,
+        "pacing": "medium",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T18:39:21.877Z",
+        "sessionId": "script-1750271961874-9358eb40"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "promptsOutput": [
+      "1: First-person POV, approaching a massive modern car assembly factory entrance, massive hydraulic presses in motion, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push in movement, 35mm lens, deep f/5.6 focus, bright even industrial lighting, looking forward at factory entrance, immersive first-person perspective, 16:9 8K",
+      "2: First-person POV, close-up of steel sheets loading onto a conveyor belt, a hydraulic stamp descending, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at steel sheets on conveyor, raw material transformation, 16:9 8K",
+      "3: First-person POV, extreme close-up of a stamping die impact with metal deformation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, bright even industrial lighting with practical highlights, looking directly at stamping die impact, industrial power demonstration, 16:9 8K",
+      "4: First-person POV, tracking along an emerging car chassis structure with welding sparks, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan right movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting with welding sparks, tracking chassis movement, structural revelation, 16:9 8K",
+      "5: First-person POV, low-angle view of a welding robot arm dancing around car chassis components, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, dynamic composition, low-angle camera angle, tilt up movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting with intense welding arcs, looking up at welding arms, robotic ballet visual spectacle, 16:9 8K",
+      "6: First-person POV, inside a pristine paint booth with a rotating car body and mist clouds, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, static movement, 24mm lens, deep f/8.0 focus, bright clean diffused lighting, looking forward at car body entering paint booth, color explosion contrast, 16:9 8K",
+      "7: First-person POV, overhead view of a car engine unit descending into a car bay with alignment guides, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push down movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at engine descending into bay, mechanical mating suspense, 16:9 8K",
+      "8: First-person POV, close-up of a car dashboard installation with a glowing instrument cluster, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft interior lighting with glowing instruments, looking at dashboard installation, technological intimacy reveal, 16:9 8K",
+      "9: First-person POV, along a car assembly line showing final components snapping into place, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan left movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting, tracking car's movement on line, completion anticipation, 16:9 8K",
+      "10: First-person POV, revealing a completed car body rotating on a final platform, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, pull back movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting, looking at completed car rotating, transformation payoff, 16:9 8K",
+      "11: First-person POV, close inspection of a car's emblem with factory lights reflecting, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, focused spotlight on emblem, looking at car's emblem, emotional brand connection, 16:9 8K",
+      "12: First-person POV, from a test driver seat during track performance evaluation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push forward movement, 35mm lens, deep f/4.0 focus, bright outdoor daylight, looking forward through windshield, operational validation, 16:9 8K",
+      "13: First-person POV, looking down a production line with endless identical vehicles, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, leading lines composition, eye-level camera angle, pan right movement, 24mm lens, deep f/8.0 focus, bright even industrial lighting, looking down the production line, industrial scale reveal, 16:9 8K",
+      "14: First-person POV, extreme close-up of panel gaps being measured digitally on a car body, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 100mm macro lens, shallow f/2.8 focus, focused inspection light, looking at digital measurement display, craftsmanship emphasis, 16:9 8K",
+      "15: First-person POV, through a car windshield on a scenic road with hands on the steering wheel, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, static movement, 35mm lens, deep f/5.6 focus, bright natural daylight, looking forward at road ahead, aspirational payoff, 16:9 8K",
+      "16: First-person POV, rearview mirror reflection of a factory complex shrinking in the distance, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, pull back movement, 50mm lens, deep f/4.0 focus, natural daylight, looking at rearview mirror reflection, narrative bookend, 16:9 8K",
+      "17: First-person POV, extreme close-up of a final bolt being tightened on a car component, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft ambient light, looking at a final bolt being tightened, sensory memory trigger, 16:9 8K"
+    ],
+    "numPrompts": 17,
+    "executionTime": 555,
+    "rawResponse": "```json\n[\n  \"1: First-person POV, approaching a massive modern car assembly factory entrance, massive hydraulic presses in motion, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push in movement, 35mm lens, deep f/5.6 focus, bright even industrial lighting, looking forward at factory entrance, immersive first-person perspective, 16:9 8K\",\n  \"2: First-person POV, close-up of steel sheets loading onto a conveyor belt, a hydraulic stamp descending, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at steel sheets on conveyor, raw material transformation, 16:9 8K\",\n  \"3: First-person POV, extreme close-up of a stamping die impact with metal deformation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, bright even industrial lighting with practical highlights, looking directly at stamping die impact, industrial power demonstration, 16:9 8K\",\n  \"4: First-person POV, tracking along an emerging car chassis structure with welding sparks, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan right movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting with welding sparks, tracking chassis movement, structural revelation, 16:9 8K\",\n  \"5: First-person POV, low-angle view of a welding robot arm dancing around car chassis components, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, dynamic composition, low-angle camera angle, tilt up movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting with intense welding arcs, looking up at welding arms, robotic ballet visual spectacle, 16:9 8K\",\n  \"6: First-person POV, inside a pristine paint booth with a rotating car body and mist clouds, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, static movement, 24mm lens, deep f/8.0 focus, bright clean diffused lighting, looking forward at car body entering paint booth, color explosion contrast, 16:9 8K\",\n  \"7: First-person POV, overhead view of a car engine unit descending into a car bay with alignment guides, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push down movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at engine descending into bay, mechanical mating suspense, 16:9 8K\",\n  \"8: First-person POV, close-up of a car dashboard installation with a glowing instrument cluster, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft interior lighting with glowing instruments, looking at dashboard installation, technological intimacy reveal, 16:9 8K\",\n  \"9: First-person POV, along a car assembly line showing final components snapping into place, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan left movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting, tracking car's movement on line, completion anticipation, 16:9 8K\",\n  \"10: First-person POV, revealing a completed car body rotating on a final platform, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, pull back movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting, looking at completed car rotating, transformation payoff, 16:9 8K\",\n  \"11: First-person POV, close inspection of a car's emblem with factory lights reflecting, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, focused spotlight on emblem, looking at car's emblem, emotional brand connection, 16:9 8K\",\n  \"12: First-person POV, from a test driver seat during track performance evaluation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push forward movement, 35mm lens, deep f/4.0 focus, bright outdoor daylight, looking forward through windshield, operational validation, 16:9 8K\",\n  \"13: First-person POV, looking down a production line with endless identical vehicles, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, leading lines composition, eye-level camera angle, pan right movement, 24mm lens, deep f/8.0 focus, bright even industrial lighting, looking down the production line, industrial scale reveal, 16:9 8K\",\n  \"14: First-person POV, extreme close-up of panel gaps being measured digitally on a car body, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 100mm macro lens, shallow f/2.8 focus, focused inspection light, looking at digital measurement display, craftsmanship emphasis, 16:9 8K\",\n  \"15: First-person POV, through a car windshield on a scenic road with hands on the steering wheel, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, static movement, 35mm lens, deep f/5.6 focus, bright natural daylight, looking forward at road ahead, aspirational payoff, 16:9 8K\",\n  \"16: First-person POV, rearview mirror reflection of a factory complex shrinking in the distance, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, pull back movement, 50mm lens, deep f/4.0 focus, natural daylight, looking at rearview mirror reflection, narrative bookend, 16:9 8K\",\n  \"17: First-person POV, extreme close-up of a final bolt being tightened on a car component, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft ambient light, looking at a final bolt being tightened, sensory memory trigger, 16:9 8K\"\n]\n```",
+    "usage": {
+      "prompt_tokens": 5833,
+      "completion_tokens": 1662,
+      "total_tokens": 7495
+    },
+    "sessionId": "Test_74"
+  },
+  "rawResponse": "```json\n[\n  \"1: First-person POV, approaching a massive modern car assembly factory entrance, massive hydraulic presses in motion, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push in movement, 35mm lens, deep f/5.6 focus, bright even industrial lighting, looking forward at factory entrance, immersive first-person perspective, 16:9 8K\",\n  \"2: First-person POV, close-up of steel sheets loading onto a conveyor belt, a hydraulic stamp descending, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at steel sheets on conveyor, raw material transformation, 16:9 8K\",\n  \"3: First-person POV, extreme close-up of a stamping die impact with metal deformation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, bright even industrial lighting with practical highlights, looking directly at stamping die impact, industrial power demonstration, 16:9 8K\",\n  \"4: First-person POV, tracking along an emerging car chassis structure with welding sparks, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan right movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting with welding sparks, tracking chassis movement, structural revelation, 16:9 8K\",\n  \"5: First-person POV, low-angle view of a welding robot arm dancing around car chassis components, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, dynamic composition, low-angle camera angle, tilt up movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting with intense welding arcs, looking up at welding arms, robotic ballet visual spectacle, 16:9 8K\",\n  \"6: First-person POV, inside a pristine paint booth with a rotating car body and mist clouds, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, static movement, 24mm lens, deep f/8.0 focus, bright clean diffused lighting, looking forward at car body entering paint booth, color explosion contrast, 16:9 8K\",\n  \"7: First-person POV, overhead view of a car engine unit descending into a car bay with alignment guides, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push down movement, 50mm lens, shallow f/2.8 focus, bright even industrial lighting, looking down at engine descending into bay, mechanical mating suspense, 16:9 8K\",\n  \"8: First-person POV, close-up of a car dashboard installation with a glowing instrument cluster, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, rule-of-thirds composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft interior lighting with glowing instruments, looking at dashboard installation, technological intimacy reveal, 16:9 8K\",\n  \"9: First-person POV, along a car assembly line showing final components snapping into place, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, leading lines composition, eye-level camera angle, pan left movement, 35mm lens, deep f/4.0 focus, bright even industrial lighting, tracking car's movement on line, completion anticipation, 16:9 8K\",\n  \"10: First-person POV, revealing a completed car body rotating on a final platform, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, centered composition, eye-level camera angle, pull back movement, 24mm lens, deep f/5.6 focus, bright even industrial lighting, looking at completed car rotating, transformation payoff, 16:9 8K\",\n  \"11: First-person POV, close inspection of a car's emblem with factory lights reflecting, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/2.0 focus, focused spotlight on emblem, looking at car's emblem, emotional brand connection, 16:9 8K\",\n  \"12: First-person POV, from a test driver seat during track performance evaluation, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, push forward movement, 35mm lens, deep f/4.0 focus, bright outdoor daylight, looking forward through windshield, operational validation, 16:9 8K\",\n  \"13: First-person POV, looking down a production line with endless identical vehicles, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic wide shot, leading lines composition, eye-level camera angle, pan right movement, 24mm lens, deep f/8.0 focus, bright even industrial lighting, looking down the production line, industrial scale reveal, 16:9 8K\",\n  \"14: First-person POV, extreme close-up of panel gaps being measured digitally on a car body, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 100mm macro lens, shallow f/2.8 focus, focused inspection light, looking at digital measurement display, craftsmanship emphasis, 16:9 8K\",\n  \"15: First-person POV, through a car windshield on a scenic road with hands on the steering wheel, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, static movement, 35mm lens, deep f/5.6 focus, bright natural daylight, looking forward at road ahead, aspirational payoff, 16:9 8K\",\n  \"16: First-person POV, rearview mirror reflection of a factory complex shrinking in the distance, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic medium shot, centered composition, eye-level camera angle, pull back movement, 50mm lens, deep f/4.0 focus, natural daylight, looking at rearview mirror reflection, narrative bookend, 16:9 8K\",\n  \"17: First-person POV, extreme close-up of a final bolt being tightened on a car component, modern car assembly factory, industrial cool tones, metallic grays, vibrant safety colors, cinematic extreme close-up, centered composition, eye-level camera angle, static movement, 85mm lens, shallow f/1.8 focus, soft ambient light, looking at a final bolt being tightened, sensory memory trigger, 16:9 8K\"\n]\n```"
+}

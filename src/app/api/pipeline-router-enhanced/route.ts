@@ -69,7 +69,7 @@ Provide your analysis and routing decision in the specified JSON format.`;
         }
       ],
       temperature: 0.3,
-      max_tokens: 4000,
+      max_tokens: 9000,
     };
 
     console.log('Sending request with body:', JSON.stringify(requestBody).substring(0, 500) + '...');

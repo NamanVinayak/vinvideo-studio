@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
 interface NoMusicVideoState {
   stage: number;
@@ -148,6 +149,30 @@ export default function NoMusicVideoPipelinePage() {
           currentStep: 'Stage 1 complete!'
         }));
         console.log('✅ Stage 1 Complete: Vision Understanding', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'vision_understanding',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            userInput: formData.concept,
+            additionalContext: {
+              stylePreferences: {
+                pacing: formData.pacing,
+                visualStyle: formData.style,
+                duration: formData.duration
+              },
+              technicalRequirements: {
+                contentType: formData.contentType
+              }
+            }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'Vision understanding failed');
       }
@@ -190,6 +215,21 @@ export default function NoMusicVideoPipelinePage() {
           currentStep: 'Stage 2 complete!'
         }));
         console.log('✅ Stage 2 Complete: No-Music Director', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_director',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            userVisionDocument: state.visionDocument,
+            contentClassification: { type: 'narrative_visual' }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'Director failed');
       }
@@ -235,6 +275,22 @@ export default function NoMusicVideoPipelinePage() {
           currentStep: 'Stage 3 complete!'
         }));
         console.log('✅ Stage 3 Complete: No-Music DoP', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_dop',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            directorVisualBeats,
+            visionDocument: state.visionDocument,
+            contentClassification: { type: 'narrative_visual' }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'DoP failed');
       }
@@ -286,6 +342,23 @@ export default function NoMusicVideoPipelinePage() {
           currentStep: 'Stage 4 complete!'
         }));
         console.log('✅ Stage 4 Complete: No-Music Prompt Engineer', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'no_music_prompt_engineer',
+          response: result,
+          pipelineType: 'NO_MUSIC_VIDEO',
+          sessionId: `no_music_video_${Date.now()}`,
+          projectFolder: `no_music_video_${Date.now()}`,
+          input: {
+            userVisionDocument: state.visionDocument,
+            directorBeats,
+            dopSpecs,
+            contentClassification: { type: 'narrative_visual' }
+          },
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
       } else {
         throw new Error(result.error || 'Prompt Engineer failed');
       }

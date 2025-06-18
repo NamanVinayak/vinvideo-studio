@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     console.log('Enhanced Script DoP called with:', {
       user_visual_style: scriptModeUserContext.settings.visualStyle,
       user_pacing: scriptModeUserContext.settings.pacing,
-      content_type: scriptModeUserContext.scriptContext?.content_type,
+      content_type: scriptModeUserContext.scriptContext?.script_analysis?.content_type,
       beat_count: expectedBeatCount
     });
     
@@ -51,13 +51,13 @@ Please create cinematography that:
 1. Serves the exact script content
 2. Implements the user's "${scriptModeUserContext.settings.visualStyle}" visual style
 3. Matches the "${scriptModeUserContext.settings.pacing}" pacing with appropriate camera work
-4. Enhances "${scriptModeUserContext.scriptContext?.content_type || 'general'}" content appropriately
+4. Enhances "${scriptModeUserContext.scriptContext?.script_analysis?.content_type || 'general'}" content appropriately
 5. GENERATES EXACTLY ${expectedBeatCount} SHOTS (one for each Director beat)
 
 CRITICAL: Every shot must specify gaze direction for any characters.`;
     
     const payload = {
-      model: "anthropic/claude-3.5-sonnet",
+      model: "google/gemini-2.5-flash-preview-05-20:thinking",
       messages: [
         {
           role: "system",
@@ -69,7 +69,7 @@ CRITICAL: Every shot must specify gaze direction for any characters.`;
         }
       ],
       temperature: 0.3,
-      max_tokens: 15000
+      max_tokens: 20000
     };
     
     const startTime = Date.now();

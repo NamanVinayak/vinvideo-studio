@@ -77,7 +77,7 @@ Generate the complete vision analysis as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
@@ -88,7 +88,7 @@ Generate the complete vision analysis as JSON only.`;
           content: userContent
         }
       ],
-      max_tokens: 8000,           // Increased for complete vision analysis
+      max_tokens: 13000,          // Increased for complete vision analysis
       temperature: 0.2,           // Low creativity - focus on accurate analysis
       top_p: 0.4,                // Focused analysis approach
       frequency_penalty: 0.1,     // Slight penalty for repetitive analysis

@@ -94,7 +94,7 @@ Please analyze this music and vision data to make optimal timing decisions.
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
+        model: 'google/gemini-2.5-flash-preview-05-20:thinking',
         messages: [
           {
             role: 'system',

@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
     // EXACT OpenRouter payload structure
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
           content: userContent
         }
       ],
-      max_tokens: 12000,          // Increased for enhanced agent instructions output
+      max_tokens: 17000,          // Increased for enhanced agent instructions output
       temperature: 0.3,           // Slightly higher for creative audio concepts
       top_p: 0.5,                 // Balanced for audio-visual creativity
       stream: false

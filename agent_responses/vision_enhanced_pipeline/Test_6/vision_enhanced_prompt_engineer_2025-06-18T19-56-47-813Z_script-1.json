@@ -1,0 +1,496 @@
+{
+  "metadata": {
+    "agentName": "vision_enhanced_prompt_engineer",
+    "pipelineType": "VISION_ENHANCED",
+    "sessionId": "script-1750276425545-59d6a2e2",
+    "projectFolder": "script-1750276425545-59d6a2e2",
+    "testFolder": "Test_6",
+    "timestamp": "2025-06-18T19:56:47.813Z",
+    "executionTime": 10139,
+    "model": "unknown"
+  },
+  "input": {
+    "director_output": {
+      "project_metadata": {
+        "target_platform": "General",
+        "content_type": "Explainer/Process",
+        "primary_concept": "Food's-eye-view journey through burger creation",
+        "entity_summary": [
+          {
+            "name": "Factory environment",
+            "type": "Location",
+            "role_in_scene": "primary",
+            "entity_context": "Modern automated food production facility"
+          },
+          {
+            "name": "Beef patty",
+            "type": "Food",
+            "role_in_scene": "primary",
+            "entity_context": "Grilling centerpiece of burger assembly"
+          },
+          {
+            "name": "Bun",
+            "type": "Food",
+            "role_in_scene": "primary",
+            "entity_context": "Base structure for ingredient stacking"
+          },
+          {
+            "name": "Assembly machinery",
+            "type": "Object",
+            "role_in_scene": "secondary",
+            "entity_context": "Precision food handling equipment"
+          }
+        ]
+      },
+      "narrative_beats": [
+        {
+          "beat_no": 1,
+          "timecode_start": "0:00",
+          "estimated_duration_s": 4,
+          "script_phrase": "Ever wonder how a McDonald's hamburger comes to life?",
+          "narrative_function": "Atmospheric setup",
+          "emotional_tone": "Curious anticipation",
+          "creative_vision": "Low-angle tracking shot through sterile factory corridor",
+          "audience_retention_strategy": "Mysterious environment reveal",
+          "turning_point": false,
+          "entities": [
+            "Factory environment"
+          ]
+        },
+        {
+          "beat_no": 2,
+          "timecode_start": "0:04",
+          "estimated_duration_s": 6,
+          "script_phrase": "Our journey begins as fresh ingredients arrive",
+          "narrative_function": "Process initiation",
+          "emotional_tone": "Mechanical precision",
+          "creative_vision": "Overhead conveyor POV with vegetable crates descending",
+          "audience_retention_strategy": "Scale demonstration",
+          "turning_point": true,
+          "entities": [
+            "Factory environment"
+          ]
+        },
+        {
+          "beat_no": 3,
+          "timecode_start": "0:09",
+          "estimated_duration_s": 6,
+          "script_phrase": "perfectly seasoned beef patties are grilled to perfection",
+          "narrative_function": "Core element focus",
+          "emotional_tone": "Intense heat",
+          "creative_vision": "Extreme close-up of patty sizzling on grill surface",
+          "audience_retention_strategy": "Sensory immersion",
+          "turning_point": false,
+          "entities": [
+            "Beef patty"
+          ]
+        },
+        {
+          "beat_no": 4,
+          "timecode_start": "0:15",
+          "estimated_duration_s": 6,
+          "script_phrase": "soft, toasted buns glide along the line",
+          "narrative_function": "Structural foundation",
+          "emotional_tone": "Delicate handling",
+          "creative_vision": "Bun's-eye-view of conveyor with steam rising around edges",
+          "audience_retention_strategy": "Perspective reversal",
+          "turning_point": false,
+          "entities": [
+            "Bun"
+          ]
+        },
+        {
+          "beat_no": 5,
+          "timecode_start": "0:21",
+          "estimated_duration_s": 7,
+          "script_phrase": "crisp lettuce, tangy pickles, and savory onions",
+          "narrative_function": "Layered complexity",
+          "emotional_tone": "Fresh crispness",
+          "creative_vision": "High-speed overhead shots of ingredients cascading downward",
+          "audience_retention_strategy": "Kinetic energy",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 6,
+          "timecode_start": "0:28",
+          "estimated_duration_s": 4,
+          "script_phrase": "signature sauce and melty cheese application",
+          "narrative_function": "Flavor enhancement",
+          "emotional_tone": "Visceral satisfaction",
+          "creative_vision": "Extreme close-up of sauce nozzle depositing precise spiral",
+          "audience_retention_strategy": "Hypnotic precision",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 7,
+          "timecode_start": "0:32",
+          "estimated_duration_s": 5,
+          "script_phrase": "symphony of flavors assembled with speed",
+          "narrative_function": "Culmination",
+          "emotional_tone": "Harmonic convergence",
+          "creative_vision": "360-degree burger rotation under assembly lights",
+          "audience_retention_strategy": "Product glamorization",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 8,
+          "timecode_start": "0:37",
+          "estimated_duration_s": 4,
+          "script_phrase": "assembled with speed and care",
+          "narrative_function": "Process demonstration",
+          "emotional_tone": "Industrial efficiency",
+          "creative_vision": "Low-angle tracking shot through packaging machinery",
+          "audience_retention_strategy": "Mechanical ballet",
+          "turning_point": false,
+          "entities": [
+            "Assembly machinery"
+          ]
+        },
+        {
+          "beat_no": 9,
+          "timecode_start": "0:41",
+          "estimated_duration_s": 4,
+          "script_phrase": "from factory floor to your hands",
+          "narrative_function": "Journey completion",
+          "emotional_tone": "Purposeful motion",
+          "creative_vision": "POV shot moving through packaging into dark delivery chute",
+          "audience_retention_strategy": "Journey continuation",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 10,
+          "timecode_start": "0:45",
+          "estimated_duration_s": 5,
+          "script_phrase": "crafted for millions around the world",
+          "narrative_function": "Global scale",
+          "emotional_tone": "Expansive achievement",
+          "creative_vision": "Grid pattern of identical burgers extending to horizon",
+          "audience_retention_strategy": "Pattern hypnosis",
+          "turning_point": true,
+          "entities": []
+        },
+        {
+          "beat_no": 11,
+          "timecode_start": "0:50",
+          "estimated_duration_s": 5,
+          "script_phrase": "",
+          "narrative_function": "Brand reinforcement",
+          "emotional_tone": "Satisfied resolution",
+          "creative_vision": "Slow zoom out from burger grid to golden arches logo",
+          "audience_retention_strategy": "Brand imprinting",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 12,
+          "timecode_start": "0:55",
+          "estimated_duration_s": 5,
+          "script_phrase": "",
+          "narrative_function": "Final emphasis",
+          "emotional_tone": "Completion",
+          "creative_vision": "Text overlay animation over burger close-up",
+          "audience_retention_strategy": "Information delivery",
+          "turning_point": false,
+          "entities": []
+        },
+        {
+          "beat_no": 13,
+          "timecode_start": "1:00",
+          "estimated_duration_s": 0,
+          "script_phrase": "",
+          "narrative_function": "Conclusion",
+          "emotional_tone": "Finality",
+          "creative_vision": "Black screen with final logo/message",
+          "audience_retention_strategy": "Clean finish",
+          "turning_point": false,
+          "entities": []
+        }
+      ],
+      "requires_user_clarification": ""
+    },
+    "dop_output": [
+      {
+        "beat_no": 1,
+        "timecode_start": "0:00",
+        "emotion": "Curious anticipation",
+        "shot_size": "wide shot",
+        "composition": "leading lines",
+        "camera_angle": "low-angle",
+        "movement": "tracking shot",
+        "movement_rationale": "Immerses viewer in factory environment from food's perspective.",
+        "lens": "24mm",
+        "focus_depth": "deep f/8",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking forward along corridor",
+        "handoff_notes": "Establishes the setting and POV for the journey."
+      },
+      {
+        "beat_no": 2,
+        "timecode_start": "0:04",
+        "emotion": "Mechanical precision",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "overhead",
+        "movement": "push in",
+        "movement_rationale": "Highlights the arrival of raw materials, initiating the process.",
+        "lens": "35mm",
+        "focus_depth": "medium f/5.6",
+        "lighting": "bright, clean industrial",
+        "gaze_direction": "looking down at conveyor",
+        "handoff_notes": "Shows the beginning of the food's transformation journey."
+      },
+      {
+        "beat_no": 3,
+        "timecode_start": "0:09",
+        "emotion": "Intense heat",
+        "shot_size": "extreme close-up",
+        "composition": "centered",
+        "camera_angle": "low-angle",
+        "movement": "static",
+        "movement_rationale": "Emphasizes the sizzling and texture of the patty, conveying flavor.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/1.8",
+        "lighting": "warm highlights on patty",
+        "gaze_direction": "looking at grill surface",
+        "handoff_notes": "Focuses on the core ingredient's preparation and sensory appeal."
+      },
+      {
+        "beat_no": 4,
+        "timecode_start": "0:15",
+        "emotion": "Delicate handling",
+        "shot_size": "close-up",
+        "composition": "rule-of-thirds",
+        "camera_angle": "low-angle",
+        "movement": "tracking shot",
+        "movement_rationale": "Follows the bun's journey, showing its preparation for assembly.",
+        "lens": "50mm",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "soft, diffused industrial",
+        "gaze_direction": "looking forward along conveyor",
+        "handoff_notes": "Illustrates the next step in the burger's construction."
+      },
+      {
+        "beat_no": 5,
+        "timecode_start": "0:21",
+        "emotion": "Fresh crispness",
+        "shot_size": "medium close-up",
+        "composition": "dynamic",
+        "camera_angle": "overhead",
+        "movement": "pan down",
+        "movement_rationale": "Captures the rapid, precise addition of fresh ingredients.",
+        "lens": "35mm",
+        "focus_depth": "medium f/4",
+        "lighting": "bright, clean industrial",
+        "gaze_direction": "looking down at ingredients",
+        "handoff_notes": "Shows the layering process and adds visual complexity."
+      },
+      {
+        "beat_no": 6,
+        "timecode_start": "0:28",
+        "emotion": "Visceral satisfaction",
+        "shot_size": "extreme close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Highlights the precise application of sauce and cheese, crucial for flavor.",
+        "lens": "100mm macro",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "focused spotlight on sauce",
+        "gaze_direction": "looking at sauce application",
+        "handoff_notes": "Emphasizes the final liquid elements that complete the flavor profile."
+      },
+      {
+        "beat_no": 7,
+        "timecode_start": "0:32",
+        "emotion": "Harmonic convergence",
+        "shot_size": "medium close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "360-degree rotation",
+        "movement_rationale": "Showcases the complete burger, emphasizing its transformation.",
+        "lens": "50mm",
+        "focus_depth": "medium f/4",
+        "lighting": "soft key, warm fill",
+        "gaze_direction": "looking at assembled burger",
+        "handoff_notes": "Reveals the finished product, a culmination of all ingredients."
+      },
+      {
+        "beat_no": 8,
+        "timecode_start": "0:37",
+        "emotion": "Industrial efficiency",
+        "shot_size": "wide shot",
+        "composition": "leading lines",
+        "camera_angle": "low-angle",
+        "movement": "tracking shot",
+        "movement_rationale": "Demonstrates the speed and automation of the final assembly.",
+        "lens": "24mm",
+        "focus_depth": "deep f/8",
+        "lighting": "bright, even industrial",
+        "gaze_direction": "looking along assembly line",
+        "handoff_notes": "Conveys the scale and precision of the factory process."
+      },
+      {
+        "beat_no": 9,
+        "timecode_start": "0:41",
+        "emotion": "Purposeful motion",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "low-angle",
+        "movement": "push in",
+        "movement_rationale": "Follows the burger's journey towards packaging and delivery.",
+        "lens": "35mm",
+        "focus_depth": "medium f/5.6",
+        "lighting": "bright, clean industrial",
+        "gaze_direction": "looking towards packaging",
+        "handoff_notes": "Connects the factory process to the consumer's experience."
+      },
+      {
+        "beat_no": 10,
+        "timecode_start": "0:45",
+        "emotion": "Expansive achievement",
+        "shot_size": "wide shot",
+        "composition": "grid pattern",
+        "camera_angle": "high-angle",
+        "movement": "pull out",
+        "movement_rationale": "Illustrates the vast quantity of burgers produced globally.",
+        "lens": "24mm",
+        "focus_depth": "deep f/11",
+        "lighting": "bright, uniform",
+        "gaze_direction": "looking at endless burgers",
+        "handoff_notes": "Emphasizes the global reach and scale of production."
+      },
+      {
+        "beat_no": 11,
+        "timecode_start": "0:50",
+        "emotion": "Satisfied resolution",
+        "shot_size": "medium shot",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "slow zoom out",
+        "movement_rationale": "Reinforces brand identity and connects product to company.",
+        "lens": "50mm",
+        "focus_depth": "medium f/4",
+        "lighting": "warm, inviting",
+        "gaze_direction": "looking at logo",
+        "handoff_notes": "Provides a clear brand association for the viewer."
+      },
+      {
+        "beat_no": 12,
+        "timecode_start": "0:55",
+        "emotion": "Completion",
+        "shot_size": "close-up",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Allows for clear display of concluding text or message.",
+        "lens": "85mm",
+        "focus_depth": "shallow f/2.8",
+        "lighting": "soft, even",
+        "gaze_direction": "looking at burger",
+        "handoff_notes": "Provides a clean canvas for final information delivery."
+      },
+      {
+        "beat_no": 13,
+        "timecode_start": "1:00",
+        "emotion": "Finality",
+        "shot_size": "full screen",
+        "composition": "centered",
+        "camera_angle": "eye-level",
+        "movement": "static",
+        "movement_rationale": "Concludes the video cleanly with a final brand statement.",
+        "lens": "50mm",
+        "focus_depth": "deep f/8",
+        "lighting": "dark, minimalist",
+        "gaze_direction": "looking at screen",
+        "handoff_notes": "Provides a definitive end to the narrative journey."
+      }
+    ],
+    "script": "Ever wonder how a McDonald's hamburger comes to life? Our journey begins as fresh ingredients arrive, ready for their transformation. Watch closely as the perfectly seasoned beef patties are grilled to perfection, sizzling with flavor. Then, the soft, toasted buns glide along the line, awaiting their destiny. Crisp lettuce, tangy pickles, and savory onions are added with incredible precision. A dollop of signature sauce, a slice of melty cheese, and suddenly, it's more than just ingredients. It's a symphony of flavors, assembled with speed and care. From the factory floor to your hands, every McDonald's hamburger is a testament to efficiency and taste, crafted for millions around the world.",
+    "visionDocument": {
+      "core_concept": "A high-energy, immersive journey through McDonald's hamburger factory, from the food's perspective.",
+      "emotion_arc": [
+        "Curiosity",
+        "Anticipation",
+        "Precision",
+        "Transformation",
+        "Satisfaction"
+      ],
+      "pacing": "fast",
+      "visual_style": "cinematic",
+      "detected_artistic_style": "not_mentioned",
+      "duration_s": 60,
+      "content_classification": {
+        "type": "narrative_driven"
+      },
+      "visual_complexity": "complex",
+      "color_philosophy": "Bright, clean, and vibrant colors emphasizing freshness and industrial efficiency, with warm tones for the final product.",
+      "narration_optimization": {
+        "vocal_style": "energetic|informative|precise",
+        "emphasis_points": [
+          "journey begins",
+          "precision of machinery",
+          "transformation of ingredients",
+          "final assembly",
+          "global reach"
+        ],
+        "natural_pauses": [
+          "between stages",
+          "for dramatic effect",
+          "before the reveal"
+        ],
+        "audio_visual_sync": "tight"
+      }
+    },
+    "userContext": {
+      "originalPrompt": "Create a 1 minute long video 'How McDonald's Hamburgers Are Made in a Factory' make this video from the pov of the food assembly line, like the camera is put near the line where the burger is being made.",
+      "settings": {
+        "duration": 60,
+        "pacing": "fast",
+        "visualStyle": "cinematic",
+        "contentType": "storytelling",
+        "voiceSelection": "enceladus"
+      },
+      "pipeline": {
+        "mode": "vision_enhanced",
+        "timestamp": "2025-06-18T19:53:45.548Z",
+        "sessionId": "script-1750276425545-59d6a2e2"
+      },
+      "constraints": {
+        "mustMatchDuration": true,
+        "durationTolerance": 5
+      }
+    }
+  },
+  "response": {
+    "success": true,
+    "promptsOutput": [
+      "1: POV shot, clean modern food factory corridor, stainless steel machinery, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along corridor, 16:9 8K",
+      "2: POV shot, overhead conveyor belt, vegetable crates descending into view, modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at conveyor, 16:9 8K",
+      "3: Extreme close-up, perfectly seasoned beef patty sizzling on a clean grill surface, intense heat, warm highlights on patty, low-angle static shot, centered composition, shallow f/1.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at grill surface, 16:9 8K",
+      "4: POV shot, soft toasted bun gliding along a clean conveyor line, steam rising around edges, modern food factory, soft diffused industrial lighting, close-up tracking shot, rule-of-thirds composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along conveyor, 16:9 8K",
+      "5: POV shot, high-speed overhead view, crisp lettuce, tangy pickles, savory onions cascading downward onto a clean surface, modern food factory, bright clean industrial lighting, medium close-up, dynamic composition, pan down movement, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at ingredients, 16:9 8K",
+      "6: Extreme close-up, signature sauce nozzle depositing a precise spiral onto a clean surface, melty cheese visible, modern food factory, focused spotlight on sauce, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at sauce application, 16:9 8K",
+      "7: Medium close-up, fully assembled hamburger rotating 360 degrees under bright assembly lights, modern food factory, soft key and warm fill lighting, eye-level 360-degree rotation, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at assembled burger, 16:9 8K",
+      "8: POV shot, packaging machinery in a clean modern food factory, stainless steel, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking along assembly line, 16:9 8K",
+      "9: POV shot, burger moving towards packaging, clean modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking towards packaging, 16:9 8K",
+      "10: POV shot, grid pattern of identical hamburgers extending to the horizon, clean modern food factory, bright uniform lighting, high-angle pull out shot, grid pattern composition, deep f/11 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at endless burgers, 16:9 8K",
+      "11: Medium shot, golden arches logo, warm inviting lighting, eye-level slow zoom out, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at logo, 16:9 8K",
+      "12: Close-up, fully assembled hamburger, soft even lighting, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at burger, 16:9 8K",
+      "13: Black screen, minimalist, dark lighting, full screen static shot, centered composition, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at screen, 16:9 8K"
+    ],
+    "numPrompts": 13,
+    "executionTime": 10139,
+    "rawResponse": "```json\n[\n  \"1: POV shot, clean modern food factory corridor, stainless steel machinery, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along corridor, 16:9 8K\",\n  \"2: POV shot, overhead conveyor belt, vegetable crates descending into view, modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at conveyor, 16:9 8K\",\n  \"3: Extreme close-up, perfectly seasoned beef patty sizzling on a clean grill surface, intense heat, warm highlights on patty, low-angle static shot, centered composition, shallow f/1.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at grill surface, 16:9 8K\",\n  \"4: POV shot, soft toasted bun gliding along a clean conveyor line, steam rising around edges, modern food factory, soft diffused industrial lighting, close-up tracking shot, rule-of-thirds composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along conveyor, 16:9 8K\",\n  \"5: POV shot, high-speed overhead view, crisp lettuce, tangy pickles, savory onions cascading downward onto a clean surface, modern food factory, bright clean industrial lighting, medium close-up, dynamic composition, pan down movement, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at ingredients, 16:9 8K\",\n  \"6: Extreme close-up, signature sauce nozzle depositing a precise spiral onto a clean surface, melty cheese visible, modern food factory, focused spotlight on sauce, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at sauce application, 16:9 8K\",\n  \"7: Medium close-up, fully assembled hamburger rotating 360 degrees under bright assembly lights, modern food factory, soft key and warm fill lighting, eye-level 360-degree rotation, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at assembled burger, 16:9 8K\",\n  \"8: POV shot, packaging machinery in a clean modern food factory, stainless steel, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking along assembly line, 16:9 8K\",\n  \"9: POV shot, burger moving towards packaging, clean modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking towards packaging, 16:9 8K\",\n  \"10: POV shot, grid pattern of identical hamburgers extending to the horizon, clean modern food factory, bright uniform lighting, high-angle pull out shot, grid pattern composition, deep f/11 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at endless burgers, 16:9 8K\",\n  \"11: Medium shot, golden arches logo, warm inviting lighting, eye-level slow zoom out, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at logo, 16:9 8K\",\n  \"12: Close-up, fully assembled hamburger, soft even lighting, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at burger, 16:9 8K\",\n  \"13: Black screen, minimalist, dark lighting, full screen static shot, centered composition, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at screen, 16:9 8K\"\n]\n```",
+    "usage": {
+      "prompt_tokens": 4904,
+      "completion_tokens": 920,
+      "total_tokens": 5824
+    },
+    "sessionId": "Test_79"
+  },
+  "rawResponse": "```json\n[\n  \"1: POV shot, clean modern food factory corridor, stainless steel machinery, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along corridor, 16:9 8K\",\n  \"2: POV shot, overhead conveyor belt, vegetable crates descending into view, modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at conveyor, 16:9 8K\",\n  \"3: Extreme close-up, perfectly seasoned beef patty sizzling on a clean grill surface, intense heat, warm highlights on patty, low-angle static shot, centered composition, shallow f/1.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at grill surface, 16:9 8K\",\n  \"4: POV shot, soft toasted bun gliding along a clean conveyor line, steam rising around edges, modern food factory, soft diffused industrial lighting, close-up tracking shot, rule-of-thirds composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking forward along conveyor, 16:9 8K\",\n  \"5: POV shot, high-speed overhead view, crisp lettuce, tangy pickles, savory onions cascading downward onto a clean surface, modern food factory, bright clean industrial lighting, medium close-up, dynamic composition, pan down movement, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking down at ingredients, 16:9 8K\",\n  \"6: Extreme close-up, signature sauce nozzle depositing a precise spiral onto a clean surface, melty cheese visible, modern food factory, focused spotlight on sauce, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at sauce application, 16:9 8K\",\n  \"7: Medium close-up, fully assembled hamburger rotating 360 degrees under bright assembly lights, modern food factory, soft key and warm fill lighting, eye-level 360-degree rotation, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at assembled burger, 16:9 8K\",\n  \"8: POV shot, packaging machinery in a clean modern food factory, stainless steel, bright even industrial lighting, low-angle tracking shot with leading lines, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking along assembly line, 16:9 8K\",\n  \"9: POV shot, burger moving towards packaging, clean modern food factory, stainless steel machinery, bright clean industrial lighting, medium shot, centered composition, push in movement, medium f/5.6 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking towards packaging, 16:9 8K\",\n  \"10: POV shot, grid pattern of identical hamburgers extending to the horizon, clean modern food factory, bright uniform lighting, high-angle pull out shot, grid pattern composition, deep f/11 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at endless burgers, 16:9 8K\",\n  \"11: Medium shot, golden arches logo, warm inviting lighting, eye-level slow zoom out, centered composition, medium f/4 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at logo, 16:9 8K\",\n  \"12: Close-up, fully assembled hamburger, soft even lighting, eye-level static shot, centered composition, shallow f/2.8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at burger, 16:9 8K\",\n  \"13: Black screen, minimalist, dark lighting, full screen static shot, centered composition, deep f/8 focus, cinematic, high-definition, industrial photography, clean aesthetic, looking at screen, 16:9 8K\"\n]\n```"
+}

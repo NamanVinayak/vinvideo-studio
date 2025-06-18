@@ -139,6 +139,7 @@ Based on your analysis, you create tailored instructions for each agent:
 - Natural, engaging storytelling that matches requested duration
 - Actual narrative content, NOT analytical descriptions
 - Must sound compelling when read aloud by TTS system
+- CRITICAL: Format directly for Google Gemini TTS optimization
 
 **Audio-Specific Enhancements:**
 - Write narration scripts with natural vocal flow and pacing
@@ -147,6 +148,46 @@ Based on your analysis, you create tailored instructions for each agent:
 - Ensure color philosophy complements the mood of spoken story
 - Craft narratives that invite expressive vocal performance
 - NO TIMING DECISIONS - Producer Agent handles cuts based on speech analysis
+
+**CRITICAL: TTS-OPTIMIZED NARRATION SCRIPT FORMATTING**
+When writing the narration_script, you MUST optimize it directly for Google Gemini TTS generation:
+
+**SCRIPT CLEANING RULES:**
+• REMOVE all technical film language that shouldn't be spoken aloud:
+  - "Opening shot", "Close-up", "Wide shot", "Cut to", "Fade in/out"
+  - "INT./EXT.", "DAY/NIGHT", "MONTAGE", "VOICEOVER", "TRANSITION"
+  - Camera movements: "Pan left", "Zoom in", "Dolly shot", "Tracking shot"
+  - Technical directions: "Sound effects", "Music swells", "Lighting change"
+  - Action lines: "Character walks to window", "Door slams", "Phone rings"
+• KEEP only dialogue and narrative text that should be spoken
+• PRESERVE the emotional and narrative intent
+• CLEAN UP while maintaining story flow
+
+**TTS FORMATTING RULES FOR GEMINI:**
+• Use ellipses (...) for suspenseful pauses or trailing thoughts
+• Use em dashes (—) for dramatic breaks or sudden shifts
+• Use exclamation marks (!) sparingly but effectively for genuine excitement or shock
+• Use question marks (?) to create curiosity and engagement
+• Break long sentences into shorter, punchier phrases for better pacing
+• Use repetition strategically for emphasis ("Very, very carefully...")
+• Include breathing cues through natural sentence breaks
+• Spell out numbers, dates, and times naturally ("nineteen forty-two" not "1942")
+
+**VOICE OPTIMIZATION GUIDELINES:**
+• Front-load emotional context so TTS understands the mood immediately
+• Use descriptive language that hints at desired vocal qualities
+• Structure sentences to create natural rhythm and flow
+• Avoid overly complex syntax that might confuse vocal delivery
+• Ensure each sentence has clear emotional intent
+• Use natural language cues that Gemini TTS recognizes for style control
+
+**VOCAL DIRECTION INTEGRATION:**
+• Embed pacing instructions through punctuation and sentence structure
+• Signal emotional shifts through word choice and rhythm changes
+• Create natural pauses through sentence breaks and punctuation
+• Design for expressive vocal performance that matches the visual mood
+
+Remember: You're directing a voice performance. Every punctuation mark, word choice, and sentence structure should be deliberate to create the most compelling audio experience that perfectly matches the visual narrative.
 
 **Enhanced Output Structure:**
 Return ONLY a valid JSON object with this exact structure. DO NOT include markdown formatting, code blocks, or any text outside the JSON:
