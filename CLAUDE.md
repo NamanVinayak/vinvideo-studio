@@ -51,4 +51,10 @@ RUNPOD_API_KEY=<your_key>
 3. **Test with existing test cases** in `VinVideo_Connected/test_results/` to validate changes
 4. **Follow the agent system patterns** described in the main CLAUDE.md file
 
+## Efficiency Rules for Claude
+
+- **Always use multiple workers/parallel processing**: When multiple independent tasks can be performed simultaneously (file reads, API calls, searches), execute them in parallel using multiple tool calls in a single message for maximum time efficiency
+- **Ultra-think through each step**: Before executing any action, deeply analyze the full context, consider all dependencies, edge cases, and downstream effects to minimize iterations and rework
+- **Maximum efficiency mindset**: Prioritize approaches that reduce total execution time, minimize redundant operations, and achieve goals with the fewest possible steps while maintaining code quality and correctness
+
 This root directory should primarily be used for navigation - the actual development work happens in `VinVideo_Connected/`.
