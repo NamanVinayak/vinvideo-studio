@@ -89,9 +89,23 @@ export async function POST(request: Request) {
     
     Return complete sophisticated output with agent instructions as JSON only.`;
 
+    // Model selection - support testing mode switching
+    const testMode = request.headers.get('X-Test-Mode'); // 'thinking' | 'regular'
+    let modelName;
+    
+    if (testMode === 'thinking') {
+      modelName = 'google/gemini-2.5-flash-preview-05-20:thinking';
+    } else if (testMode === 'regular') {
+      modelName = 'google/gemini-2.5-flash-preview-05-20';
+    } else {
+      modelName = 'google/gemini-2.5-flash-preview-05-20'; // default
+    }
+    
+    console.log(`🧠 Vision Understanding using model: ${modelName} (test mode: ${testMode || 'default'})`);
+
     // EXACT OpenRouter payload structure
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: modelName,
       messages: [
         {
           role: "system",

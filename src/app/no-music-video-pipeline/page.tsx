@@ -8,8 +8,7 @@ import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
 interface NoMusicVideoState {
   stage: number;
-  visionDocument: any;
-  directorBeats: any;
+  mergedVisionDirectorResult: any; // Combined vision + director output
   dopSpecs: any;
   promptEngineerResult: any;
   generatedImages: string[];
@@ -40,18 +39,16 @@ export default function NoMusicVideoPipelinePage() {
   const urlDuration = searchParams?.get('duration');
   const urlContentType = searchParams?.get('contentType');
   
-  // Execution flags to prevent infinite loops
+  // Execution flags to prevent infinite loops (4-stage pipeline)
   const [stageExecutionFlags, setStageExecutionFlags] = useState({
-    stage2Running: false,
-    stage3Running: false,
-    stage4Running: false,
-    stage5Running: false
+    stage2Running: false, // DoP
+    stage3Running: false, // Prompt Engineer  
+    stage4Running: false  // Image Generation
   });
 
   const [state, setState] = useState<NoMusicVideoState>({
     stage: 1,
-    visionDocument: null,
-    directorBeats: null,
+    mergedVisionDirectorResult: null,
     dopSpecs: null,
     promptEngineerResult: null,
     generatedImages: [],
@@ -73,29 +70,23 @@ export default function NoMusicVideoPipelinePage() {
     }
   });
 
-  // NO-MUSIC PIPELINE VALIDATION
+  // NO-MUSIC PIPELINE VALIDATION (4-stage pipeline)
   const validateStageInputs = (targetStage: number, currentState: NoMusicVideoState): { isValid: boolean; missingInputs: string[] } => {
     const missingInputs: string[] = [];
     
     console.log(`🔍 Validating inputs for No-Music Stage ${targetStage}...`);
     
     switch (targetStage) {
-      case 2: // No-Music Director needs Vision Document
-        if (!currentState.visionDocument) missingInputs.push('visionDocument');
+      case 2: // DoP needs Merged Vision+Director Result
+        if (!currentState.mergedVisionDirectorResult) missingInputs.push('mergedVisionDirectorResult');
         break;
         
-      case 3: // No-Music DoP needs Vision Document + Director Beats
-        if (!currentState.visionDocument) missingInputs.push('visionDocument');
-        if (!currentState.directorBeats) missingInputs.push('directorBeats');
-        break;
-        
-      case 4: // No-Music Prompt Engineer needs Vision Document + Director Beats + DoP Specs
-        if (!currentState.visionDocument) missingInputs.push('visionDocument');
-        if (!currentState.directorBeats) missingInputs.push('directorBeats');
+      case 3: // Prompt Engineer needs Merged Result + DoP Specs
+        if (!currentState.mergedVisionDirectorResult) missingInputs.push('mergedVisionDirectorResult');
         if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
         break;
         
-      case 5: // No-Music Image Generation needs prompts
+      case 4: // Image Generation needs prompts
         if (!currentState.promptEngineerResult) missingInputs.push('promptEngineerResult');
         break;
     }
@@ -105,31 +96,35 @@ export default function NoMusicVideoPipelinePage() {
     return { isValid, missingInputs };
   };
 
-  // STAGE 1: VISION UNDERSTANDING
-  const runStage1VisionUnderstanding = async (formData: any) => {
-    console.log('🚀 Starting No-Music Pipeline Stage 1: Vision Understanding');
+  // STAGE 1: MERGED VISION+DIRECTOR
+  const runStage1MergedVisionDirector = async (formData: any) => {
+    console.log('🚀 Starting No-Music Pipeline Stage 1: Merged Vision+Director');
     setState(prev => ({ 
       ...prev, 
       loading: true, 
       error: null, 
-      currentStep: 'Stage 1: Understanding your vision (no music)...',
+      currentStep: 'Stage 1: Creating vision + narrative beats (merged)...',
       timer: { ...prev.timer, startTime: Date.now(), isRunning: true }
     }));
     
     try {
-      const response = await fetch('/api/no-music-vision-understanding', {
+      const noMusicUserContext = {
+        stylePreferences: {
+          pacing: formData.pacing,
+          visualStyle: formData.style,
+          duration: formData.duration
+        },
+        technicalRequirements: {
+          contentType: formData.contentType
+        }
+      };
+
+      const response = await fetch('/api/no-music-merged-vision-director', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userInput: formData.concept,
-          stylePreferences: {
-            pacing: formData.pacing,
-            visualStyle: formData.style,
-            duration: formData.duration
-          },
-          technicalRequirements: {
-            contentType: formData.contentType
-          }
+          noMusicUserContext
         })
       });
 
@@ -139,130 +134,52 @@ export default function NoMusicVideoPipelinePage() {
         setState(prev => ({
           ...prev,
           stage: 2,
-          visionDocument: {
-            stage1_vision_analysis: result.stage1_vision_analysis,
-            _fullResult: result,
-            _rawResponse: result.rawResponse,
-            _executionTime: result.executionTime
+          mergedVisionDirectorResult: {
+            ...result,
+            _executionTime: result.executionTime || Date.now() - (prev.timer.startTime || Date.now())
           },
           loading: false,
-          currentStep: 'Stage 1 complete!'
+          currentStep: 'Stage 1 complete! Vision + Director merged.'
         }));
-        console.log('✅ Stage 1 Complete: Vision Understanding', result);
+        console.log('✅ Stage 1 Complete: Merged Vision+Director', result);
         
         // Save agent response for debugging
         await saveAgentResponse({
-          agentName: 'vision_understanding',
+          agentName: 'merged_vision_director',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO',
-          sessionId: `no_music_video_${Date.now()}`,
-          projectFolder: `no_music_video_${Date.now()}`,
+          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          sessionId: `no_music_video_merged_${Date.now()}`,
+          projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {
             userInput: formData.concept,
-            additionalContext: {
-              stylePreferences: {
-                pacing: formData.pacing,
-                visualStyle: formData.style,
-                duration: formData.duration
-              },
-              technicalRequirements: {
-                contentType: formData.contentType
-              }
-            }
+            noMusicUserContext
           },
           rawResponse: result.rawResponse,
           executionTime: result.executionTime
         });
       } else {
-        throw new Error(result.error || 'Vision understanding failed');
+        throw new Error(result.error || 'Merged vision+director failed');
       }
     } catch (error) {
       console.error('❌ Stage 1 Error:', error);
       setState(prev => ({ 
         ...prev, 
-        error: error instanceof Error ? error.message : 'Vision understanding failed',
+        error: error instanceof Error ? error.message : 'Merged vision+director failed',
         loading: false 
       }));
     }
   };
 
-  // STAGE 2: NO-MUSIC DIRECTOR
-  const runStage2NoMusicDirector = async () => {
-    console.log('🚀 Starting No-Music Pipeline Stage 2: Director');
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 2: Creating narrative beats...' }));
+  // STAGE 2: NO-MUSIC DOP (Updated for merged input)
+  const runStage2NoMusicDoP = async () => {
+    console.log('🚀 Starting No-Music Pipeline Stage 2: DoP');
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 2: Creating cinematography...' }));
     
     try {
-      // Extract the vision analysis data properly
-      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
-      const visionDocument = visionAnalysis?.vision_document;
-      const agentInstructions = visionAnalysis?.agent_instructions;
-      
-      const response = await fetch('/api/no-music-director-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userVisionDocument: visionDocument,
-          visionAnalysis: visionAnalysis,
-          contentClassification: { type: 'narrative_visual' },
-          noMusicUserContext: null, // Will be added when user context is available
-          agent_instructions: agentInstructions
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          stage: 3,
-          directorBeats: {
-            ...result,
-            _executionTime: result.executionTime
-          },
-          loading: false,
-          currentStep: 'Stage 2 complete!'
-        }));
-        console.log('✅ Stage 2 Complete: No-Music Director', result);
-        
-        // Save agent response for debugging
-        await saveAgentResponse({
-          agentName: 'no_music_director',
-          response: result,
-          pipelineType: 'NO_MUSIC_VIDEO',
-          sessionId: `no_music_video_${Date.now()}`,
-          projectFolder: `no_music_video_${Date.now()}`,
-          input: {
-            userVisionDocument: visionDocument,
-            visionAnalysis: visionAnalysis,
-            contentClassification: { type: 'narrative_visual' },
-            agent_instructions: agentInstructions
-          },
-          rawResponse: result.rawResponse,
-          executionTime: result.executionTime
-        });
-      } else {
-        throw new Error(result.error || 'Director failed');
-      }
-    } catch (error) {
-      console.error('❌ Stage 2 Error:', error);
-      setState(prev => ({ 
-        ...prev, 
-        error: error instanceof Error ? error.message : 'Director failed',
-        loading: false 
-      }));
-    }
-  };
-
-  // STAGE 3: NO-MUSIC DOP
-  const runStage3NoMusicDoP = async () => {
-    console.log('🚀 Starting No-Music Pipeline Stage 3: DoP');
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 3: Creating cinematography...' }));
-    
-    try {
-      const directorVisualBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
-      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
-      const visionDocument = visionAnalysis?.vision_document;
-      const agentInstructions = visionAnalysis?.agent_instructions;
+      const mergedResult = state.mergedVisionDirectorResult?.merged_vision_director_output;
+      const directorVisualBeats = mergedResult?.director_output?.visual_beats || [];
+      const visionDocument = mergedResult?.vision_document;
+      const agentInstructions = mergedResult?.agent_instructions;
       
       const response = await fetch('/api/no-music-dop-agent', {
         method: 'POST',
@@ -281,23 +198,23 @@ export default function NoMusicVideoPipelinePage() {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          stage: 4,
+          stage: 3,
           dopSpecs: {
             ...result,
             _executionTime: result.executionTime
           },
           loading: false,
-          currentStep: 'Stage 3 complete!'
+          currentStep: 'Stage 2 complete!'
         }));
-        console.log('✅ Stage 3 Complete: No-Music DoP', result);
+        console.log('✅ Stage 2 Complete: No-Music DoP', result);
         
         // Save agent response for debugging
         await saveAgentResponse({
           agentName: 'no_music_dop',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO',
-          sessionId: `no_music_video_${Date.now()}`,
-          projectFolder: `no_music_video_${Date.now()}`,
+          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          sessionId: `no_music_video_merged_${Date.now()}`,
+          projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {
             directorVisualBeats,
             visionDocument: visionDocument,
@@ -311,7 +228,7 @@ export default function NoMusicVideoPipelinePage() {
         throw new Error(result.error || 'DoP failed');
       }
     } catch (error) {
-      console.error('❌ Stage 3 Error:', error);
+      console.error('❌ Stage 2 Error:', error);
       setState(prev => ({ 
         ...prev, 
         error: error instanceof Error ? error.message : 'DoP failed',
@@ -320,19 +237,19 @@ export default function NoMusicVideoPipelinePage() {
     }
   };
 
-  // STAGE 4: NO-MUSIC PROMPT ENGINEER
-  const runStage4NoMusicPromptEngineer = async () => {
-    console.log('🚀 Starting No-Music Pipeline Stage 4: Prompt Engineer');
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 4: Creating FLUX prompts...' }));
+  // STAGE 3: NO-MUSIC PROMPT ENGINEER (Updated for merged input)
+  const runStage3NoMusicPromptEngineer = async () => {
+    console.log('🚀 Starting No-Music Pipeline Stage 3: Prompt Engineer');
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 3: Creating FLUX prompts...' }));
     
     try {
-      const directorBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
+      const mergedResult = state.mergedVisionDirectorResult?.merged_vision_director_output;
+      const directorBeats = mergedResult?.director_output?.visual_beats || [];
       const dopSpecs = state.dopSpecs?.stage5_dop_output?.cinematographic_shots || [];
-      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
-      const visionDocument = visionAnalysis?.vision_document;
-      const agentInstructions = visionAnalysis?.agent_instructions;
+      const visionDocument = mergedResult?.vision_document;
+      const agentInstructions = mergedResult?.agent_instructions;
       
-      console.log('🔍 No-Music Stage 4 Data:');
+      console.log('🔍 No-Music Stage 3 Data:');
       console.log('directorBeats:', directorBeats.length);
       console.log('dopSpecs:', dopSpecs.length);
       console.log('visionDocument:', !!visionDocument);
@@ -356,23 +273,23 @@ export default function NoMusicVideoPipelinePage() {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          stage: 5,
+          stage: 4,
           promptEngineerResult: {
             ...result,
             _executionTime: result.executionTime
           },
           loading: false,
-          currentStep: 'Stage 4 complete!'
+          currentStep: 'Stage 3 complete!'
         }));
-        console.log('✅ Stage 4 Complete: No-Music Prompt Engineer', result);
+        console.log('✅ Stage 3 Complete: No-Music Prompt Engineer', result);
         
         // Save agent response for debugging
         await saveAgentResponse({
           agentName: 'no_music_prompt_engineer',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO',
-          sessionId: `no_music_video_${Date.now()}`,
-          projectFolder: `no_music_video_${Date.now()}`,
+          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          sessionId: `no_music_video_merged_${Date.now()}`,
+          projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {
             userVisionDocument: visionDocument,
             directorBeats,
@@ -387,7 +304,7 @@ export default function NoMusicVideoPipelinePage() {
         throw new Error(result.error || 'Prompt Engineer failed');
       }
     } catch (error) {
-      console.error('❌ Stage 4 Error:', error);
+      console.error('❌ Stage 3 Error:', error);
       setState(prev => ({ 
         ...prev, 
         error: error instanceof Error ? error.message : 'Prompt Engineer failed',
@@ -396,10 +313,10 @@ export default function NoMusicVideoPipelinePage() {
     }
   };
 
-  // STAGE 5: NO-MUSIC IMAGE GENERATION
-  const runStage5NoMusicImageGeneration = async () => {
-    console.log('🚀 Starting No-Music Pipeline Stage 5: Image Generation');
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Generating images...' }));
+  // STAGE 4: NO-MUSIC IMAGE GENERATION
+  const runStage4NoMusicImageGeneration = async () => {
+    console.log('🚀 Starting No-Music Pipeline Stage 4: Image Generation');
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 4: Generating images...' }));
     
     try {
       // Extract prompts from prompt engineer output
@@ -570,7 +487,7 @@ export default function NoMusicVideoPipelinePage() {
                         }
                       }));
                       
-                      console.log('✅ Stage 5 Complete: No-Music Image Generation');
+                      console.log('✅ Stage 4 Complete: No-Music Image Generation');
                       return;
                     } else {
                       throw new Error(data.error || 'Failed to generate images with ComfyUI');
@@ -603,7 +520,7 @@ export default function NoMusicVideoPipelinePage() {
             }
           }));
           
-          console.log('✅ Stage 5 Complete: No-Music Image Generation');
+          console.log('✅ Stage 4 Complete: No-Music Image Generation');
           return;
         } else {
           throw new Error(result.error || 'Failed to generate images with ComfyUI');
@@ -629,57 +546,48 @@ export default function NoMusicVideoPipelinePage() {
     }
   };
 
-  // NO-MUSIC PIPELINE: Stage 1 → Stage 2 (Director)
+  // NO-MUSIC PIPELINE: Stage 1 → Stage 2 (Merged Vision+Director → DoP)
   useEffect(() => {
-    if (state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage2Running) {
-      console.log('🔄 Auto-triggering No-Music Stage 2: Director');
+    if (state.stage === 2 && state.mergedVisionDirectorResult && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage2Running) {
+      console.log('🔄 Auto-triggering No-Music Stage 2: DoP');
       setStageExecutionFlags(prev => ({ ...prev, stage2Running: true }));
-      runStage2NoMusicDirector();
+      runStage2NoMusicDoP();
     }
-  }, [state.stage, state.visionDocument, state.loading, state.pipelineType, stageExecutionFlags.stage2Running]);
+  }, [state.stage, state.mergedVisionDirectorResult, state.loading, state.pipelineType, stageExecutionFlags.stage2Running]);
 
-  // NO-MUSIC PIPELINE: Stage 2 → Stage 3 (DoP)
+  // NO-MUSIC PIPELINE: Stage 2 → Stage 3 (DoP → Prompt Engineer)
   useEffect(() => {
     console.log('🔍 No-Music Stage 2→3 useEffect check:', {
-      stage: state.stage,
-      hasDirectorBeats: !!state.directorBeats,
-      loading: state.loading,
-      pipelineType: state.pipelineType,
-      shouldTrigger: state.stage === 3 && state.directorBeats && !state.loading && state.pipelineType === 'no_music'
-    });
-    
-    if (state.stage === 3 && state.directorBeats && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage3Running) {
-      console.log('🔄 Auto-triggering No-Music Stage 3: DoP');
-      setStageExecutionFlags(prev => ({ ...prev, stage3Running: true }));
-      runStage3NoMusicDoP();
-    }
-  }, [state.stage, state.directorBeats, state.loading, state.pipelineType, stageExecutionFlags.stage3Running]);
-
-  // NO-MUSIC PIPELINE: Stage 3 → Stage 4 (Prompt Engineer)
-  useEffect(() => {
-    console.log('🔍 No-Music Stage 3→4 useEffect check:', {
       stage: state.stage,
       hasDopSpecs: !!state.dopSpecs,
       loading: state.loading,
       pipelineType: state.pipelineType,
-      shouldTrigger: state.stage === 4 && state.dopSpecs && !state.loading && state.pipelineType === 'no_music'
+      shouldTrigger: state.stage === 3 && state.dopSpecs && !state.loading && state.pipelineType === 'no_music'
     });
     
-    if (state.stage === 4 && state.dopSpecs && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage4Running) {
-      console.log('🔄 Auto-triggering No-Music Stage 4: Prompt Engineer');
-      setStageExecutionFlags(prev => ({ ...prev, stage4Running: true }));
-      runStage4NoMusicPromptEngineer();
+    if (state.stage === 3 && state.dopSpecs && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage3Running) {
+      console.log('🔄 Auto-triggering No-Music Stage 3: Prompt Engineer');
+      setStageExecutionFlags(prev => ({ ...prev, stage3Running: true }));
+      runStage3NoMusicPromptEngineer();
     }
-  }, [state.stage, state.dopSpecs, state.loading, state.pipelineType, stageExecutionFlags.stage4Running]);
+  }, [state.stage, state.dopSpecs, state.loading, state.pipelineType, stageExecutionFlags.stage3Running]);
 
-  // NO-MUSIC PIPELINE: Stage 4 → Stage 5 (Image Generation)
+  // NO-MUSIC PIPELINE: Stage 3 → Stage 4 (Prompt Engineer → Image Generation)
   useEffect(() => {
-    if (state.stage === 5 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage5Running) {
-      console.log('🔄 Auto-triggering No-Music Stage 5: Image Generation');
-      setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
-      runStage5NoMusicImageGeneration();
+    console.log('🔍 No-Music Stage 3→4 useEffect check:', {
+      stage: state.stage,
+      hasPromptEngineerResult: !!state.promptEngineerResult,
+      loading: state.loading,
+      pipelineType: state.pipelineType,
+      shouldTrigger: state.stage === 4 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music'
+    });
+    
+    if (state.stage === 4 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music' && !stageExecutionFlags.stage4Running) {
+      console.log('🔄 Auto-triggering No-Music Stage 4: Image Generation');
+      setStageExecutionFlags(prev => ({ ...prev, stage4Running: true }));
+      runStage4NoMusicImageGeneration();
     }
-  }, [state.stage, state.promptEngineerResult, state.loading, state.pipelineType, stageExecutionFlags.stage5Running]);
+  }, [state.stage, state.promptEngineerResult, state.loading, state.pipelineType, stageExecutionFlags.stage4Running]);
 
   // TIMER UPDATE
   useEffect(() => {
@@ -732,11 +640,10 @@ export default function NoMusicVideoPipelinePage() {
     setStageExecutionFlags({
       stage2Running: false,
       stage3Running: false,
-      stage4Running: false,
-      stage5Running: false
+      stage4Running: false
     });
     
-    await runStage1VisionUnderstanding(formData);
+    await runStage1MergedVisionDirector(formData);
   };
 
   const formatTime = (ms: number) => {
@@ -889,11 +796,10 @@ export default function NoMusicVideoPipelinePage() {
 
         {/* DEBUG INFO */}
         <div className={styles.debugInfo}>
-          <h4>Debug Info:</h4>
+          <h4>Debug Info (4-Stage Merged Pipeline):</h4>
           <p>Current Stage: {state.stage}</p>
           <p>Loading: {state.loading ? 'true' : 'false'}</p>
-          <p>Has Vision Document: {state.visionDocument ? 'true' : 'false'}</p>
-          <p>Has Director Beats: {state.directorBeats ? 'true' : 'false'}</p>
+          <p>Has Merged Vision+Director Result: {state.mergedVisionDirectorResult ? 'true' : 'false'}</p>
           <p>Has DoP Specs: {state.dopSpecs ? 'true' : 'false'}</p>
           <p>Has Prompt Result: {state.promptEngineerResult ? 'true' : 'false'}</p>
         </div>
@@ -907,11 +813,10 @@ export default function NoMusicVideoPipelinePage() {
         {/* STAGE PROGRESS INDICATORS */}
         <div className={styles.stageIndicators}>
           {[
-            { stage: 1, name: 'Vision Understanding', data: state.visionDocument },
-            { stage: 2, name: 'Director (Narrative)', data: state.directorBeats },
-            { stage: 3, name: 'DoP (Cinematography)', data: state.dopSpecs },
-            { stage: 4, name: 'Prompt Engineer', data: state.promptEngineerResult },
-            { stage: 5, name: 'Image Generation', data: state.generatedImages.length > 0 }
+            { stage: 1, name: 'Merged Vision+Director', data: state.mergedVisionDirectorResult },
+            { stage: 2, name: 'DoP (Cinematography)', data: state.dopSpecs },
+            { stage: 3, name: 'Prompt Engineer', data: state.promptEngineerResult },
+            { stage: 4, name: 'Image Generation', data: state.generatedImages.length > 0 }
           ].map(({ stage, name, data }) => (
             <div 
               key={stage}
@@ -929,82 +834,61 @@ export default function NoMusicVideoPipelinePage() {
         </div>
 
         {/* RESULTS DISPLAY */}
-        {state.visionDocument && (
+        {state.mergedVisionDirectorResult && (
           <div className={styles.resultSection}>
-            <h3>✅ Stage 1 Complete: Vision Understanding</h3>
+            <h3>✅ Stage 1 Complete: Merged Vision+Director</h3>
             <div className={styles.metrics}>
               <div className={styles.metric}>
                 <span>Pipeline Ready: ✓ Yes</span>
               </div>
               <div className={styles.metric}>
-                <span>Execution Time: {state.visionDocument._executionTime}ms</span>
+                <span>Execution Time: {state.mergedVisionDirectorResult._executionTime}ms</span>
               </div>
               <div className={styles.metric}>
-                <span>Concept Quality: High</span>
+                <span>Visual Beats: {state.mergedVisionDirectorResult.merged_vision_director_output?.director_output?.visual_beats?.length || 0}</span>
+              </div>
+              <div className={styles.metric}>
+                <span>Quality Score: {Math.round((state.mergedVisionDirectorResult.validation?.concept_specificity_score || 0) * 100)}%</span>
               </div>
             </div>
             
             <div className={styles.resultGrid}>
               <div className={styles.resultItem}>
                 <strong>Core Concept:</strong>
-                <p>{state.visionDocument.core_concept}</p>
+                <p>{state.mergedVisionDirectorResult.merged_vision_director_output?.vision_document?.core_concept}</p>
               </div>
               <div className={styles.resultItem}>
                 <strong>Emotion Arc:</strong>
-                <p>{state.visionDocument.emotion_arc?.join(' → ')}</p>
+                <p>{state.mergedVisionDirectorResult.merged_vision_director_output?.vision_document?.emotion_arc?.join(' → ')}</p>
               </div>
               <div className={styles.resultItem}>
                 <strong>Visual Style:</strong>
-                <p>{state.visionDocument.visual_style}</p>
+                <p>{state.mergedVisionDirectorResult.merged_vision_director_output?.vision_document?.visual_style}</p>
               </div>
               <div className={styles.resultItem}>
                 <strong>Pacing:</strong>
-                <p>{state.visionDocument.pacing}</p>
+                <p>{state.mergedVisionDirectorResult.merged_vision_director_output?.vision_document?.pacing}</p>
               </div>
             </div>
 
-            <div className={styles.rawResponse}>
-              <h4>Raw AI Response (Stage 1):</h4>
-              <pre className={styles.responseCode}>
-                {JSON.stringify(state.visionDocument._fullResult || state.visionDocument, null, 2)}
-              </pre>
-            </div>
-          </div>
-        )}
-
-        {state.directorBeats && (
-          <div className={styles.resultSection}>
-            <h3>✅ Stage 2 Complete: Narrative Director</h3>
-            <div className={styles.metrics}>
-              <div className={styles.metric}>
-                <span>Total Visual Beats: {state.directorBeats.stage2_director_output?.visual_beats?.length || 0}</span>
-              </div>
-              <div className={styles.metric}>
-                <span>Narrative Score: {Math.round((state.directorBeats.stage2_director_output?.narrative_synchronization?.story_flow_score || 0) * 100)}%</span>
-              </div>
-              <div className={styles.metric}>
-                <span>Execution Time: {state.directorBeats._executionTime}ms</span>
-              </div>
-            </div>
-            
             <div className={styles.beatsPreview}>
               <h4>Visual Beats Preview:</h4>
-              {state.directorBeats.stage2_director_output?.visual_beats?.slice(0, 3).map((beat: any, index: number) => (
+              {state.mergedVisionDirectorResult.merged_vision_director_output?.director_output?.visual_beats?.slice(0, 3).map((beat: any, index: number) => (
                 <div key={index} className={styles.beatItem}>
                   <strong>Beat {beat.beat_no}</strong>
                   <p>{beat.content_type_treatment}</p>
-                  <span>Duration: {beat.est_duration_s}s | Cognitive Weight: {beat.cognitive_weight}</span>
+                  <span>Duration: {beat.estimated_duration_s}s | Cognitive Weight: {beat.cognitive_weight}</span>
                 </div>
               ))}
-              {(state.directorBeats.stage2_director_output?.visual_beats?.length || 0) > 3 && (
-                <p>...and {(state.directorBeats.stage2_director_output?.visual_beats?.length || 0) - 3} more beats</p>
+              {(state.mergedVisionDirectorResult.merged_vision_director_output?.director_output?.visual_beats?.length || 0) > 3 && (
+                <p>...and {(state.mergedVisionDirectorResult.merged_vision_director_output?.director_output?.visual_beats?.length || 0) - 3} more beats</p>
               )}
             </div>
 
             <div className={styles.rawResponse}>
-              <h4>Raw AI Response (Stage 2):</h4>
+              <h4>Raw AI Response (Stage 1 - Merged):</h4>
               <pre className={styles.responseCode}>
-                {JSON.stringify(state.directorBeats, null, 2)}
+                {JSON.stringify(state.mergedVisionDirectorResult, null, 2)}
               </pre>
             </div>
           </div>
@@ -1012,7 +896,7 @@ export default function NoMusicVideoPipelinePage() {
 
         {state.dopSpecs && (
           <div className={styles.resultSection}>
-            <h3>✅ Stage 3 Complete: DoP Cinematography</h3>
+            <h3>✅ Stage 2 Complete: DoP Cinematography</h3>
             <div className={styles.metrics}>
               <div className={styles.metric}>
                 <span>Total Shots: {state.dopSpecs.stage5_dop_output?.cinematographic_shots?.length || 0}</span>
@@ -1043,7 +927,7 @@ export default function NoMusicVideoPipelinePage() {
             </div>
 
             <div className={styles.rawResponse}>
-              <h4>Raw AI Response (Stage 3):</h4>
+              <h4>Raw AI Response (Stage 2):</h4>
               <pre className={styles.responseCode}>
                 {JSON.stringify(state.dopSpecs, null, 2)}
               </pre>
@@ -1053,7 +937,7 @@ export default function NoMusicVideoPipelinePage() {
 
         {state.promptEngineerResult && (
           <div className={styles.resultSection}>
-            <h3>✅ Stage 4 Complete: Prompt Engineer</h3>
+            <h3>✅ Stage 3 Complete: Prompt Engineer</h3>
             <div className={styles.metrics}>
               <div className={styles.metric}>
                 <span>FLUX Prompts: {state.promptEngineerResult.stage4_prompt_engineer_output?.flux_prompts?.length || 0}</span>
@@ -1083,7 +967,7 @@ export default function NoMusicVideoPipelinePage() {
             </div>
 
             <div className={styles.rawResponse}>
-              <h4>Raw AI Response (Stage 4):</h4>
+              <h4>Raw AI Response (Stage 3):</h4>
               <pre className={styles.responseCode}>
                 {JSON.stringify(state.promptEngineerResult, null, 2)}
               </pre>
@@ -1091,10 +975,10 @@ export default function NoMusicVideoPipelinePage() {
           </div>
         )}
 
-        {/* STAGE 5: GENERATED IMAGES DISPLAY */}
+        {/* STAGE 4: GENERATED IMAGES DISPLAY */}
         {(state.generatedImages && state.generatedImages.length > 0) || state.imageGenerationProgress.isGenerating ? (
           <div className={styles.resultSection}>
-            <h3>✅ Stage 5: Generated Images (ComfyUI)</h3>
+            <h3>✅ Stage 4: Generated Images (ComfyUI)</h3>
             <div className={styles.metrics}>
               <div className={styles.metric}>
                 <span>Progress: {state.imageGenerationProgress.currentIndex}/{state.imageGenerationProgress.totalImages} ({state.imageGenerationProgress.percentage}%)</span>
