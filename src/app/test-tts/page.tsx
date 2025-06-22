@@ -1243,13 +1243,9 @@ export default function TestTTS() {
       
       updateStepStatus(7, 'completed', promptEngineerData, undefined, Date.now() - step8Start);
 
-      // COMMENTED OUT FOR TESTING - Step 9: Generate Images using ComfyUI
-      console.log('🎯 TESTING MODE: Skipping image generation to test agent response saving');
+      // Step 9: Generate Images using ComfyUI
+      console.log('🎯 Starting image generation with ComfyUI');
       
-      // Mark image generation as completed (skipped for testing)
-      updateStepStatus(8, 'completed', { skipped: true, reason: 'Image generation commented out for testing agent response saving' });
-      
-      /*
       updateStepStatus(8, 'processing');
       const step9Start = Date.now();
       
@@ -1478,7 +1474,6 @@ export default function TestTTS() {
       if (!isComplete) {
         throw new Error('Image generation did not complete properly');
       }
-      */
 
       // Mark remaining steps as completed (skipped for testing)
       updateStepStatus(9, 'completed', { skipped: true, reason: 'QWEN VL Review step commented out for testing' });

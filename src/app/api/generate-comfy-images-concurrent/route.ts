@@ -33,6 +33,10 @@ export async function POST(request: Request) {
     console.log(`📁 Folder ID: ${folderId || 'default'}`);
     console.log(`🎯 Mode: ${mode || 'auto-detect'}`);
     
+    // 🚨 CRITICAL DEBUG: Log received prompts
+    console.log('🔍 CRITICAL DEBUG - API Received Prompts:', actualPrompts);
+    console.log('🔍 CRITICAL DEBUG - First 2 received prompts preview:', actualPrompts.slice(0, 2));
+    
     // Create session-specific prompts file
     const utilsDir = path.join(process.cwd(), 'src', 'utils');
     const tempPromptsFile = path.join(utilsDir, `prompts_${folderId || 'default'}.json`);

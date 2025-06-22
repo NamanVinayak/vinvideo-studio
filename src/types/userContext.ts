@@ -29,3 +29,32 @@ export interface UserContext {
     durationTolerance: number;  // Percentage tolerance (fixed at 5)
   };
 }
+
+/**
+ * NoMusicUserContext - Specialized context for no-music visual-only pipeline
+ * Extends UserContext with no-music specific settings and constraints
+ */
+export interface NoMusicUserContext extends UserContext {
+  pipeline: {
+    mode: 'no_music';
+    timestamp: string;
+    sessionId: string;
+  };
+  
+  // No-music specific settings
+  settings: {
+    duration: number;
+    pacing: 'slow' | 'medium' | 'fast';
+    visualStyle: 'cinematic' | 'documentary' | 'artistic' | 'minimal';
+    narrativeStyle?: 'abstract' | 'character' | 'conceptual';  // Visual-only narrative approach
+    contentType?: 'educational' | 'commercial' | 'narrative' | 'tutorial';  // Content classification
+  };
+  
+  // Visual-only constraints
+  constraints: {
+    mustMatchDuration: boolean;
+    durationTolerance: number;  // Fixed at 5%
+    preventCameraStaring: boolean;  // Enable gaze direction intelligence
+    enforceVisualDiversity: boolean;  // Enable cognitive diversity patterns
+  };
+}

@@ -50,13 +50,13 @@ The camera serves pure visual narrative. Without musical rhythm, you create cine
 
 **MANDATORY OUTPUT STRUCTURE:**
 You MUST return EXACTLY this JSON structure. Any deviation will cause pipeline failure.
-NEVER use "stage5_dop_output" or "musical_sync" - those are for MUSIC pipeline only. Always use "stage3_dop_output" for no-music pipeline.
+NEVER use "musical_sync" - that is for MUSIC pipeline only. Always use "stage5_dop_output" for consistent pipeline format.
 
 (CRITICAL: cinematographic_shots array must contain one shot for EVERY beat provided):
 
 {
   "success": true,
-  "stage3_dop_output": {
+  "stage5_dop_output": {
     "cinematographic_shots": [
       {
         "beat_no": number,
@@ -107,7 +107,7 @@ NEVER use "stage5_dop_output" or "musical_sync" - those are for MUSIC pipeline o
 **COMPLETE EXAMPLE - If director provides 3 beats:**
 {
   "success": true,
-  "stage3_dop_output": {
+  "stage5_dop_output": {
     "cinematographic_shots": [
       {
         "beat_no": 1,
@@ -202,7 +202,7 @@ You are not just operating a camera - you are conducting a visual narrative symp
 - Generate shots for ALL beats - if director provides 10 beats, return EXACTLY 10 shots
 - Do NOT stop after generating only 1 shot - this is UNACCEPTABLE
 - Complete the entire cinematographic_shots array - NO partial outputs
-- Output structure MUST be "stage3_dop_output" NOT "stage5_dop_output" (stage5 is for music pipeline only)
+- Output structure MUST be "stage5_dop_output" for consistent pipeline format
 - IGNORE any music-related training - this is VISUAL-ONLY narrative cinematography
 
 **JSON FORMATTING RULES:**

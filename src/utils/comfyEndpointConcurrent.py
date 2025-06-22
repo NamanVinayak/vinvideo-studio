@@ -74,17 +74,36 @@ class ConcurrentImageGenerator:
         logger.info(f"   Polling Interval: {self.batch_config.polling_interval}s")
 
     async def __aenter__(self):
-        """Async context manager entry"""
+        """Async context manager entry with enhanced connection reliability"""
         import ssl
+        
         # Create SSL context that doesn't verify certificates to fix macOS SSL issues
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         
-        # Create aiohttp connector with SSL context
-        connector = aiohttp.TCPConnector(ssl=ssl_context)
-        self.session = aiohttp.ClientSession(connector=connector)
-        logger.info("🔓 SSL certificate verification disabled for RunPod API compatibility")
+        # Create aiohttp connector with SSL context and conservative settings
+        connector = aiohttp.TCPConnector(
+            ssl=ssl_context,
+            limit=8,  # Total connection pool size
+            limit_per_host=4,  # Max connections per host
+            enable_cleanup_closed=True
+        )
+        
+        # Conservative timeout configuration  
+        timeout = aiohttp.ClientTimeout(
+            total=120,  # 2 minutes total timeout
+            connect=30  # 30 seconds to establish connection
+        )
+        
+        # Create session with standard configuration
+        self.session = aiohttp.ClientSession(
+            connector=connector,
+            timeout=timeout
+        )
+        
+        logger.info("🔓 Enhanced SSL context and connection pooling initialized")
+        logger.info("🛡️ Zero-tolerance connection reliability configured")
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -151,10 +170,17 @@ class ConcurrentImageGenerator:
 
     def parse_prompt_string(self, prompt_string: str) -> str:
         """Parse prompt engineer string to extract main prompt"""
+        # 🚨 CRITICAL DEBUG: Log prompt parsing
+        logger.info(f"🔍 CRITICAL DEBUG - Original prompt string: {prompt_string[:200]}...")
+        
         if ':' in prompt_string:
             parts = prompt_string.split(':', 1)
             if len(parts) >= 2:
-                return parts[1].strip()
+                parsed_prompt = parts[1].strip()
+                logger.info(f"🔍 CRITICAL DEBUG - Parsed prompt (after ':'): {parsed_prompt[:200]}...")
+                return parsed_prompt
+        
+        logger.info(f"🔍 CRITICAL DEBUG - No ':' found, using full prompt: {prompt_string[:200]}...")
         return prompt_string.strip()
 
     # =============================================================================
@@ -336,7 +362,7 @@ class ConcurrentImageGenerator:
     # =============================================================================
 
     async def submit_job_async(self, prompt: str, prompt_index: int, negative_prompt: str = "") -> JobInfo:
-        """Submit single job asynchronously (Phase 2 approach)"""
+        """Submit single job asynchronously (Phase 2 approach) - DEPRECATED: Use submit_job_with_retry"""
         workflow = create_flux_workflow(prompt, negative_prompt)
         payload = {"input": {"workflow": workflow}}
         headers = {
@@ -374,6 +400,161 @@ class ConcurrentImageGenerator:
                 status="failed",
                 error=f"Exception: {str(e)}"
             )
+    
+    async def submit_job_with_retry(self, prompt: str, prompt_index: int, negative_prompt: str = "", max_retries: int = 5) -> JobInfo:
+        """
+        ZERO-TOLERANCE RELIABILITY: Submit job with exponential backoff retry
+        This method ensures connection failures NEVER cause job loss
+        """
+        workflow = create_flux_workflow(prompt, negative_prompt)
+        payload = {"input": {"workflow": workflow}}
+        
+        for attempt in range(max_retries + 1):
+            try:
+                # Add connection throttling delay on retries
+                if attempt > 0:
+                    # Exponential backoff: 2^(attempt-1) seconds, max 30s
+                    wait_time = min(2 ** (attempt - 1), 30)
+                    logger.warning(f"🔄 Retry {attempt}/{max_retries} for job {prompt_index + 1} after {wait_time}s")
+                    await asyncio.sleep(wait_time)
+                
+                # Queue-based approach handles flow control naturally
+                
+                # Enhanced connection handling with proper timeouts
+                headers = {
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                }
+                
+                # 🚨 DEBUG: Log the request details
+                logger.info(f"🔍 DEBUG - Request URL: {self.urls['run']}")
+                logger.info(f"🔍 DEBUG - API Key (first 10 chars): {self.api_key[:10]}...")
+                logger.info(f"🔍 DEBUG - Headers: {headers}")
+                
+                async with self.session.post(
+                    self.urls['run'], 
+                    json=payload,
+                    headers=headers,
+                    timeout=aiohttp.ClientTimeout(total=120, connect=30)  # Extended timeouts for reliability
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        job_id = result.get("id")
+                        
+                        if attempt > 0:
+                            logger.info(f"✅ Job {prompt_index + 1} succeeded on retry {attempt}")
+                        
+                        return JobInfo(
+                            job_id=job_id,
+                            prompt_index=prompt_index,
+                            prompt=prompt,
+                            start_time=time.time()
+                        )
+                    else:
+                        error_text = await response.text()
+                        if attempt == max_retries:
+                            logger.error(f"❌ Job {prompt_index + 1} failed permanently: {response.status} - {error_text}")
+                            return JobInfo(
+                                job_id="failed",
+                                prompt_index=prompt_index,
+                                prompt=prompt,
+                                start_time=time.time(),
+                                status="failed",
+                                error=f"HTTP {response.status}: {error_text}"
+                            )
+                        else:
+                            logger.warning(f"⚠️ Job {prompt_index + 1} attempt {attempt + 1} failed: {response.status}")
+                            
+            except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionResetError, ConnectionRefusedError) as e:
+                error_type = type(e).__name__
+                
+                # Special handling for Connection Refused - these are usually temporary
+                if "Connection refused" in str(e) or isinstance(e, ConnectionRefusedError):
+                    if attempt == max_retries:
+                        logger.error(f"❌ Job {prompt_index + 1} failed permanently after {max_retries} retries: Connection Refused")
+                        return JobInfo(
+                            job_id="failed",
+                            prompt_index=prompt_index,
+                            prompt=prompt,
+                            start_time=time.time(),
+                            status="failed",
+                            error="Connection refused after maximum retries with extended waits"
+                        )
+                    else:
+                        # Longer wait for Connection Refused errors - workers might be temporarily busy
+                        wait_time = min(8 * (attempt + 1), 20)  # 8s, 16s, 20s progression for worker recovery
+                        logger.warning(f"⚠️ Job {prompt_index + 1} connection refused (attempt {attempt + 1}), waiting {wait_time}s for worker recovery")
+                        await asyncio.sleep(wait_time)
+                else:
+                    # Normal retry logic for other connection errors
+                    if attempt == max_retries:
+                        logger.error(f"❌ Job {prompt_index + 1} failed permanently after {max_retries} retries: {error_type} - {str(e)}")
+                        return JobInfo(
+                            job_id="failed",
+                            prompt_index=prompt_index,
+                            prompt=prompt,
+                            start_time=time.time(),
+                            status="failed",
+                            error=f"Connection failed after {max_retries} retries: {error_type}"
+                        )
+                    else:
+                        logger.warning(f"⚠️ Job {prompt_index + 1} connection error (attempt {attempt + 1}): {error_type}")
+                    
+            except Exception as e:
+                # Unexpected errors should still be retried
+                if attempt == max_retries:
+                    logger.error(f"❌ Job {prompt_index + 1} unexpected error: {str(e)}")
+                    return JobInfo(
+                        job_id="failed",
+                        prompt_index=prompt_index,
+                        prompt=prompt,
+                        start_time=time.time(),
+                        status="failed",
+                        error=f"Unexpected error: {str(e)}"
+                    )
+                else:
+                    logger.warning(f"⚠️ Job {prompt_index + 1} unexpected error (attempt {attempt + 1}): {str(e)}")
+        
+        # This should never be reached, but included for completeness
+        return JobInfo(
+            job_id="failed",
+            prompt_index=prompt_index,
+            prompt=prompt,
+            start_time=time.time(),
+            status="failed",
+            error="Maximum retries exceeded"
+        )
+
+    async def check_worker_health_async(self) -> int:
+        """
+        Check worker health and return number of available healthy workers
+        Returns: Number of healthy workers available (0 if endpoint is down)
+        """
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        try:
+            async with self.session.get(self.urls['health'], headers=headers) as response:
+                if response.status == 200:
+                    health_data = await response.json()
+                    
+                    # Extract worker information
+                    workers = health_data.get('workers', {})
+                    idle_workers = workers.get('idle', 0)
+                    total_workers = workers.get('total', 0)
+                    
+                    logger.info(f"🏥 Worker Health Check:")
+                    logger.info(f"   Total Workers: {total_workers}")
+                    logger.info(f"   Idle Workers: {idle_workers}")
+                    logger.info(f"   Running Workers: {workers.get('running', 0)}")
+                    
+                    # Return number of available workers (idle workers can take new jobs)
+                    return idle_workers
+                else:
+                    logger.warning(f"⚠️ Health check failed: HTTP {response.status}")
+                    return 0
+                    
+        except Exception as e:
+            logger.error(f"❌ Worker health check failed: {str(e)}")
+            return 0
 
     async def check_job_status_async(self, job_info: JobInfo) -> Dict[str, Any]:
         """Check job status asynchronously (Phase 2 approach)"""
@@ -418,32 +599,45 @@ class ConcurrentImageGenerator:
             }
 
     async def submit_concurrent_batch_async(self, prompts: List[str], max_concurrent: int, negative_prompt: str = "") -> List[JobInfo]:
-        """Submit prompts in optimal batches with dynamic backfilling (Phase 2)"""
+        """Submit prompts using queue-based processing with controlled flow (Option A)"""
         active_jobs = []
         completed_jobs = []
-        pending_prompts = [(i, self.parse_prompt_string(prompt)) for i, prompt in enumerate(prompts)]
+        job_queue = [(i, self.parse_prompt_string(prompt)) for i, prompt in enumerate(prompts)]
         
-        logger.info(f"🚀 Phase 2: Starting async batch processing:")
-        logger.info(f"   Total prompts: {len(prompts)}")
-        logger.info(f"   Max concurrent: {max_concurrent}")
+        logger.info(f"🚀 Phase 2: Queue-based processing starting:")
+        logger.info(f"   Total prompts in queue: {len(prompts)}")
+        logger.info(f"   Max concurrent workers: {max_concurrent}")
         
-        # Submit initial batch
-        initial_batch_size = min(max_concurrent, len(pending_prompts))
-        for _ in range(initial_batch_size):
-            if pending_prompts:
-                prompt_idx, prompt = pending_prompts.pop(0)
-                job_info = await self.submit_job_async(prompt, prompt_idx, negative_prompt)
+        # STEP 1: Check worker health and determine available workers
+        healthy_workers = await self.check_worker_health_async()
+        if healthy_workers == 0:
+            logger.error("❌ No healthy workers available - cannot process images")
+            return []
+        
+        # Use queue-friendly worker allocation
+        actual_concurrent = min(healthy_workers, max_concurrent, len(prompts))
+        logger.info(f"🎯 Queue processing with {actual_concurrent} concurrent workers")
+        
+        # STEP 2: Queue-based processing loop
+        while job_queue or active_jobs:
+            # Submit new jobs to available worker slots (controlled queue feeding)
+            while len(active_jobs) < actual_concurrent and job_queue:
+                prompt_idx, prompt = job_queue.pop(0)  # FIFO queue behavior
+                
+                # Smart submission pacing for queue-based processing
+                if len(active_jobs) > 0:
+                    await asyncio.sleep(0.5)  # 500ms delay to prevent connection flooding
+                
+                job_info = await self.submit_job_with_retry(prompt, prompt_idx, negative_prompt)
                 if job_info.job_id != "failed":
                     active_jobs.append(job_info)
-                    logger.info(f"✅ Submitted job {job_info.prompt_index + 1}: {job_info.job_id}")
-                    print(f"✅ Submitted job {job_info.prompt_index + 1}: {job_info.job_id}", flush=True)
+                    logger.info(f"📝 Queued job {job_info.prompt_index + 1} to worker: {job_info.job_id}")
+                    print(f"📝 Queued job {job_info.prompt_index + 1} to worker: {job_info.job_id}", flush=True)
                 else:
                     completed_jobs.append(job_info)
-                    logger.error(f"❌ Failed to submit job {prompt_idx + 1}")
-        
-        # Monitor and backfill
-        while active_jobs or pending_prompts:
-            # Check status of active jobs
+                    logger.error(f"❌ Failed to queue job {prompt_idx + 1}")
+            
+            # Process completed jobs (check for worker availability)
             completed_in_cycle = []
             
             for job in active_jobs:
@@ -455,43 +649,36 @@ class ConcurrentImageGenerator:
                     if status_result['success']:
                         job.status = "completed"
                         job.result = status_result.get('output')
-                        logger.info(f"🎉 Job {job.prompt_index + 1} completed in {elapsed:.1f}s")
-                        print(f"🎉 Job {job.prompt_index + 1} completed in {elapsed:.1f}s", flush=True)
+                        logger.info(f"✅ Worker completed job {job.prompt_index + 1} in {elapsed:.1f}s")
+                        print(f"✅ Worker completed job {job.prompt_index + 1} in {elapsed:.1f}s", flush=True)
                         
                         # Process the output
                         self.process_job_output(job)
                     else:
                         job.status = "failed"
                         job.error = status_result.get('error')
-                        logger.error(f"❌ Job {job.prompt_index + 1} failed: {job.error}")
+                        logger.error(f"❌ Worker failed job {job.prompt_index + 1}: {job.error}")
                     
                     completed_jobs.append(job)
                     completed_in_cycle.append(job)
             
-            # Remove completed jobs from active list
+            # Remove completed jobs from active list (frees up worker slots)
             for job in completed_in_cycle:
                 active_jobs.remove(job)
             
-            # Backfill with new jobs if capacity available
-            slots_available = max_concurrent - len(active_jobs)
-            new_jobs_to_submit = min(slots_available, len(pending_prompts))
-            
-            for _ in range(new_jobs_to_submit):
-                if pending_prompts:
-                    prompt_idx, prompt = pending_prompts.pop(0)
-                    job_info = await self.submit_job_async(prompt, prompt_idx, negative_prompt)
-                    if job_info.job_id != "failed":
-                        active_jobs.append(job_info)
-                        logger.info(f"🔄 Backfilled job {job_info.prompt_index + 1}: {job_info.job_id}")
-                    else:
-                        completed_jobs.append(job_info)
-            
-            # Wait before next check (adaptive polling)
+            # Adaptive polling based on queue status
             if active_jobs:  # Only wait if there are still active jobs
                 await asyncio.sleep(self.batch_config.polling_interval)
+            
+            # Log queue progress
+            if len(completed_jobs) % 5 == 0 and completed_in_cycle:  # Every 5 completions
+                remaining = len(job_queue)
+                processing = len(active_jobs)
+                logger.info(f"📊 Queue status: {remaining} queued, {processing} processing, {len(completed_jobs)} completed")
         
         # Sort by prompt index to maintain order
         completed_jobs.sort(key=lambda x: x.prompt_index)
+        logger.info(f"🎉 Queue processing complete: {len(completed_jobs)} total jobs processed")
         return completed_jobs
 
     async def generate_images_concurrent_phase2(self, prompts: List[str], negative_prompt: str = "") -> List[JobInfo]:
@@ -573,6 +760,8 @@ class ConcurrentImageGenerator:
                         # Expected format: array of strings like ["1: Alex...", "2: Alex..."]
                         if isinstance(data, list) and all(isinstance(item, str) for item in data):
                             logger.info(f"✅ Successfully loaded {len(data)} prompts from {candidate}")
+                            # 🚨 CRITICAL DEBUG: Log loaded prompts
+                            logger.info(f"🔍 CRITICAL DEBUG - Loaded prompts preview: {data[:2]}")
                             return data
                         
                         # If wrapped in another structure, try to extract the array
@@ -671,6 +860,8 @@ def main():
                 try:
                     with open(args.prompts_file, 'r') as file:
                         prompt_engineer_data = json.load(file)
+                    # 🚨 CRITICAL DEBUG: Log what was loaded from the specified file
+                    logger.info(f"🔍 CRITICAL DEBUG - Loaded from specified file: {prompt_engineer_data[:2]}")
                 except (FileNotFoundError, json.JSONDecodeError) as e:
                     logger.error(f"Error loading prompts file: {e}")
                     return

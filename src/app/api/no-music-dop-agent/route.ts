@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/dopNoMusic';
+import { ENHANCED_NO_MUSIC_DOP_SYSTEM_MESSAGE, EnhancedNoMusicDoPInput, EnhancedNoMusicDoPOutput } from '@/agents/dopNoMusic';
 
 /**
- * No-Music DoP Agent endpoint for Visual-Only Pipeline Stage 3
- * Creates narrative-driven cinematography without musical synchronization
+ * Enhanced No-Music DoP Agent endpoint for Visual-Only Pipeline Stage 3
+ * Creates narrative-driven cinematography with sophistication patterns and UserContext integration
  */
 export async function POST(request: Request) {
   try {
@@ -11,7 +11,9 @@ export async function POST(request: Request) {
     const { 
       directorVisualBeats, 
       visionDocument, 
-      contentClassification 
+      contentClassification,
+      noMusicUserContext,
+      agent_instructions
     } = body;
     
     // Validate required inputs
@@ -19,6 +21,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         error: 'Director visual beats and vision document are required' 
       }, { status: 400 });
+    }
+    
+    // Log user context integration
+    if (noMusicUserContext) {
+      console.log(`User Context - Style: ${noMusicUserContext.settings?.visualStyle}, Pacing: ${noMusicUserContext.settings?.pacing}`);
     }
 
     // CRITICAL: Use exact environment variable name
@@ -29,13 +36,13 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
     
-    console.log('Calling No-Music DoP Agent...');
+    console.log('Calling Enhanced No-Music DoP Agent...');
     console.log(`Vision concept: ${visionDocument.core_concept}`);
     console.log(`Director visual beats: ${directorVisualBeats.length}`);
     console.log(`Director beats preview:`, directorVisualBeats.map((beat: any) => ({ beat_no: beat.beat_no, duration: beat.estimated_duration_s })));
     
-    // Prepare the user content message with all required context
-    const userContent = `NO-MUSIC PIPELINE - STAGE 3: NARRATIVE CINEMATOGRAPHER
+    // Prepare enhanced user content with sophistication patterns
+    const userContent = `NO-MUSIC PIPELINE - STAGE 3: ENHANCED NARRATIVE CINEMATOGRAPHER + SOPHISTICATION PATTERNS
     
     USER VISION DOCUMENT:
     ${JSON.stringify(visionDocument, null, 2)}
@@ -43,51 +50,52 @@ export async function POST(request: Request) {
     DIRECTOR VISUAL BEATS:
     ${JSON.stringify(directorVisualBeats, null, 2)}
     
+    NO-MUSIC USER CONTEXT (User-Requirement-First):
+    ${JSON.stringify(noMusicUserContext, null, 2)}
+    
+    AGENT INSTRUCTIONS (From Vision Understanding):
+    ${JSON.stringify(agent_instructions, null, 2)}
+    
     CONTENT CLASSIFICATION:
     ${JSON.stringify(contentClassification || { type: 'auto_detect' }, null, 2)}
     
-    TASK: Create cinematography specifications for exactly ${directorVisualBeats.length} shots based on narrative-driven visual beats. Each shot must:
+    TASK: Create cinematography for exactly ${directorVisualBeats.length} shots using ENHANCED SOPHISTICATION PATTERNS. Each shot must:
     
-    1. NARRATIVE CINEMATOGRAPHY:
-       - Camera work serves story logic, not musical rhythm
-       - Lighting choices reflect emotional progression
-       - Movement motivated by narrative flow and content weight
-       - Composition choices enhance storytelling
+    1. **USER-REQUIREMENT-FIRST CINEMATOGRAPHY:**
+       - User Visual Style: ${noMusicUserContext?.settings?.visualStyle || visionDocument.visual_style || 'cinematic'}
+       - User Pacing Preference: ${noMusicUserContext?.settings?.pacing || visionDocument.pacing || 'medium'}
+       - NEVER ignore user preferences for arbitrary creative choices
     
-    2. VISUAL STORYTELLING FRAMEWORK:
-       - Narrative tension → Camera movement intensity
-       - Emotional weight → Composition and framing choices  
-       - Story pace → Movement speed and transition style
-       - Character arc → Lighting evolution and angle progression
-       - Content complexity → Technical sophistication level
+    2. **LOCATION TRACKING INTELLIGENCE (Pattern 3.1):**
+       - Maintain location_id consistency for environmental continuity
+       - Use location_description for character consistency support
+       - Track environmental changes with continuity scores
     
-    3. COGNITIVE PACING ADAPTATION:
-       - Heavy cognitive content: Stable, contemplative framing
-       - Light visual content: Dynamic movement to maintain engagement
-       - Emotional peaks: Strategic camera positioning for impact
-       - Narrative transitions: Smooth or dramatic as story demands
+    3. **USER STYLE-AWARE CINEMATOGRAPHY (Pattern 3.3):**
+       - Cinematic: Dramatic angles, controlled lighting, emotional composition
+       - Documentary: Handheld realism, natural lighting, functional framing
+       - Artistic: Creative framing, experimental angles, stylized lighting
+       - Minimal: Clean composition, simple movements, subtle lighting
     
-    4. CONTENT-TYPE CINEMATOGRAPHY:
-       - Abstract/Thematic: Creative camera work exploring visual metaphors
-       - Narrative/Character: Character-focused framing with environmental context
-       - Contemplative pacing: Longer, more deliberate movements
-       - Dynamic pacing: Quick, energetic camera work with variety
+    4. **AGENT INSTRUCTION PROCESSING (Pattern 5):**
+       - Apply dop_instructions from Vision Understanding
+       - Implement cinematography_philosophy and artistic_style_support
+       - Follow user_style_cinematography guidance
     
-    5. TECHNICAL REQUIREMENTS:
-       - Production-ready specifications
-       - Achievable yet aspirational shot designs
-       - Consistent cinematographic language
-       - Natural progression without musical cues
+    5. **ADVANCED VALIDATION & HANDOFF NOTES:**
+       - Generate location_tracking and user_style_compliance data
+       - Create agent_coordination with handoff_notes for downstream agents
+       - Provide comprehensive validation scoring
     
-    Generate complete cinematography specifications as JSON only.`;
+    Generate complete enhanced cinematography with sophistication patterns as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
-          content: NO_MUSIC_DOP_SYSTEM_MESSAGE
+          content: ENHANCED_NO_MUSIC_DOP_SYSTEM_MESSAGE
         },
         {
           role: "user", 
@@ -190,18 +198,10 @@ export async function POST(request: Request) {
         }
       }
       
-      // Fix wrong pipeline structure - AI sometimes returns music pipeline format
-      if (cinematographySpecs.stage5_dop_output && !cinematographySpecs.stage3_dop_output) {
-        console.warn('🚨 AI returned wrong structure (stage5_dop_output), converting to stage3_dop_output');
-        cinematographySpecs.stage3_dop_output = cinematographySpecs.stage5_dop_output;
-        delete cinematographySpecs.stage5_dop_output;
-        console.log('✅ Structure conversion completed');
-      }
-      
       // Additional fallback: Check if response has the wrong structure entirely
-      if (!cinematographySpecs.stage3_dop_output && cinematographySpecs.cinematographic_shots) {
-        console.warn('🚨 AI returned flat structure, wrapping in stage3_dop_output');
-        cinematographySpecs.stage3_dop_output = {
+      if (!cinematographySpecs.stage5_dop_output && cinematographySpecs.cinematographic_shots) {
+        console.warn('🚨 AI returned flat structure, wrapping in stage5_dop_output');
+        cinematographySpecs.stage5_dop_output = {
           cinematographic_shots: cinematographySpecs.cinematographic_shots,
           overall_cinematographic_approach: cinematographySpecs.overall_cinematographic_approach || "Narrative-driven cinematography",
           narrative_philosophy: "Camera serves pure visual narrative without musical cues",
@@ -220,9 +220,9 @@ export async function POST(request: Request) {
       }
       
       // Ensure output structure exists
-      if (!cinematographySpecs.stage3_dop_output) {
-        console.warn('No stage3_dop_output found, creating complete fallback structure');
-        cinematographySpecs.stage3_dop_output = {
+      if (!cinematographySpecs.stage5_dop_output) {
+        console.warn('No stage5_dop_output found, creating complete fallback structure');
+        cinematographySpecs.stage5_dop_output = {
           cinematographic_shots: [],
           overall_cinematographic_approach: "Narrative-driven cinematography with dynamic visual storytelling",
           narrative_philosophy: "Camera serves pure visual narrative without musical cues",
@@ -236,8 +236,8 @@ export async function POST(request: Request) {
       }
       
       // Fix any "musical_sync" fields to "narrative_sync" (AI sometimes reverts to music mode)
-      if (cinematographySpecs.stage3_dop_output?.cinematographic_shots) {
-        cinematographySpecs.stage3_dop_output.cinematographic_shots.forEach((shot: any) => {
+      if (cinematographySpecs.stage5_dop_output?.cinematographic_shots) {
+        cinematographySpecs.stage5_dop_output.cinematographic_shots.forEach((shot: any) => {
           if (shot.musical_sync && !shot.narrative_sync) {
             console.log(`Converting musical_sync to narrative_sync for shot ${shot.beat_no}`);
             shot.narrative_sync = {
@@ -253,13 +253,13 @@ export async function POST(request: Request) {
       
       // Validate shot count matches director beats
       const expectedShots = directorVisualBeats.length;
-      const actualShots = cinematographySpecs.stage3_dop_output?.cinematographic_shots?.length || 0;
+      const actualShots = cinematographySpecs.stage5_dop_output?.cinematographic_shots?.length || 0;
       
       if (actualShots !== expectedShots) {
         console.warn(`Shot count mismatch: expected ${expectedShots}, got ${actualShots}`);
         
         // Generate missing shots as fallback
-        const existingShots = cinematographySpecs.stage3_dop_output?.cinematographic_shots || [];
+        const existingShots = cinematographySpecs.stage5_dop_output?.cinematographic_shots || [];
         const missingCount = expectedShots - actualShots;
         
         if (missingCount > 0) {
@@ -322,17 +322,26 @@ export async function POST(request: Request) {
             existingShots.push(fallbackShot);
           }
           
-          cinematographySpecs.stage3_dop_output.cinematographic_shots = existingShots;
+          cinematographySpecs.stage5_dop_output.cinematographic_shots = existingShots;
           console.log(`Fallback shots generated. Total shots now: ${existingShots.length}`);
         }
       }
 
       // Final validation after potential fallback generation
-      const finalShotCount = cinematographySpecs.stage3_dop_output?.cinematographic_shots?.length || 0;
+      const finalShotCount = cinematographySpecs.stage5_dop_output?.cinematographic_shots?.length || 0;
+      
+      // Validate sophistication patterns
+      const sophisticationValidation = {
+        locationTracking: !!cinematographySpecs.stage5_dop_output?.location_continuity_summary,
+        userStyleIntegration: !!cinematographySpecs.stage5_dop_output?.user_style_integration,
+        agentInstructionCompliance: !!cinematographySpecs.stage5_dop_output?.agent_instruction_compliance,
+        locationConsistencyMaintained: cinematographySpecs.stage5_dop_output?.location_continuity_summary?.environmental_consistency_score || 0,
+        userStyleCompliant: cinematographySpecs.validation?.user_style_compliance_score || 0
+      };
 
       return NextResponse.json({
         success: true,
-        stage3_dop_output: cinematographySpecs.stage3_dop_output,
+        stage5_dop_output: cinematographySpecs.stage5_dop_output,
         executionTime,
         validation: {
           expectedShots,
@@ -341,7 +350,10 @@ export async function POST(request: Request) {
           shotCountMatch: finalShotCount === expectedShots,
           fallbackUsed: finalShotCount > actualShots,
           narrativeCinematography: true,
-          pipelineType: 'no_music'
+          pipelineType: 'no_music',
+          sophisticationPatterns: sophisticationValidation,
+          userContextIntegrated: !!noMusicUserContext,
+          agentInstructionsProcessed: !!agent_instructions
         },
         rawResponse: dopResponse,
         usage: result.usage

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_FLUX_SYSTEM_MESSAGE } from '@/agents/promptEngineerNoMusic';
+import { ENHANCED_NO_MUSIC_FLUX_SYSTEM_MESSAGE, EnhancedNoMusicPromptEngineerInput, EnhancedNoMusicPromptEngineerOutput } from '@/agents/promptEngineerNoMusic';
 
 /**
- * No-Music Prompt Engineer Agent endpoint for Visual-Only Pipeline Stage 4
- * Creates narrative-driven FLUX prompts without musical synchronization
+ * Enhanced No-Music Prompt Engineer Agent endpoint for Visual-Only Pipeline Stage 4
+ * Creates narrative-driven FLUX prompts with sophistication patterns and UserContext integration
  */
 export async function POST(request: Request) {
   try {
@@ -12,7 +12,9 @@ export async function POST(request: Request) {
       userVisionDocument, 
       directorBeats, 
       dopSpecs, 
-      contentClassification 
+      contentClassification,
+      noMusicUserContext,
+      agent_instructions
     } = body;
     
     console.log('🔍 NO-MUSIC-PROMPT-ENGINEER RECEIVED DATA:');
@@ -32,6 +34,11 @@ export async function POST(request: Request) {
         error: 'User vision document, director beats, and DoP specs are required' 
       }, { status: 400 });
     }
+    
+    // Log user context integration
+    if (noMusicUserContext) {
+      console.log(`User Context - Style: ${noMusicUserContext.settings?.visualStyle}, Pacing: ${noMusicUserContext.settings?.pacing}`);
+    }
 
     // CRITICAL: Use exact environment variable name
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -41,7 +48,7 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
     
-    console.log('Calling No-Music Prompt Engineer Agent...');
+    console.log('Calling Enhanced No-Music Prompt Engineer Agent...');
     console.log(`Vision concept: ${userVisionDocument.core_concept}`);
     console.log(`Director beats: ${directorBeats.length}`);
     console.log(`DoP specs: ${dopSpecs.length}`);
@@ -52,8 +59,8 @@ export async function POST(request: Request) {
       hasMusicalSync: !!spec.musical_sync 
     })));
     
-    // Prepare the user content message with all required context
-    const userContent = `NO-MUSIC PIPELINE - STAGE 4: NARRATIVE PROMPT ENGINEER
+    // Prepare enhanced user content with sophistication patterns
+    const userContent = `NO-MUSIC PIPELINE - STAGE 4: ENHANCED NARRATIVE PROMPT ENGINEER + SOPHISTICATION PATTERNS
     
     USER VISION DOCUMENT:
     ${JSON.stringify(userVisionDocument, null, 2)}
@@ -64,51 +71,62 @@ export async function POST(request: Request) {
     DOP CINEMATOGRAPHIC SPECIFICATIONS:
     ${JSON.stringify(dopSpecs, null, 2)}
     
+    NO-MUSIC USER CONTEXT (User-Requirement-First):
+    ${JSON.stringify(noMusicUserContext, null, 2)}
+    
+    AGENT INSTRUCTIONS (From Vision Understanding):
+    ${JSON.stringify(agent_instructions, null, 2)}
+    
     CONTENT CLASSIFICATION:
     ${JSON.stringify(contentClassification || { type: 'auto_detect' }, null, 2)}
     
-    TASK: Create exactly ${directorBeats.length} FLUX prompts that synthesize all narrative elements. Each prompt must:
+    TASK: Create exactly ${directorBeats.length} FLUX prompts using ENHANCED SOPHISTICATION PATTERNS. Each prompt must:
     
-    1. VISUAL NARRATIVE SYNTHESIS:
-       - Combine vision document concepts with director's story beats
-       - Integrate DoP's cinematographic specifications
-       - Create narrative flow through visual description sequencing
-       - Ensure character consistency for narrative content
+    1. **USER-REQUIREMENT-FIRST PROMPT ENGINEERING:**
+       - User Visual Style: ${noMusicUserContext?.settings?.visualStyle || userVisionDocument.visual_style || 'cinematic'}
+       - User Pacing Preference: ${noMusicUserContext?.settings?.pacing || userVisionDocument.pacing || 'medium'}
+       - **DYNAMIC TONE MATCHING**: Analyze original user input tone and match it in prompts
+       - **LANGUAGE PRESERVATION**: Keep user's vocabulary choices and energy level
+       - NEVER ignore user preferences for arbitrary creative choices
     
-    2. NARRATIVE PROMPT OPTIMIZATION:
-       - Character consistency across narrative progression
-       - Visual metaphor evolution for abstract content
-       - Cinematographic accuracy in AI generation prompts
-       - Natural temporal flow without musical rhythm cues
+    2. **GAZE DIRECTION INTELLIGENCE (Pattern 4.1):**
+       - NEVER allow default "looking at camera" behavior
+       - Always specify contextual, environment-aware gaze directions
+       - Use DoP location data to provide natural gaze targets
+       - Prevent AI camera staring defaults in all prompts
     
-    3. CONTENT-TYPE ADAPTATION:
-       - Abstract/Thematic: Each prompt explores different conceptual angle
-       - Narrative/Character: Character consistency with environmental variety
-       - Contemplative pacing: Detailed descriptions for deep exploration
-       - Dynamic pacing: Concise, energetic descriptions
+    3. **CHARACTER CONSISTENCY PROTOCOLS (Pattern 4.2):**
+       - Create comprehensive character templates and replicate exactly
+       - Full character description in EVERY prompt with characters
+       - NEVER vary character descriptions - absolute consistency required
+       - Dynamic character creation based on context analysis
     
-    4. FLUX OPTIMIZATION:
-       - Front-load most important narrative elements
-       - Use FLUX-friendly descriptors for specificity
-       - Leverage FLUX's strength with faces and environments
-       - Keep under 40 words for optimal coherence
-       - Structure for narrative flow rather than musical rhythm
+    4. **8-SEGMENT PRIORITY ARCHITECTURE (Pattern 4.3):**
+       - Subject & Appearance (highest priority) → Complete character blueprint
+       - Location & Environment → DoP location data integration
+       - Emotion & Expression with Gaze → Intelligent gaze direction
+       - Optimize prompt structure for FLUX AI generation behavior
     
-    5. VISUAL FLOW DESIGN:
-       - Cognitive pacing through visual complexity
-       - Natural rhythm through content transitions
-       - Emotional beats through lighting/composition changes
-       - Story momentum through environmental progression
+    5. **USER STYLE VISUAL TRANSLATION (Pattern 4.5):**
+       - Cinematic: Dramatic lighting, emotional composition, polished presentation
+       - Documentary: Realistic imagery, natural lighting, candid moments
+       - Artistic: Creative composition, stylized imagery, experimental aesthetics
+       - Minimal: Clean imagery, simple composition, focused presentation
     
-    Generate exactly ${directorBeats.length} complete FLUX prompts as JSON only.`;
+    6. **LOCATION-BASED CONSISTENCY (Pattern 4.4):**
+       - Use DoP location_tracking data for environmental consistency
+       - Same location_id = IDENTICAL location_description across prompts
+       - Never invent contradictory environmental details
+    
+    Generate exactly ${directorBeats.length} complete enhanced FLUX prompts with sophistication patterns as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
-          content: NO_MUSIC_FLUX_SYSTEM_MESSAGE
+          content: ENHANCED_NO_MUSIC_FLUX_SYSTEM_MESSAGE
         },
         {
           role: "user", 
@@ -217,6 +235,16 @@ export async function POST(request: Request) {
       if (actualPrompts !== expectedPrompts) {
         console.warn(`Prompt count mismatch: expected ${expectedPrompts}, got ${actualPrompts}`);
       }
+      
+      // Validate sophistication patterns
+      const sophisticationValidation = {
+        characterConsistencyAnalysis: !!promptSpecs.stage4_prompt_engineer_output?.character_consistency_analysis,
+        gazeDirectionStrategy: !!promptSpecs.stage4_prompt_engineer_output?.gaze_direction_strategy,
+        userStyleIntegration: !!promptSpecs.stage4_prompt_engineer_output?.user_style_integration,
+        locationConsistencyIntegration: !!promptSpecs.stage4_prompt_engineer_output?.location_consistency_integration,
+        agentInstructionCompliance: !!promptSpecs.stage4_prompt_engineer_output?.agent_instruction_compliance,
+        eightSegmentArchitecture: promptSpecs.validation?.eightSegmentArchitectureApplied || false
+      };
 
       return NextResponse.json({
         success: true,
@@ -228,7 +256,11 @@ export async function POST(request: Request) {
           promptCountMatch: actualPrompts === expectedPrompts,
           characterConsistencyEnabled: promptSpecs.validation?.characterConsistencyEnabled || false,
           narrativeOptimized: promptSpecs.validation?.narrativeOptimized || true,
-          visualFlowDesigned: promptSpecs.validation?.visualFlowDesigned || true
+          visualFlowDesigned: promptSpecs.validation?.visualFlowDesigned || true,
+          pipelineType: 'no_music',
+          sophisticationPatterns: sophisticationValidation,
+          userContextIntegrated: !!noMusicUserContext,
+          agentInstructionsProcessed: !!agent_instructions
         },
         rawResponse: promptResponse,
         usage: result.usage

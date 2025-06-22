@@ -1465,13 +1465,13 @@ export default function ConversationMode() {
         
         // Extract DoP specs - the agent expects the cinematographic_shots array
         let dopSpecsForNoMusicPrompts = null;
-        if (dopResult?.stage3_dop_output?.cinematographic_shots) {
-          dopSpecsForNoMusicPrompts = dopResult.stage3_dop_output.cinematographic_shots;
+        if (dopResult?.stage5_dop_output?.cinematographic_shots) {
+          dopSpecsForNoMusicPrompts = dopResult.stage5_dop_output.cinematographic_shots;
         } else if (dopResult?.cinematographic_shots) {
           dopSpecsForNoMusicPrompts = dopResult.cinematographic_shots;
-        } else if (dopResult?.stage3_dop_output) {
-          // If no cinematographic_shots found, use entire stage3_dop_output
-          dopSpecsForNoMusicPrompts = dopResult.stage3_dop_output;
+        } else if (dopResult?.stage5_dop_output) {
+          // If no cinematographic_shots found, use entire stage5_dop_output
+          dopSpecsForNoMusicPrompts = dopResult.stage5_dop_output;
         } else if (dopResult?.cinematography_specs) {
           dopSpecsForNoMusicPrompts = dopResult.cinematography_specs;
         } else {

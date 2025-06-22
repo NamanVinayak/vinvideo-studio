@@ -76,3 +76,6 @@ src/utils/temp_prompts.json
 /test_results/**/*
 /temp_files/test_results/
 /temp_files/test_results/**/*
+
+# Agent responses
+/agent_responses/

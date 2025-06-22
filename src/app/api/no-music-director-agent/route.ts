@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server';
-import { NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE } from '@/agents/directorNoMusic';
+import { ENHANCED_NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE, EnhancedNoMusicDirectorInput, EnhancedNoMusicDirectorOutput } from '@/agents/directorNoMusic';
 
 /**
- * No-Music Director Agent endpoint for Visual-Only Pipeline Stage 2
- * Creates narrative-driven visual beats without musical synchronization
+ * Enhanced No-Music Director Agent endpoint for Visual-Only Pipeline Stage 2
+ * Creates narrative-driven visual beats with sophistication patterns and UserContext integration
  */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { 
       userVisionDocument, 
-      contentClassification 
+      visionAnalysis,
+      contentClassification,
+      noMusicUserContext,
+      agent_instructions
     } = body;
     
     // Validate required inputs
@@ -28,63 +31,73 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
     
-    console.log('Calling No-Music Director Agent...');
+    console.log('Calling Enhanced No-Music Director Agent...');
     console.log(`Vision concept: ${userVisionDocument.core_concept}`);
-    console.log(`Cut points from timing blueprint: ${userVisionDocument.timing_blueprint?.cut_points?.length || 0}`);
+    console.log(`Vision cuts: ${visionAnalysis?.timing_blueprint?.cut_points?.length || 0}`);
     
-    // Extract timing blueprint from vision document
-    const timingBlueprint = userVisionDocument.timing_blueprint || {};
-    const cutPoints = timingBlueprint.cut_points || [];
+    // Log user context integration
+    if (noMusicUserContext) {
+      console.log(`User Context - Style: ${noMusicUserContext.settings?.visualStyle}, Pacing: ${noMusicUserContext.settings?.pacing}`);
+    }
     
-    // Prepare the user content message with all required context
-    const userContent = `NO-MUSIC PIPELINE - STAGE 2: NARRATIVE DIRECTOR
+    const cuts = visionAnalysis?.timing_blueprint?.cut_points || [];
+    
+    // Prepare enhanced user content with sophistication patterns
+    const userContent = `NO-MUSIC PIPELINE - STAGE 2: ENHANCED NARRATIVE DIRECTOR + SOPHISTICATION PATTERNS
     
     USER VISION DOCUMENT:
     ${JSON.stringify(userVisionDocument, null, 2)}
     
-    TIMING BLUEPRINT (From Enhanced Vision Agent):
-    ${JSON.stringify(timingBlueprint, null, 2)}
+    VISION ANALYSIS WITH CUTS (From Enhanced Vision Agent):
+    ${JSON.stringify(visionAnalysis, null, 2)}
+    
+    NO-MUSIC USER CONTEXT (User-Requirement-First):
+    ${JSON.stringify(noMusicUserContext, null, 2)}
+    
+    AGENT INSTRUCTIONS (From Vision Understanding):
+    ${JSON.stringify(agent_instructions, null, 2)}
     
     CONTENT CLASSIFICATION:
     ${JSON.stringify(contentClassification || { type: 'auto_detect' }, null, 2)}
     
-    TASK: Create exactly ${cutPoints.length} visual beats that follow the narrative-driven timing blueprint. Each beat must:
+    TASK: Create exactly ${cuts.length} visual beats using ENHANCED SOPHISTICATION PATTERNS. Each beat must:
     
-    1. NARRATIVE SYNCHRONIZATION:
-       - Align creative vision with story flow and emotional progression
-       - Match visual energy to cognitive pacing requirements
-       - Sync visual metaphor changes with narrative progression
+    1. **USER-REQUIREMENT-FIRST PROCESSING:**
+       - User Visual Style: ${noMusicUserContext?.settings?.visualStyle || userVisionDocument.visual_style || 'cinematic'}
+       - User Pacing Preference: ${noMusicUserContext?.settings?.pacing || userVisionDocument.pacing || 'medium'}
+       - NEVER ignore user preferences for arbitrary creative choices
     
-    2. ANTI-REPETITION COMPLIANCE:
-       - For abstract concepts: NO repeated visual metaphors
-       - For character narratives: Character continuity with environmental variety
-       - Apply sliding window subject diversity (max 2 same subjects in 3 consecutive beats)
+    2. **SLIDING WINDOW COGNITIVE DIVERSITY (Pattern 2.1):**
+       - Analyze previous 3 beats for diversity before creating next beat
+       - Ensure no subject repetition within 3-beat window
+       - Apply cognitive science to prevent viewer brain fatigue
     
-    3. USER INTENT PRESERVATION:
-       - Maintain core concept: "${userVisionDocument.core_concept || 'user concept'}"
-       - Respect pacing preference: "${userVisionDocument.pacing || 'moderate'}"
-       - Honor visual style: "${userVisionDocument.visual_style || 'cinematic'}"
+    3. **MULTI-DIMENSIONAL DIVERSITY SCORING (Pattern 2.3):**
+       - Subject Diversity: Different main visual focuses (target >0.8)
+       - Perspective Diversity: Varied viewpoints and scales (target >0.8)
+       - Visual Approach Diversity: Different presentation styles (target >0.8)
+       - Composition Diversity: Varied framing and arrangements (target >0.8)
     
-    4. TEMPORAL ARCHITECTURE:
-       - Use timing blueprint cut points for natural story rhythm
-       - Create cognitive engagement through narrative progression
-       - Plan visual surprises that align with story beats
-       - Ensure smooth narrative flow without musical cues
+    4. **AGENT INSTRUCTION INTEGRATION (Pattern 5):**
+       - Apply director_instructions from Vision Understanding
+       - Implement scene_direction_philosophy and anti_repetition_strategy
+       - Follow user_style_integration guidance
     
-    5. COGNITIVE PACING:
-       - Heavy content gets longer durations for processing
-       - Light content uses shorter durations to maintain engagement
-       - Natural transitions based on story logic, not musical beats
+    5. **USER STYLE INTEGRATION (Pattern 2):**
+       - Cinematic: Dramatic visual progression, emotional composition
+       - Documentary: Realistic approaches, functional framing
+       - Artistic: Creative metaphors, experimental approaches
+       - Minimal: Clean concepts, simple approaches
     
-    Generate the complete visual beat sequence as JSON only.`;
+    Generate complete enhanced output with sophistication pattern integrations as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
-          content: NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE
+          content: ENHANCED_NO_MUSIC_DIRECTOR_SYSTEM_MESSAGE
         },
         {
           role: "user", 
@@ -186,13 +199,22 @@ export async function POST(request: Request) {
         }
       }
       
-      // Validate beat count matches cut points
-      const expectedBeats = cutPoints.length;
+      // Validate beat count matches cuts
+      const expectedBeats = cuts.length;
       const actualBeats = visualBeats.stage2_director_output?.visual_beats?.length || 0;
       
       if (actualBeats !== expectedBeats) {
         console.warn(`Beat count mismatch: expected ${expectedBeats}, got ${actualBeats}`);
       }
+
+      // Validate sophistication patterns
+      const sophisticationValidation = {
+        slidingWindowAnalysis: !!visualBeats.stage2_director_output?.sliding_window_analysis,
+        userStyleIntegration: !!visualBeats.stage2_director_output?.user_style_integration,
+        agentInstructionCompliance: !!visualBeats.stage2_director_output?.agent_instruction_compliance,
+        multiDimensionalDiversity: !!visualBeats.stage2_director_output?.sliding_window_analysis?.subject_diversity_score,
+        cognitiveScience: !!visualBeats.stage2_director_output?.temporal_architecture?.cognitive_science_application
+      };
 
       return NextResponse.json({
         success: true,
@@ -203,7 +225,10 @@ export async function POST(request: Request) {
           actualBeats,
           beatCountMatch: actualBeats === expectedBeats,
           narrativeSyncEnabled: true,
-          pipelineType: 'no_music'
+          pipelineType: 'no_music',
+          sophisticationPatterns: sophisticationValidation,
+          userContextIntegrated: !!noMusicUserContext,
+          agentInstructionsProcessed: !!agent_instructions
         },
         rawResponse: directorResponse,
         usage: result.usage

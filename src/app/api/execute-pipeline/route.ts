@@ -508,8 +508,8 @@ function prepareStageRequest(stageName: string, parameters: any, previousResults
       
       // Extract DoP specs from the correct nested structure
       let dopSpecs = null;
-      if (dopResult?.stage3_dop_output?.cinematography_specs) {
-        dopSpecs = dopResult.stage3_dop_output.cinematography_specs;
+      if (dopResult?.stage5_dop_output?.cinematography_specs) {
+        dopSpecs = dopResult.stage5_dop_output.cinematography_specs;
       } else if (dopResult?.cinematography_specs) {
         dopSpecs = dopResult.cinematography_specs;
       } else if (dopResult?.dop_specs) {

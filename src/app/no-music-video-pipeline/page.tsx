@@ -140,7 +140,7 @@ export default function NoMusicVideoPipelinePage() {
           ...prev,
           stage: 2,
           visionDocument: {
-            ...result.stage1_vision_analysis.vision_document,
+            stage1_vision_analysis: result.stage1_vision_analysis,
             _fullResult: result,
             _rawResponse: result.rawResponse,
             _executionTime: result.executionTime
@@ -192,12 +192,20 @@ export default function NoMusicVideoPipelinePage() {
     setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 2: Creating narrative beats...' }));
     
     try {
+      // Extract the vision analysis data properly
+      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
+      const visionDocument = visionAnalysis?.vision_document;
+      const agentInstructions = visionAnalysis?.agent_instructions;
+      
       const response = await fetch('/api/no-music-director-agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userVisionDocument: state.visionDocument,
-          contentClassification: { type: 'narrative_visual' }
+          userVisionDocument: visionDocument,
+          visionAnalysis: visionAnalysis,
+          contentClassification: { type: 'narrative_visual' },
+          noMusicUserContext: null, // Will be added when user context is available
+          agent_instructions: agentInstructions
         })
       });
 
@@ -224,8 +232,10 @@ export default function NoMusicVideoPipelinePage() {
           sessionId: `no_music_video_${Date.now()}`,
           projectFolder: `no_music_video_${Date.now()}`,
           input: {
-            userVisionDocument: state.visionDocument,
-            contentClassification: { type: 'narrative_visual' }
+            userVisionDocument: visionDocument,
+            visionAnalysis: visionAnalysis,
+            contentClassification: { type: 'narrative_visual' },
+            agent_instructions: agentInstructions
           },
           rawResponse: result.rawResponse,
           executionTime: result.executionTime
@@ -250,14 +260,19 @@ export default function NoMusicVideoPipelinePage() {
     
     try {
       const directorVisualBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
+      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
+      const visionDocument = visionAnalysis?.vision_document;
+      const agentInstructions = visionAnalysis?.agent_instructions;
       
       const response = await fetch('/api/no-music-dop-agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           directorVisualBeats,
-          visionDocument: state.visionDocument,
-          contentClassification: { type: 'narrative_visual' }
+          visionDocument: visionDocument,
+          contentClassification: { type: 'narrative_visual' },
+          noMusicUserContext: null, // Will be added when user context is available
+          agent_instructions: agentInstructions
         })
       });
 
@@ -285,8 +300,9 @@ export default function NoMusicVideoPipelinePage() {
           projectFolder: `no_music_video_${Date.now()}`,
           input: {
             directorVisualBeats,
-            visionDocument: state.visionDocument,
-            contentClassification: { type: 'narrative_visual' }
+            visionDocument: visionDocument,
+            contentClassification: { type: 'narrative_visual' },
+            agent_instructions: agentInstructions
           },
           rawResponse: result.rawResponse,
           executionTime: result.executionTime
@@ -311,20 +327,27 @@ export default function NoMusicVideoPipelinePage() {
     
     try {
       const directorBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
-      const dopSpecs = state.dopSpecs?.stage3_dop_output?.cinematographic_shots || [];
+      const dopSpecs = state.dopSpecs?.stage5_dop_output?.cinematographic_shots || [];
+      const visionAnalysis = state.visionDocument?.stage1_vision_analysis;
+      const visionDocument = visionAnalysis?.vision_document;
+      const agentInstructions = visionAnalysis?.agent_instructions;
       
       console.log('🔍 No-Music Stage 4 Data:');
       console.log('directorBeats:', directorBeats.length);
       console.log('dopSpecs:', dopSpecs.length);
+      console.log('visionDocument:', !!visionDocument);
+      console.log('agentInstructions:', !!agentInstructions);
       
       const response = await fetch('/api/no-music-prompt-engineer-agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userVisionDocument: state.visionDocument,
+          userVisionDocument: visionDocument,
           directorBeats,
           dopSpecs,
-          contentClassification: { type: 'narrative_visual' }
+          contentClassification: { type: 'narrative_visual' },
+          noMusicUserContext: null, // Will be added when user context is available
+          agent_instructions: agentInstructions
         })
       });
 
@@ -351,10 +374,11 @@ export default function NoMusicVideoPipelinePage() {
           sessionId: `no_music_video_${Date.now()}`,
           projectFolder: `no_music_video_${Date.now()}`,
           input: {
-            userVisionDocument: state.visionDocument,
+            userVisionDocument: visionDocument,
             directorBeats,
             dopSpecs,
-            contentClassification: { type: 'narrative_visual' }
+            contentClassification: { type: 'narrative_visual' },
+            agent_instructions: agentInstructions
           },
           rawResponse: result.rawResponse,
           executionTime: result.executionTime
@@ -381,6 +405,12 @@ export default function NoMusicVideoPipelinePage() {
       // Extract prompts from prompt engineer output
       const promptsToGenerate = state.promptEngineerResult?.stage4_prompt_engineer_output?.flux_prompts || [];
       
+      // 🚨 CRITICAL DEBUG: Log the entire prompt engineer result structure
+      console.log('🔍 CRITICAL DEBUG - Full Prompt Engineer Result:', state.promptEngineerResult);
+      console.log('🔍 CRITICAL DEBUG - Stage4 Output:', state.promptEngineerResult?.stage4_prompt_engineer_output);
+      console.log('🔍 CRITICAL DEBUG - FLUX Prompts Array:', promptsToGenerate);
+      console.log('🔍 CRITICAL DEBUG - First 2 prompts preview:', promptsToGenerate.slice(0, 2));
+      
       if (promptsToGenerate.length === 0) {
         throw new Error('No FLUX prompts found in Prompt Engineer output for image generation');
       }
@@ -402,131 +432,181 @@ export default function NoMusicVideoPipelinePage() {
       // Convert prompts to simple string array
       const promptStrings = promptsToGenerate.map((prompt: any) => prompt.prompt_text || prompt);
       
+      // 🚨 CRITICAL DEBUG: Log what prompts are actually being sent to the API
+      console.log('🔍 CRITICAL DEBUG - Final Prompt Strings Being Sent to API:', promptStrings);
+      console.log('🔍 CRITICAL DEBUG - First 2 final prompts preview:', promptStrings.slice(0, 2));
+      
       // Generate a folder ID for this run
       const folderId = `music-video-${Date.now()}`;
       
-      // Use streaming image generation
-      const response = await fetch('/api/generate-comfy-images-concurrent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompts: promptStrings,
-          folderId: folderId
-        })
-      });
+      // Use streaming image generation with fallback to concurrent
+      let response;
+      let isStreaming = true;
+      
+      try {
+        response = await fetch('/api/generate-comfy-images-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompts: promptStrings,
+            folderId: folderId
+          })
+        });
+      } catch (streamError) {
+        console.warn('Streaming API failed, falling back to concurrent API:', streamError);
+        isStreaming = false;
+        response = await fetch('/api/generate-comfy-images-concurrent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompts: promptStrings,
+            folderId: folderId
+          })
+        });
+      }
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      
-      if (!reader) {
-        throw new Error('No response body');
-      }
-      
-      let buffer = '';
-      const allGeneratedImages: string[] = new Array(promptStrings.length).fill('');
-      setState(prev => ({
-        ...prev,
-        generatedImages: allGeneratedImages
-      }));
-      
-      while (true) {
-        const { done, value } = await reader.read();
+      if (isStreaming) {
+        // Handle streaming response (SSE)
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
         
-        if (done) break;
+        if (!reader) {
+          throw new Error('No response body');
+        }
         
-        buffer += decoder.decode(value, { stream: true });
+        let buffer = '';
+        const allGeneratedImages: string[] = new Array(promptStrings.length).fill('');
+        setState(prev => ({
+          ...prev,
+          generatedImages: allGeneratedImages
+        }));
         
-        // Process complete SSE events from buffer
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-        
-        for (const line of lines) {
-          if (line.startsWith('event:')) {
-            const eventType = line.substring(6).trim();
-            
-            const dataLineIndex = lines.indexOf(line) + 1;
-            if (dataLineIndex < lines.length && lines[dataLineIndex].startsWith('data:')) {
-              const dataLine = lines[dataLineIndex];
-              const data = JSON.parse(dataLine.substring(5).trim());
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          
+          // Process complete SSE events from buffer
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          
+          for (const line of lines) {
+            if (line.startsWith('event:')) {
+              const eventType = line.substring(6).trim();
               
-              switch (eventType) {
-                case 'start':
-                  console.log('Generation started:', data);
-                  setState(prev => ({
-                    ...prev,
-                    imageGenerationProgress: {
-                      ...prev.imageGenerationProgress,
-                      message: data.message
-                    }
-                  }));
-                  break;
-                  
-                case 'processing':
-                  console.log('Processing image:', data);
-                  setState(prev => ({
-                    ...prev,
-                    imageGenerationProgress: {
-                      ...prev.imageGenerationProgress,
-                      currentIndex: data.index,
-                      message: data.message
-                    }
-                  }));
-                  break;
-                  
-                case 'image':
-                  console.log('Image generated:', data);
-                  
-                  allGeneratedImages[data.index] = data.imageUrl;
-                  setState(prev => ({
-                    ...prev,
-                    generatedImages: [...allGeneratedImages],
-                    imageGenerationProgress: {
-                      ...prev.imageGenerationProgress,
-                      currentIndex: data.index + 1,
-                      percentage: data.progress,
-                      message: data.message
-                    }
-                  }));
-                  break;
-                  
-                case 'error':
-                  console.error('Generation error:', data);
-                  break;
-                  
-                case 'complete':
-                  console.log('Generation complete:', data);
-                  
-                  if (data.success) {
+              const dataLineIndex = lines.indexOf(line) + 1;
+              if (dataLineIndex < lines.length && lines[dataLineIndex].startsWith('data:')) {
+                const dataLine = lines[dataLineIndex];
+                const data = JSON.parse(dataLine.substring(5).trim());
+                
+                switch (eventType) {
+                  case 'start':
+                    console.log('Generation started:', data);
                     setState(prev => ({
                       ...prev,
-                      generatedImages: data.generatedImages && data.generatedImages.length > 0 ? data.generatedImages : prev.generatedImages,
                       imageGenerationProgress: {
                         ...prev.imageGenerationProgress,
-                        percentage: 100,
-                        isGenerating: false,
-                        message: 'Image generation complete!'
-                      },
-                      loading: false,
-                      currentStep: 'Pipeline complete! Images generated successfully.',
-                      timer: {
-                        ...prev.timer,
-                        isRunning: false
+                        message: data.message
                       }
                     }));
+                    break;
                     
-                    console.log('✅ Stage 5 Complete: No-Music Image Generation');
-                    return;
-                  } else {
-                    throw new Error(data.error || 'Failed to generate images with ComfyUI');
-                  }
-                  break;
+                  case 'processing':
+                    console.log('Processing image:', data);
+                    setState(prev => ({
+                      ...prev,
+                      imageGenerationProgress: {
+                        ...prev.imageGenerationProgress,
+                        currentIndex: data.index,
+                        message: data.message
+                      }
+                    }));
+                    break;
+                    
+                  case 'image':
+                    console.log('Image generated:', data);
+                    
+                    allGeneratedImages[data.index] = data.imageUrl;
+                    setState(prev => ({
+                      ...prev,
+                      generatedImages: [...allGeneratedImages],
+                      imageGenerationProgress: {
+                        ...prev.imageGenerationProgress,
+                        currentIndex: data.index + 1,
+                        percentage: data.progress,
+                        message: data.message
+                      }
+                    }));
+                    break;
+                    
+                  case 'error':
+                    console.error('Generation error:', data);
+                    break;
+                    
+                  case 'complete':
+                    console.log('Generation complete:', data);
+                    
+                    if (data.success) {
+                      setState(prev => ({
+                        ...prev,
+                        generatedImages: data.generatedImages && data.generatedImages.length > 0 ? data.generatedImages : prev.generatedImages,
+                        imageGenerationProgress: {
+                          ...prev.imageGenerationProgress,
+                          percentage: 100,
+                          isGenerating: false,
+                          message: 'Image generation complete!'
+                        },
+                        loading: false,
+                        currentStep: 'Pipeline complete! Images generated successfully.',
+                        timer: {
+                          ...prev.timer,
+                          isRunning: false
+                        }
+                      }));
+                      
+                      console.log('✅ Stage 5 Complete: No-Music Image Generation');
+                      return;
+                    } else {
+                      throw new Error(data.error || 'Failed to generate images with ComfyUI');
+                    }
+                    break;
+                }
               }
             }
           }
+        }
+      } else {
+        // Handle concurrent API response (non-streaming)
+        const result = await response.json();
+        
+        if (result.success) {
+          setState(prev => ({
+            ...prev,
+            generatedImages: result.generatedImages || [],
+            imageGenerationProgress: {
+              ...prev.imageGenerationProgress,
+              percentage: 100,
+              isGenerating: false,
+              message: 'Image generation complete!'
+            },
+            loading: false,
+            currentStep: 'Pipeline complete! Images generated successfully.',
+            timer: {
+              ...prev.timer,
+              isRunning: false
+            }
+          }));
+          
+          console.log('✅ Stage 5 Complete: No-Music Image Generation');
+          return;
+        } else {
+          throw new Error(result.error || 'Failed to generate images with ComfyUI');
         }
       }
       
@@ -683,7 +763,8 @@ export default function NoMusicVideoPipelinePage() {
           </div>
         </div>
 
-        {state.stage === 1 && (
+        {/* ALWAYS show the input form/summary */}
+        {state.stage === 1 ? (
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
               <label htmlFor="concept">Video Concept</label>
@@ -768,6 +849,35 @@ export default function NoMusicVideoPipelinePage() {
               {state.loading ? 'Processing...' : 'Generate No-Music Video'}
             </button>
           </form>
+        ) : (
+          // Show input summary when pipeline is running
+          <div className={styles.inputSummary}>
+            <h3>Your Input:</h3>
+            <div className={styles.summaryGrid}>
+              <div className={styles.summaryItem}>
+                <strong>Concept:</strong>
+                <p>{formData.concept}</p>
+              </div>
+              <div className={styles.summaryRow}>
+                <div className={styles.summaryItem}>
+                  <strong>Style:</strong>
+                  <span className={styles.summaryValue}>{formData.style}</span>
+                </div>
+                <div className={styles.summaryItem}>
+                  <strong>Pacing:</strong>
+                  <span className={styles.summaryValue}>{formData.pacing}</span>
+                </div>
+                <div className={styles.summaryItem}>
+                  <strong>Duration:</strong>
+                  <span className={styles.summaryValue}>{formData.duration}s</span>
+                </div>
+                <div className={styles.summaryItem}>
+                  <strong>Type:</strong>
+                  <span className={styles.summaryValue}>{formData.contentType}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {state.currentStep && (
@@ -905,7 +1015,7 @@ export default function NoMusicVideoPipelinePage() {
             <h3>✅ Stage 3 Complete: DoP Cinematography</h3>
             <div className={styles.metrics}>
               <div className={styles.metric}>
-                <span>Total Shots: {state.dopSpecs.stage3_dop_output?.cinematographic_shots?.length || 0}</span>
+                <span>Total Shots: {state.dopSpecs.stage5_dop_output?.cinematographic_shots?.length || 0}</span>
               </div>
               <div className={styles.metric}>
                 <span>Pipeline Type: No-Music</span>
@@ -920,15 +1030,15 @@ export default function NoMusicVideoPipelinePage() {
             
             <div className={styles.shotsPreview}>
               <h4>Cinematography Shots Preview:</h4>
-              {state.dopSpecs.stage3_dop_output?.cinematographic_shots?.slice(0, 3).map((shot: any, index: number) => (
+              {state.dopSpecs.stage5_dop_output?.cinematographic_shots?.slice(0, 3).map((shot: any, index: number) => (
                 <div key={index} className={styles.shotItem}>
                   <strong>Shot {shot.shot_id}</strong>
                   <p>{shot.cinematography?.shot_size} | {shot.cinematography?.camera_angle} | {shot.cinematography?.camera_movement}</p>
                   <span>Narrative Sync: {shot.narrative_sync?.story_motivation || 'Standard progression'}</span>
                 </div>
               ))}
-              {(state.dopSpecs.stage3_dop_output?.cinematographic_shots?.length || 0) > 3 && (
-                <p>...and {(state.dopSpecs.stage3_dop_output?.cinematographic_shots?.length || 0) - 3} more shots</p>
+              {(state.dopSpecs.stage5_dop_output?.cinematographic_shots?.length || 0) > 3 && (
+                <p>...and {(state.dopSpecs.stage5_dop_output?.cinematographic_shots?.length || 0) - 3} more shots</p>
               )}
             </div>
 

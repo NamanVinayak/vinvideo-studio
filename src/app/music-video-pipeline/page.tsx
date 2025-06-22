@@ -238,25 +238,18 @@ export default function MusicVideoPipelinePage() {
   // Stage 6 → Stage 7: When promptEngineerResult is ready - COMMENTED OUT FOR DEBUGGING
   useEffect(() => {
     if (state.stage === 6 && state.promptEngineerResult && !state.loading) {
-      console.log('🔄 Music Stage 7: Image Generation SKIPPED for debugging');
+      console.log('🔄 Music Stage 7: Auto-triggering Image Generation');
       // Apply test-tts pattern: Check data structure validity, not just existence
-      // const hasValidPrompts = state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
-      // const hasRawResponse = state.promptEngineerResult.rawResponse;
+      const hasValidPrompts = state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
+      const hasRawResponse = state.promptEngineerResult.rawResponse;
       
-      // if (hasValidPrompts || hasRawResponse) {
-      //   console.log('🔄 Auto-triggering Stage 7: Image Generation with valid data');
-      //   runStage7ImageGeneration();
-      // } else {
-      //   console.warn('⚠️ Stage 6 complete but no valid prompts found, Stage 7 may need fallback handling');
-      //   runStage7ImageGeneration(); // Still proceed - Stage 7 has fallback logic now
-      // }
-      
-      // Just mark as complete for debugging
-      setState(prev => ({
-        ...prev,
-        currentStep: 'Pipeline complete! (Image generation skipped for debugging)',
-        loading: false
-      }));
+      if (hasValidPrompts || hasRawResponse) {
+        console.log('🔄 Auto-triggering Stage 7: Image Generation with valid data');
+        runStage7ImageGeneration();
+      } else {
+        console.warn('⚠️ Stage 6 complete but no valid prompts found, Stage 7 may need fallback handling');
+        runStage7ImageGeneration(); // Still proceed - Stage 7 has fallback logic now
+      }
     }
   }, [state.stage, state.promptEngineerResult, state.loading]);
 
@@ -292,18 +285,11 @@ export default function MusicVideoPipelinePage() {
     }
   }, [state.stage, state.dopSpecs, state.loading, state.pipelineType]);
 
-  // NO-MUSIC PIPELINE: Stage 4 → Stage 5 (Image Generation) - COMMENTED OUT FOR DEBUGGING
+  // NO-MUSIC PIPELINE: Stage 4 → Stage 5 (Image Generation)
   useEffect(() => {
     if (state.stage === 5 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music') {
-      console.log('🔄 No-Music Stage 5: Image Generation SKIPPED for debugging');
-      // runStage7ImageGeneration(); // Reuse existing image generation function
-      
-      // Just mark as complete for debugging
-      setState(prev => ({
-        ...prev,
-        currentStep: 'Pipeline complete! (Image generation skipped for debugging)',
-        loading: false
-      }));
+      console.log('🔄 No-Music Stage 5: Auto-triggering Image Generation');
+      runStage7ImageGeneration(); // Reuse existing image generation function
     }
   }, [state.stage, state.promptEngineerResult, state.loading, state.pipelineType]);
 
@@ -1532,15 +1518,14 @@ export default function MusicVideoPipelinePage() {
     try {
       // Extract data for prompt engineer
       let directorBeats = state.directorBeats?.stage2_director_output?.visual_beats || [];
-      let dopSpecs = state.dopSpecs?.stage3_dop_output?.cinematographic_shots || [];
+      let dopSpecs = state.dopSpecs?.stage5_dop_output?.cinematographic_shots || [];
       
       console.log('🔍 No-Music Stage 4 Data Extraction:');
       console.log('directorBeats extracted:', directorBeats.length);
       console.log('dopSpecs extracted:', dopSpecs.length);
       console.log('state.dopSpecs structure check:', {
-        hasStage3Output: !!state.dopSpecs?.stage3_dop_output,
         hasStage5Output: !!state.dopSpecs?.stage5_dop_output,
-        hasCinematographicShots: !!state.dopSpecs?.stage3_dop_output?.cinematographic_shots,
+        hasCinematographicShots: !!state.dopSpecs?.stage5_dop_output?.cinematographic_shots,
         actualStructure: Object.keys(state.dopSpecs || {})
       });
       

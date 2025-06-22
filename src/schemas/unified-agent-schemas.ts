@@ -434,7 +434,6 @@ export const FIELD_MIGRATION_MAP = {
   // Stage output fields
   "stage1_vision_analysis": "vision_analysis",
   "stage2_director_output": "director_output",
-  "stage3_dop_output": "dop_output", 
   "stage4_director_output": "director_output",
   "stage4_prompt_engineer_output": "prompt_engineer_output",
   "stage5_dop_output": "dop_output",

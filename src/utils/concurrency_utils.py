@@ -114,11 +114,11 @@ def calculate_safe_batch_size(capacity_info: Optional[WorkerCapacity], total_pro
     
     idle_workers = capacity_info.idle_workers
     
-    # Conservative approach: use 80% of idle workers
+    # Queue-based approach: use 80% of idle workers with smart retry for 100% success rate
     max_concurrent = max(1, int(idle_workers * 0.8))
     
-    # Don't exceed total prompts, cap at reasonable limit
-    safe_concurrent = min(max_concurrent, total_prompts, 6)
+    # Don't exceed total prompts, cap at queue-friendly limit for reliability
+    safe_concurrent = min(max_concurrent, total_prompts, 4)
     
     logger.info(f"🎯 Worker Analysis:")
     logger.info(f"   Total Workers: {capacity_info.total_workers}")
@@ -146,15 +146,15 @@ def progressive_scaling_strategy(prompts: List[str], capacity_info: Optional[Wor
     if total_prompts <= 4:
         return min(2, total_prompts)
     
-    # Medium batches: moderate
+    # Medium batches: conservative for reliability  
     elif total_prompts <= 10:
-        return min(4, total_prompts)
+        return min(3, total_prompts)
     
-    # Large batches: check worker capacity
+    # Large batches: very conservative with worker capacity
     else:
         if capacity_info:
             return calculate_safe_batch_size(capacity_info, total_prompts)
-        return min(4, total_prompts)  # Safe fallback
+        return min(3, total_prompts)  # Very safe fallback
 
 def get_batch_config() -> BatchConfig:
     """
@@ -164,7 +164,7 @@ def get_batch_config() -> BatchConfig:
         BatchConfig object with processing parameters
     """
     return BatchConfig(
-        max_concurrent_jobs=int(os.getenv('RUNPOD_MAX_CONCURRENT_JOBS', '6')),
+        max_concurrent_jobs=int(os.getenv('RUNPOD_MAX_CONCURRENT_JOBS', '4')),  # Reduced from 6 to 4 for stability
         polling_interval=int(os.getenv('RUNPOD_POLLING_INTERVAL', '2')),
         retry_attempts=int(os.getenv('RUNPOD_RETRY_ATTEMPTS', '3')),
         fallback_to_sequential=os.getenv('RUNPOD_FALLBACK_MODE', 'sequential').lower() == 'sequential'

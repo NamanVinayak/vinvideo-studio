@@ -3,12 +3,13 @@ import { NO_MUSIC_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnd
 
 /**
  * Enhanced Vision Understanding Agent for No-Music Pipeline
- * Combines concept analysis with timing blueprint generation
+ * Combines concept analysis with timing blueprint generation + agent instruction framework
+ * Modernized with sophistication patterns from Vision Enhanced pipeline
  */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userInput, additionalContext } = body;
+    const { userInput, stylePreferences, technicalRequirements, noMusicUserContext } = body;
     
     // Validate required inputs
     if (!userInput || !userInput.trim()) {
@@ -27,42 +28,70 @@ export async function POST(request: Request) {
     
     console.log('Calling Enhanced No-Music Vision Understanding Agent...');
     
+    // Log user preferences  
+    if (stylePreferences) {
+      console.log(`User Preferences - Style: ${stylePreferences.visualStyle}, Pacing: ${stylePreferences.pacing}, Duration: ${stylePreferences.duration}s`);
+    }
+    
     // Prepare user content with context
-    const userContent = `NO-MUSIC PIPELINE - STAGE 1: ENHANCED VISION UNDERSTANDING + TIMING BLUEPRINT
+    const userContent = `NO-MUSIC PIPELINE - STAGE 1: ENHANCED VISION UNDERSTANDING + TIMING BLUEPRINT + AGENT INSTRUCTION GENERATION
     
     USER CONCEPT INPUT:
     "${userInput}"
     
-    ADDITIONAL CONTEXT:
-    ${JSON.stringify(additionalContext, null, 2)}
+    STYLE PREFERENCES (User-Requirement-First):
+    ${JSON.stringify(stylePreferences, null, 2)}
     
-    TASK: Analyze the user's concept and create both a comprehensive vision document AND a complete timing blueprint for the no-music pipeline.
+    TECHNICAL REQUIREMENTS:
+    ${JSON.stringify(technicalRequirements, null, 2)}
     
-    Since there is no musical structure to guide timing, YOU must create the temporal architecture:
+    NO-MUSIC USER CONTEXT (User-Requirement-First):
+    ${JSON.stringify(noMusicUserContext, null, 2)}
     
-    1. VISION ANALYSIS:
-       - Extract core concept and emotional arc
-       - Classify content type (abstract_thematic vs narrative_character)
-       - Determine visual style and complexity
-       - Generate creative direction
+    TASK: Analyze the user's concept and create comprehensive vision document + timing blueprint + agent instruction framework for the no-music pipeline.
     
-    2. TIMING BLUEPRINT GENERATION:
-       - Duration: ${additionalContext?.stylePreferences?.duration || 30} seconds
-       - Pacing: ${additionalContext?.stylePreferences?.pacing || 'moderate'}
-       - Calculate optimal cut count based on pacing preference
-       - Generate cut points using narrative flow principles
-       - Create cognitive pacing that maintains engagement
+    **USER-REQUIREMENT-FIRST PROCESSING:**
+    1. INTEGRATE USER PREFERENCES FIRST:
+       - User Visual Style: ${stylePreferences?.visualStyle || 'cinematic'}
+       - User Pacing Preference: ${stylePreferences?.pacing || 'medium'}
+       - User Duration Request: ${stylePreferences?.duration || 30} seconds
+       - NEVER ignore user preferences for arbitrary creative choices
+       - CRITICAL: Use EXACT user pacing preference in vision_document.pacing field
     
-    3. CUT POINT STRATEGY:
-       - Contemplative: 6-10 second segments (fewer cuts, deeper contemplation)
-       - Moderate: 4-6 second segments (balanced rhythm)  
-       - Dynamic: 2-4 second segments (rapid visual progression)
+    2. ARTISTIC STYLE DETECTION:
+       - Analyze user input for specific artistic style mentions (Japanese water painting, van Gogh, etc.)
+       - If detected, prioritize this style in all downstream agent instructions
+       - If not mentioned, use "not_mentioned"
     
-    Return complete vision document with timing blueprint as JSON only.`;
+    3. VISION ANALYSIS (User-Preference-Aware):
+       - Extract core concept while respecting user visual style preference
+       - Create emotional arc that serves user's chosen style
+       - Classify content type with user style integration
+       - Generate creative direction serving user requirements
+    
+    4. TIMING BLUEPRINT GENERATION (User-Pacing-First):
+       - Duration: EXACTLY ${stylePreferences?.duration || 30} seconds
+       - Pacing: User preference "${stylePreferences?.pacing || 'medium'}" DRIVES cut timing (NOT generic optimization)
+       - Calculate optimal cut count based on USER pacing preference
+       - Generate cut points using narrative flow + user preference
+       - Create cognitive pacing serving user choice
+    
+    5. AGENT INSTRUCTION GENERATION (NEW):
+       - Director Instructions: Tailored to this specific concept + user preferences
+       - DoP Instructions: Camera work serving user style + detected artistic style
+       - Prompt Engineer Instructions: Visual generation serving user style + gaze intelligence
+       - ALL instructions must integrate user preferences, not generic templates
+    
+    6. COGNITIVE SCIENCE APPLICATION:
+       - Apply sliding-window diversity rules to prevent pattern recognition fatigue
+       - Integrate gaze direction intelligence to prevent AI camera staring
+       - Use content complexity analysis for duration adaptation
+    
+    Return complete sophisticated output with agent instructions as JSON only.`;
 
     // EXACT OpenRouter payload structure
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",
@@ -236,13 +265,20 @@ export async function POST(request: Request) {
         }
       }
       
-      // Validate essential outputs
+      // Validate essential outputs and sophistication patterns
       const validation = {
         hasVisionDocument: !!parsedOutput.stage1_vision_analysis?.vision_document,
         hasTimingBlueprint: !!parsedOutput.stage1_vision_analysis?.timing_blueprint,
         hasCutPoints: !!parsedOutput.stage1_vision_analysis?.timing_blueprint?.cut_points,
         cutPointCount: parsedOutput.stage1_vision_analysis?.timing_blueprint?.cut_points?.length || 0,
-        pipelineReady: parsedOutput.pipeline_ready === true
+        pipelineReady: parsedOutput.pipeline_ready === true,
+        // Sophistication pattern validation
+        hasAgentInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions,
+        hasDirectorInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.director_instructions,
+        hasDopInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.dop_instructions,
+        hasPromptEngineerInstructions: !!parsedOutput.stage1_vision_analysis?.agent_instructions?.prompt_engineer_instructions,
+        artisticStyleDetected: parsedOutput.stage1_vision_analysis?.vision_document?.detected_artistic_style !== "not_mentioned",
+        userContextIntegrated: !!noMusicUserContext
       };
       
       return NextResponse.json({
