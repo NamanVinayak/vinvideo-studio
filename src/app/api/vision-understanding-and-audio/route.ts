@@ -249,9 +249,9 @@ function cleanScriptResponse(response: string): string {
     .replace(/^#+\s.*$/gm, '')
     // Remove meta-commentary sections
     .replace(/^\*\*Final Review\*\*[\s\S]*?(?=\n\n|\n[A-Z]|$)/gm, '')
-    .replace(/I'm now conducting.*?(?=\n\n|\n[A-Z]|$)/gms, '')
-    .replace(/The goal is to.*?(?=\n\n|\n[A-Z]|$)/gms, '')
-    .replace(/Final review.*?(?=\n\n|\n[A-Z]|$)/gms, '')
+    .replace(/I'm now conducting.*?(?=\n\n|\n[A-Z]|$)/gm, '')
+    .replace(/The goal is to.*?(?=\n\n|\n[A-Z]|$)/gm, '')
+    .replace(/Final review.*?(?=\n\n|\n[A-Z]|$)/gm, '')
     .replace(/via gemini t t s/gi, '')
     // Remove empty lines and trim
     .replace(/^\s*$/gm, '')

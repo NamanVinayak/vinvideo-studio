@@ -176,6 +176,7 @@ export class OpenRouterService {
     const payload: OpenRouterRequest = {
       ...request,
       model: request.model || this.config.defaultModel,
+      messages: request.messages || [],
       stream: true
     };
 

@@ -146,6 +146,24 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.stage.completed {
+  background: rgba(34, 197, 94, 0.25);
+  color: white;
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.1);
+  transform: scale(1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stage.error {
+  background: rgba(239, 68, 68, 0.25);
+  color: white;
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.2), 0 0 20px rgba(239, 68, 68, 0.1);
+  transform: scale(1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .stageContent {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 25px;

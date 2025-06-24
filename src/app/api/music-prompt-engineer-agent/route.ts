@@ -96,9 +96,8 @@ export async function POST(request: Request) {
       max_tokens: 32000,          // Increased for complete FLUX prompt generation
       temperature: 0.1,           // Low creativity for consistent FLUX prompts
       top_p: 0.3,                // Focused on FLUX best practices
-      frequency_penalty: 0.2,     // Encourage prompt variety
-      presence_penalty: 0.1,      // Slight penalty for repetitive elements
       stream: false
+      // Note: frequency_penalty and presence_penalty removed - not supported by Gemini model
     };
 
     // Make the API request to OpenRouter

@@ -192,7 +192,8 @@ Generate the complete vision analysis as JSON only.`;
           console.error('Problematic JSON:', cleanedResponse.substring(0, 1000));
           
           // Return a structured error with the raw response
-          throw new Error(`Could not parse agent response: ${secondParseError.message}`);
+          const errorMessage = secondParseError instanceof Error ? secondParseError.message : String(secondParseError);
+          throw new Error(`Could not parse agent response: ${errorMessage}`);
         }
       }
       

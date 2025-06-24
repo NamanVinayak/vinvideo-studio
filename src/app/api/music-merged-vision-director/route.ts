@@ -78,9 +78,8 @@ export async function POST(request: NextRequest) {
       ],
       temperature: 0.7,
       max_tokens: 25000, // Increased for comprehensive output
-      top_p: 0.9,
-      frequency_penalty: 0.2,
-      presence_penalty: 0.1
+      top_p: 0.9
+      // Note: frequency_penalty and presence_penalty removed - not supported by Gemini model
     };
 
     // Make request to OpenRouter
@@ -160,7 +159,7 @@ export async function POST(request: NextRequest) {
                 color_philosophy: "Dynamic colors that pulse with the music"
               },
               director_output: {
-                visual_beats: producerCutPoints.map((cut, index) => ({
+                visual_beats: producerCutPoints.map((cut: any, index: number) => ({
                   beat_no: index + 1,
                   timecode_start: cut.cut_time_s ? `00:00:${String(Math.floor(cut.cut_time_s)).padStart(2, '0')}.000` : "00:00:00.000",
                   estimated_duration_s: cut.duration || 3,

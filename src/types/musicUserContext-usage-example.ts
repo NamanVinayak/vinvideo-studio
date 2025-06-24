@@ -3,12 +3,12 @@
  * This file demonstrates how to integrate the MusicUserContext interface
  */
 
-import { MusicUserContext, MusicPipelineAgentInput } from './musicUserContext';
+import { MusicUserContext } from './musicUserContext';
 
 /**
  * Example: Music Producer Agent using MusicUserContext
  */
-export async function musicProducerAgent(input: MusicPipelineAgentInput) {
+export async function musicProducerAgent(input: any) {
   const { userContext, previousAgentOutputs } = input;
   
   // Access user preferences
@@ -79,7 +79,6 @@ export function createMusicUserContext(formData: any): MusicUserContext {
       pacing: formData.pacing,
       visualStyle: formData.style,
       contentType: formData.contentType,
-      musicPreference: formData.musicPreference,
       
       // Music-specific settings
       musicSource: formData.audioFile ? {

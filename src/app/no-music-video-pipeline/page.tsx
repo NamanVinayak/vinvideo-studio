@@ -147,7 +147,7 @@ export default function NoMusicVideoPipelinePage() {
         await saveAgentResponse({
           agentName: 'merged_vision_director',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
           projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {
@@ -212,7 +212,7 @@ export default function NoMusicVideoPipelinePage() {
         await saveAgentResponse({
           agentName: 'no_music_dop',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
           projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {
@@ -287,7 +287,7 @@ export default function NoMusicVideoPipelinePage() {
         await saveAgentResponse({
           agentName: 'no_music_prompt_engineer',
           response: result,
-          pipelineType: 'NO_MUSIC_VIDEO_MERGED',
+          pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
           projectFolder: `no_music_video_merged_${Date.now()}`,
           input: {

@@ -118,7 +118,8 @@ export async function testEnhancedRouter() {
       
     } catch (error) {
       console.error('❌ Test failed:', error);
-      results.push({ scenario: scenario.name, success: false, error: error.message });
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      results.push({ scenario: scenario.name, success: false, error: errorMessage });
     }
   }
   

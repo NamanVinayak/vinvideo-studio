@@ -6,9 +6,71 @@ import Image from 'next/image';
 import styles from './page.module.css';
 import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
+// Dynamic Configuration - All hardcoded values made configurable
+const PIPELINE_CONFIG = {
+  // Audio Processing
+  AUDIO: {
+    MAX_FILE_SIZE_MB: 50,
+    SUPPORTED_TYPES: ['audio/mp3', 'audio/wav', 'audio/mpeg', 'audio/mp4', 'audio/aac'],
+    ANALYSIS: {
+      FRAME_SIZE: 1024,
+      BPM_RANGE: { min: 60, max: 180 },
+      DEFAULT_BPM: 120,
+      BPM_VARIATION: 40,
+      SAMPLES_PER_SECOND: 4
+    }
+  },
+  
+  // Music Analysis
+  MUSIC: {
+    BEAT_MULTIPLIERS: {
+      DOWNBEAT: 4,    // Every 4th beat is a downbeat
+      PHRASE: 8       // 8-beat phrases
+    },
+    CUT_TIMING: {
+      BEAT_INTERVAL_MULTIPLIER: 2,  // Cut every 2nd beat
+      MIN_CUTS: 3,
+      MAX_CUTS: 8,
+      CUTS_PER_DURATION_RATIO: 3    // 1 cut per 3 seconds
+    }
+  },
+  
+  // Stage Management
+  STAGES: {
+    MUSIC_PIPELINE: {
+      MUSIC_ANALYSIS: 2,
+      VISION_DIRECTOR: 3, 
+      DOP: 4,
+      PROMPT_ENGINEER: 5,
+      IMAGE_GENERATION: 6,
+      COMPLETE: 7
+    },
+    NO_MUSIC_PIPELINE: {
+      VISION_TIMING: 1,
+      DIRECTOR: 2,
+      DOP: 3, 
+      PROMPT_ENGINEER: 4,
+      IMAGE_GENERATION: 5,
+      COMPLETE: 6
+    }
+  },
+  
+  // UI & Timing
+  UI: {
+    TIMER_UPDATE_INTERVAL_MS: 1000,
+    TIME_PRECISION: 2,
+    PROGRESS_STEPS: {
+      AUDIO_DECODE: 60,
+      ANALYSIS_COMPLETE: 100
+    }
+  }
+};
+
 interface MusicVideoState {
   stage: number;
+  visionDocument: any; // Vision understanding result
   musicAnalysis: any;
+  directorBeats: any; // Director beats (for no-music pipeline)
   mergedVisionDirector: any; // NEW: Combined vision + director output
   dopSpecs: any;
   promptEngineerResult: any;
@@ -29,6 +91,15 @@ interface MusicVideoState {
     elapsedTime: number;
     isRunning: boolean;
   };
+  // Individual stage errors for graceful error handling
+  stageErrors: {
+    visionUnderstanding: string | null;
+    musicAnalysis: string | null;
+    mergedVisionDirector: string | null;
+    dopSpecs: string | null;
+    promptEngineer: string | null;
+    imageGeneration: string | null;
+  };
 }
 
 export default function MusicVideoPipelinePage() {
@@ -43,7 +114,9 @@ export default function MusicVideoPipelinePage() {
   
   const [state, setState] = useState<MusicVideoState>({
     stage: 1,
+    visionDocument: null,
     musicAnalysis: null,
+    directorBeats: null,
     mergedVisionDirector: null, // NEW: Combined vision + director
     dopSpecs: null,
     promptEngineerResult: null,
@@ -62,6 +135,14 @@ export default function MusicVideoPipelinePage() {
       startTime: null,
       elapsedTime: 0,
       isRunning: false
+    },
+    stageErrors: {
+      visionUnderstanding: null,
+      musicAnalysis: null,
+      mergedVisionDirector: null,
+      dopSpecs: null,
+      promptEngineer: null,
+      imageGeneration: null
     }
   });
 
@@ -225,16 +306,16 @@ export default function MusicVideoPipelinePage() {
       const hasRawResponse = state.promptEngineerResult.rawResponse;
       
       if (hasValidPrompts || hasRawResponse) {
-        console.log('🔄 Auto-triggering Stage 5: Image Generation with valid data');
-        setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
+        console.log('🔄 Auto-triggering Stage 6: Image Generation with valid data');
+        setStageExecutionFlags(prev => ({ ...prev, stage6Running: true }));
         runStage5ImageGeneration();
       } else {
-        console.warn('⚠️ Stage 4 complete but no valid prompts found, Stage 5 may need fallback handling');
-        setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
-        runStage5ImageGeneration(); // Still proceed - Stage 5 has fallback logic now
+        console.warn('⚠️ Stage 5 complete but no valid prompts found, Stage 6 may need fallback handling');
+        setStageExecutionFlags(prev => ({ ...prev, stage6Running: true }));
+        runStage5ImageGeneration(); // Still proceed - Stage 6 has fallback logic now
       }
     }
-  }, [state.stage, state.promptEngineerResult, state.loading, stageExecutionFlags.stage5Running]);
+  }, [state.stage, state.promptEngineerResult, state.loading, stageExecutionFlags.stage6Running]);
 
   // NO-MUSIC PIPELINE: Stage 1 → Stage 2 (Director)
   useEffect(() => {
@@ -272,7 +353,7 @@ export default function MusicVideoPipelinePage() {
   useEffect(() => {
     if (state.stage === 5 && state.promptEngineerResult && !state.loading && state.pipelineType === 'no_music') {
       console.log('🔄 No-Music Stage 5: Auto-triggering Image Generation');
-      runStage7ImageGeneration(); // Reuse existing image generation function
+      runStage5ImageGeneration(); // Reuse existing image generation function
     }
   }, [state.stage, state.promptEngineerResult, state.loading, state.pipelineType]);
 
@@ -289,7 +370,7 @@ export default function MusicVideoPipelinePage() {
             elapsedTime: Date.now() - prev.timer.startTime!
           }
         }));
-      }, 1000); // Update every second
+      }, PIPELINE_CONFIG.UI.TIMER_UPDATE_INTERVAL_MS);
     }
     
     return () => {
@@ -334,21 +415,20 @@ export default function MusicVideoPipelinePage() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/mpeg', 'audio/mp4', 'audio/aac'];
-      if (!allowedTypes.includes(file.type)) {
+      if (!PIPELINE_CONFIG.AUDIO.SUPPORTED_TYPES.includes(file.type)) {
         setState(prev => ({ 
           ...prev, 
-          error: `Unsupported file type: ${file.type}. Please use MP3, WAV, MP4, or AAC files.` 
+          error: `Unsupported file type: ${file.type}. Please use ${PIPELINE_CONFIG.AUDIO.SUPPORTED_TYPES.join(', ')} files.` 
         }));
         return;
       }
       
-      // Validate file size (max 50MB)
-      const maxSize = 50 * 1024 * 1024; // 50MB
+      // Validate file size
+      const maxSize = PIPELINE_CONFIG.AUDIO.MAX_FILE_SIZE_MB * 1024 * 1024;
       if (file.size > maxSize) {
         setState(prev => ({ 
           ...prev, 
-          error: `File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Maximum size is 50MB.` 
+          error: `File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Maximum size is ${PIPELINE_CONFIG.AUDIO.MAX_FILE_SIZE_MB}MB.` 
         }));
         return;
       }
@@ -365,7 +445,8 @@ export default function MusicVideoPipelinePage() {
       stage2Running: false,
       stage3Running: false,
       stage4Running: false,
-      stage5Running: false
+      stage5Running: false,
+      stage6Running: false
     });
     
     const startTime = Date.now();
@@ -431,7 +512,8 @@ export default function MusicVideoPipelinePage() {
       loading: true, 
       error: null, 
       currentStep: isNoMusicPipeline ? 'Stage 1: Analyzing concept and generating timing...' : 'Stage 1: Analyzing your concept...',
-      pipelineType: isNoMusicPipeline ? 'no_music' : 'music'
+      pipelineType: isNoMusicPipeline ? 'no_music' : 'music',
+      stageErrors: { ...prev.stageErrors, visionUnderstanding: null }
     }));
     
     try {
@@ -561,10 +643,15 @@ export default function MusicVideoPipelinePage() {
         throw new Error(result.error || 'Vision understanding failed');
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setState(prev => ({
         ...prev,
-        error: `Vision understanding failed: ${error}`,
-        loading: false
+        stageErrors: {
+          ...prev.stageErrors,
+          visionUnderstanding: `Vision understanding failed: ${errorMessage}`
+        },
+        loading: false,
+        currentStep: 'Stage 1 failed - Vision Understanding error'
       }));
     }
   };
@@ -576,7 +663,13 @@ export default function MusicVideoPipelinePage() {
       loading: state.loading
     });
     
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 1: Analyzing music and creating cut points...' }));
+    setState(prev => ({ 
+      ...prev, 
+      loading: true, 
+      error: null, 
+      currentStep: 'Stage 1: Analyzing music and creating cut points...',
+      stageErrors: { ...prev.stageErrors, musicAnalysis: null }
+    }));
     
     try {
       let response;
@@ -610,9 +703,15 @@ export default function MusicVideoPipelinePage() {
       if (formData.musicPreference === 'upload' && audioFile) {
         // Use simple mock for uploaded file - REMOVED COMPLEX AUDIO ANALYSIS
         console.log('📁 Using simple mock for uploaded file');
+        const defaultBpm = PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM;
+        const duration = formData.duration || 60;
         clientSideMusicAnalysis = {
-          trackMetadata: { source: 'upload', title: audioFile.name, duration: formData.duration || 60 },
-          musicAnalysis: { bpm: 120, beats: [0, 0.5, 1.0], downbeats: [0, 2, 4] }
+          trackMetadata: { source: 'upload', title: audioFile.name, duration },
+          musicAnalysis: { 
+            bpm: defaultBpm, 
+            beats: generateSimpleBeats(defaultBpm, Math.min(duration, 3)), 
+            downbeats: generateSimpleDownbeats(defaultBpm, Math.min(duration, 8)) 
+          }
         };
         
         setState(prev => ({ ...prev, currentStep: 'Stage 1b: Creating optimal cut points...' }));
@@ -702,24 +801,32 @@ export default function MusicVideoPipelinePage() {
     } catch (error) {
       console.error('❌ API call failed:', error);
       console.log('🔧 Setting emergency musicAnalysis data...');
+      const errorMessage = error instanceof Error ? error.message : String(error);
       
       // Set emergency data only on API failure
       setState(prev => ({
         ...prev,
         stage: 3,
+        stageErrors: {
+          ...prev.stageErrors,
+          musicAnalysis: `Music analysis API failed, using fallback: ${errorMessage}`
+        },
         musicAnalysis: {
           success: true,
           stage2_music_analysis: {
             trackMetadata: { title: 'Emergency Fallback', duration: formData.duration || 60 },
             musicAnalysis: { 
-              bpm: 120, 
-              beats: generateEmergencyBeats(120, formData.duration || 60), 
-              downbeats: generateEmergencyDownbeats(120, formData.duration || 60)
+              bpm: PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM, 
+              beats: generateEmergencyBeats(PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM, formData.duration || 60), 
+              downbeats: generateEmergencyDownbeats(PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM, formData.duration || 60)
             }
           },
           stage3_producer_output: {
             cutPoints: generateEmergencyCutPoints(formData.duration || 60),
-            cutStrategy: { totalCuts: 6, averageCutLength: (formData.duration || 60) / 6 }
+            cutStrategy: { 
+              totalCuts: Math.max(PIPELINE_CONFIG.MUSIC.CUT_TIMING.MIN_CUTS, Math.min(PIPELINE_CONFIG.MUSIC.CUT_TIMING.MAX_CUTS, Math.floor((formData.duration || 60) / PIPELINE_CONFIG.MUSIC.CUT_TIMING.CUTS_PER_DURATION_RATIO))), 
+              averageCutLength: (formData.duration || 60) / Math.max(PIPELINE_CONFIG.MUSIC.CUT_TIMING.MIN_CUTS, Math.min(PIPELINE_CONFIG.MUSIC.CUT_TIMING.MAX_CUTS, Math.floor((formData.duration || 60) / PIPELINE_CONFIG.MUSIC.CUT_TIMING.CUTS_PER_DURATION_RATIO)))
+            }
           },
           fallback_used: true
         },
@@ -737,7 +844,8 @@ export default function MusicVideoPipelinePage() {
       ...prev, 
       loading: true, 
       error: null, 
-      currentStep: 'Stage 3: Creating unified vision and director beats...' 
+      currentStep: 'Stage 3: Creating unified vision and director beats...',
+      stageErrors: { ...prev.stageErrors, mergedVisionDirector: null }
     }));
     
     try {
@@ -823,10 +931,15 @@ export default function MusicVideoPipelinePage() {
         throw new Error(result.error || 'Merged vision+director failed');
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setState(prev => ({
         ...prev,
-        error: `Merged vision+director failed: ${error}`,
-        loading: false
+        stageErrors: {
+          ...prev.stageErrors,
+          mergedVisionDirector: `Merged vision+director failed: ${errorMessage}`
+        },
+        loading: false,
+        currentStep: 'Stage 3 failed - Merged Vision+Director error'
       }));
     }
   };
@@ -915,7 +1028,13 @@ export default function MusicVideoPipelinePage() {
   };
 
   const runStage3DoP = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 4: Creating cinematography specifications...' }));
+    setState(prev => ({ 
+      ...prev, 
+      loading: true, 
+      error: null, 
+      currentStep: 'Stage 4: Creating cinematography specifications...',
+      stageErrors: { ...prev.stageErrors, dopSpecs: null }
+    }));
     
     try {
       // Apply test-tts pattern: Validate and extract data with fallbacks
@@ -962,10 +1081,20 @@ export default function MusicVideoPipelinePage() {
             musicAnalysis = parsedMusic.stage2_music_analysis?.musicAnalysis || 
                           parsedMusic.musicAnalysis || {};
           } catch {
-            musicAnalysis = { bpm: 120, beats: [0, 0.5, 1], downbeats: [0, 2, 4] };
+            const defaultBpm = PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM;
+            musicAnalysis = { 
+              bpm: defaultBpm, 
+              beats: generateSimpleBeats(defaultBpm, 3), 
+              downbeats: generateSimpleDownbeats(defaultBpm, 8) 
+            };
           }
         } else {
-          musicAnalysis = { bpm: 120, beats: [0, 0.5, 1], downbeats: [0, 2, 4] };
+          const defaultBpm = PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM;
+          musicAnalysis = { 
+            bpm: defaultBpm, 
+            beats: generateSimpleBeats(defaultBpm, 3), 
+            downbeats: generateSimpleDownbeats(defaultBpm, 8) 
+          };
         }
       }
       
@@ -1025,16 +1154,27 @@ export default function MusicVideoPipelinePage() {
         throw new Error(result.error || 'Music DoP failed');
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setState(prev => ({
         ...prev,
-        error: `Music DoP failed: ${error}`,
-        loading: false
+        stageErrors: {
+          ...prev.stageErrors,
+          dopSpecs: `Music DoP failed: ${errorMessage}`
+        },
+        loading: false,
+        currentStep: 'Stage 4 failed - DoP Cinematography error'
       }));
     }
   };
 
   const runStage4PromptEngineer = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Generating FLUX image prompts...' }));
+    setState(prev => ({ 
+      ...prev, 
+      loading: true, 
+      error: null, 
+      currentStep: 'Stage 5: Generating FLUX image prompts...',
+      stageErrors: { ...prev.stageErrors, promptEngineer: null }
+    }));
     
     try {
       // Apply test-tts pattern: Validate and extract data with fallbacks
@@ -1165,23 +1305,34 @@ export default function MusicVideoPipelinePage() {
         throw new Error(result.error || 'Prompt Engineer failed');
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setState(prev => ({
         ...prev,
-        error: `Prompt Engineer failed: ${error}`,
-        loading: false
+        stageErrors: {
+          ...prev.stageErrors,
+          promptEngineer: `Prompt Engineer failed: ${errorMessage}`
+        },
+        loading: false,
+        currentStep: 'Stage 5 failed - Prompt Engineer error'
       }));
     }
   };
 
   const runStage5ImageGeneration = async () => {
     // Execution guard to prevent multiple runs
-    if (stageExecutionFlags.stage5Running) {
-      console.warn('🚫 Stage 5 already running, skipping duplicate execution');
+    if (stageExecutionFlags.stage6Running) {
+      console.warn('🚫 Stage 6 already running, skipping duplicate execution');
       return;
     }
     
-    setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Generating images with ComfyUI...' }));
+    setStageExecutionFlags(prev => ({ ...prev, stage6Running: true }));
+    setState(prev => ({ 
+      ...prev, 
+      loading: true, 
+      error: null, 
+      currentStep: 'Stage 5: Generating images with ComfyUI...',
+      stageErrors: { ...prev.stageErrors, imageGeneration: null }
+    }));
     
     try {
       // Apply test-tts pattern: Robust prompt extraction with fallbacks
@@ -1430,7 +1581,7 @@ export default function MusicVideoPipelinePage() {
       }));
       
       // Reset execution flag
-      setStageExecutionFlags(prev => ({ ...prev, stage5Running: false }));
+      setStageExecutionFlags(prev => ({ ...prev, stage6Running: false }));
       
       // Move to final completion stage
       setTimeout(() => {
@@ -1447,19 +1598,24 @@ export default function MusicVideoPipelinePage() {
       
     } catch (error) {
       console.error('❌ Image generation failed:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       setState(prev => ({
         ...prev,
-        error: `Image generation failed: ${error}`,
+        stageErrors: {
+          ...prev.stageErrors,
+          imageGeneration: `Image generation failed: ${errorMessage}`
+        },
         imageGenerationProgress: {
           ...prev.imageGenerationProgress,
           isGenerating: false,
           message: 'Generation failed'
         },
-        loading: false
+        loading: false,
+        currentStep: 'Stage 6 failed - Image Generation error'
       }));
       
       // Reset execution flag on error
-      setStageExecutionFlags(prev => ({ ...prev, stage5Running: false }));
+      setStageExecutionFlags(prev => ({ ...prev, stage6Running: false }));
     }
   };
 
@@ -1654,8 +1810,9 @@ export default function MusicVideoPipelinePage() {
     onProgress(10);
     
     // Basic file validation
-    if (audioFile.size > 50 * 1024 * 1024) { // 50MB limit
-      throw new Error('Audio file too large (max 50MB)');
+    const maxSize = PIPELINE_CONFIG.AUDIO.MAX_FILE_SIZE_MB * 1024 * 1024;
+    if (audioFile.size > maxSize) {
+      throw new Error(`Audio file too large (max ${PIPELINE_CONFIG.AUDIO.MAX_FILE_SIZE_MB}MB)`);
     }
     
     onProgress(20);
@@ -1675,7 +1832,7 @@ export default function MusicVideoPipelinePage() {
       throw new Error('Failed to decode audio file - unsupported format');
     }
     
-    onProgress(60);
+    onProgress(PIPELINE_CONFIG.UI.PROGRESS_STEPS.AUDIO_DECODE);
     
     const channelData = decodedAudio.getChannelData(0);
     const sampleRate = decodedAudio.sampleRate;
@@ -1724,14 +1881,14 @@ export default function MusicVideoPipelinePage() {
       }
     };
     
-    onProgress(100);
+    onProgress(PIPELINE_CONFIG.UI.PROGRESS_STEPS.ANALYSIS_COMPLETE);
     return analysis;
   };
 
   // Helper functions for simplified analysis
   const estimateSimpleBPM = (audioData: Float32Array, sampleRate: number): number => {
     // Very basic tempo estimation - look for energy peaks
-    const frameSize = 1024;
+    const frameSize = PIPELINE_CONFIG.AUDIO.ANALYSIS.FRAME_SIZE;
     const peaks = [];
     
     for (let i = 0; i < audioData.length - frameSize; i += frameSize) {
@@ -1743,7 +1900,10 @@ export default function MusicVideoPipelinePage() {
     }
     
     // Estimate BPM from peak intervals (simplified)
-    return Math.max(60, Math.min(180, 120 + Math.random() * 40)); // Realistic range
+    const { min, max } = PIPELINE_CONFIG.AUDIO.ANALYSIS.BPM_RANGE;
+    const defaultBpm = PIPELINE_CONFIG.AUDIO.ANALYSIS.DEFAULT_BPM;
+    const variation = PIPELINE_CONFIG.AUDIO.ANALYSIS.BPM_VARIATION;
+    return Math.max(min, Math.min(max, defaultBpm + Math.random() * variation));
   };
 
   const generateSimpleBeats = (bpm: number, duration: number): number[] => {
@@ -1758,14 +1918,15 @@ export default function MusicVideoPipelinePage() {
   const generateSimpleDownbeats = (bpm: number, duration: number): number[] => {
     const beatInterval = 60 / bpm;
     const downbeats = [];
-    for (let time = 0; time < duration; time += beatInterval * 4) {
-      downbeats.push(parseFloat(time.toFixed(2)));
+    const downbeatMultiplier = PIPELINE_CONFIG.MUSIC.BEAT_MULTIPLIERS.DOWNBEAT;
+    for (let time = 0; time < duration; time += beatInterval * downbeatMultiplier) {
+      downbeats.push(parseFloat(time.toFixed(PIPELINE_CONFIG.UI.TIME_PRECISION)));
     }
     return downbeats;
   };
 
   const generateSimpleIntensityCurve = (audioData: Float32Array, duration: number): number[] => {
-    const samplesPerSecond = 4;
+    const samplesPerSecond = PIPELINE_CONFIG.AUDIO.ANALYSIS.SAMPLES_PER_SECOND;
     const curve = [];
     const samplesPerPoint = Math.floor(audioData.length / (duration * samplesPerSecond));
     
@@ -1790,10 +1951,11 @@ export default function MusicVideoPipelinePage() {
   };
 
   const generateSimplePhraseBoundaries = (bpm: number, duration: number): number[] => {
-    const phraseLength = (60 / bpm) * 8; // 8-beat phrases
+    const phraseMultiplier = PIPELINE_CONFIG.MUSIC.BEAT_MULTIPLIERS.PHRASE;
+    const phraseLength = (60 / bpm) * phraseMultiplier;
     const boundaries = [];
     for (let time = phraseLength; time < duration; time += phraseLength) {
-      boundaries.push(parseFloat(time.toFixed(2)));
+      boundaries.push(parseFloat(time.toFixed(PIPELINE_CONFIG.UI.TIME_PRECISION)));
     }
     return boundaries;
   };
@@ -1801,8 +1963,9 @@ export default function MusicVideoPipelinePage() {
   const generateSimpleCutPoints = (bpm: number, duration: number): number[] => {
     const beatInterval = 60 / bpm;
     const cutPoints = [];
-    for (let time = beatInterval; time < duration; time += beatInterval * 2) {
-      cutPoints.push(parseFloat(time.toFixed(2)));
+    const beatMultiplier = PIPELINE_CONFIG.MUSIC.CUT_TIMING.BEAT_INTERVAL_MULTIPLIER;
+    for (let time = beatInterval; time < duration; time += beatInterval * beatMultiplier) {
+      cutPoints.push(parseFloat(time.toFixed(PIPELINE_CONFIG.UI.TIME_PRECISION)));
     }
     return cutPoints;
   };
@@ -1815,7 +1978,8 @@ export default function MusicVideoPipelinePage() {
 
   // Emergency fallback functions for when everything fails
   const generateEmergencyCutPoints = (duration: number) => {
-    const cutCount = Math.max(3, Math.min(8, Math.floor(duration / 3)));
+    const { MIN_CUTS, MAX_CUTS, CUTS_PER_DURATION_RATIO } = PIPELINE_CONFIG.MUSIC.CUT_TIMING;
+    const cutCount = Math.max(MIN_CUTS, Math.min(MAX_CUTS, Math.floor(duration / CUTS_PER_DURATION_RATIO)));
     const cutPoints = [];
     
     for (let i = 1; i <= cutCount; i++) {
@@ -1847,8 +2011,9 @@ export default function MusicVideoPipelinePage() {
   const generateEmergencyDownbeats = (bpm: number, duration: number): number[] => {
     const beatInterval = 60 / bpm;
     const downbeats = [];
-    for (let time = 0; time < duration; time += beatInterval * 4) {
-      downbeats.push(parseFloat(time.toFixed(2)));
+    const downbeatMultiplier = PIPELINE_CONFIG.MUSIC.BEAT_MULTIPLIERS.DOWNBEAT;
+    for (let time = 0; time < duration; time += beatInterval * downbeatMultiplier) {
+      downbeats.push(parseFloat(time.toFixed(PIPELINE_CONFIG.UI.TIME_PRECISION)));
     }
     return downbeats;
   };
@@ -1856,10 +2021,40 @@ export default function MusicVideoPipelinePage() {
   const generateEmergencyCutTimes = (bpm: number, duration: number): number[] => {
     const beatInterval = 60 / bpm;
     const cutPoints = [];
-    for (let time = beatInterval; time < duration; time += beatInterval * 2) {
-      cutPoints.push(parseFloat(time.toFixed(2)));
+    const beatMultiplier = PIPELINE_CONFIG.MUSIC.CUT_TIMING.BEAT_INTERVAL_MULTIPLIER;
+    for (let time = beatInterval; time < duration; time += beatInterval * beatMultiplier) {
+      cutPoints.push(parseFloat(time.toFixed(PIPELINE_CONFIG.UI.TIME_PRECISION)));
     }
     return cutPoints;
+  };
+
+  // Helper function to format time display
+  const formatTime = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
+  };
+
+  // Helper function to get stage status for error display
+  const getStageStatus = (stageNumber: number, stageErrorKey: keyof typeof state.stageErrors) => {
+    const hasError = state.stageErrors[stageErrorKey];
+    const isCompleted = state.stage > stageNumber;
+    const isActive = state.stage === stageNumber;
+    
+    if (hasError) return 'error';
+    if (isCompleted) return 'completed';
+    if (isActive) return 'active';
+    return 'pending';
+  };
+
+  // Helper function to get stage icon
+  const getStageIcon = (status: string) => {
+    switch (status) {
+      case 'completed': return '✅';
+      case 'active': return '⏳';
+      case 'error': return '❌';
+      default: return '⏸️';
+    }
   };
 
   return (
@@ -1889,22 +2084,41 @@ export default function MusicVideoPipelinePage() {
       <div className={styles.stageIndicator}>
         {state.pipelineType === 'no_music' ? (
           <>
-            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Vision & Timing</div>
-            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Director (Visual Beats)</div>
-            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. DoP (Cinematography)</div>
-            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. Prompt Engineer</div>
-            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. Image Generation</div>
+            <div className={`${styles.stage} ${getStageStatus(1, 'visionUnderstanding') === 'active' ? styles.active : ''} ${getStageStatus(1, 'visionUnderstanding') === 'completed' ? styles.completed : ''} ${getStageStatus(1, 'visionUnderstanding') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(1, 'visionUnderstanding'))} 1. Vision & Timing
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(2, 'mergedVisionDirector') === 'active' ? styles.active : ''} ${getStageStatus(2, 'mergedVisionDirector') === 'completed' ? styles.completed : ''} ${getStageStatus(2, 'mergedVisionDirector') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(2, 'mergedVisionDirector'))} 2. Director (Visual Beats)
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(3, 'dopSpecs') === 'active' ? styles.active : ''} ${getStageStatus(3, 'dopSpecs') === 'completed' ? styles.completed : ''} ${getStageStatus(3, 'dopSpecs') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(3, 'dopSpecs'))} 3. DoP (Cinematography)
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(4, 'promptEngineer') === 'active' ? styles.active : ''} ${getStageStatus(4, 'promptEngineer') === 'completed' ? styles.completed : ''} ${getStageStatus(4, 'promptEngineer') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(4, 'promptEngineer'))} 4. Prompt Engineer
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(5, 'imageGeneration') === 'active' ? styles.active : ''} ${getStageStatus(5, 'imageGeneration') === 'completed' ? styles.completed : ''} ${getStageStatus(5, 'imageGeneration') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(5, 'imageGeneration'))} 5. Image Generation
+            </div>
             <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Complete!</div>
           </>
         ) : (
           <>
-            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Music Analysis</div>
-            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Producer Agent</div>
-            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. Vision + Director (Merged)</div>
-            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. DoP (Cinematography)</div>
-            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. Prompt Engineer</div>
-            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Image Generation</div>
-            <div className={`${styles.stage} ${state.stage >= 7 ? styles.active : ''}`}>7. Complete!</div>
+            <div className={`${styles.stage} ${getStageStatus(2, 'musicAnalysis') === 'active' ? styles.active : ''} ${getStageStatus(2, 'musicAnalysis') === 'completed' ? styles.completed : ''} ${getStageStatus(2, 'musicAnalysis') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(2, 'musicAnalysis'))} 1. Music Analysis + Producer
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(3, 'mergedVisionDirector') === 'active' ? styles.active : ''} ${getStageStatus(3, 'mergedVisionDirector') === 'completed' ? styles.completed : ''} ${getStageStatus(3, 'mergedVisionDirector') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(3, 'mergedVisionDirector'))} 2. Vision + Director (Merged)
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(4, 'dopSpecs') === 'active' ? styles.active : ''} ${getStageStatus(4, 'dopSpecs') === 'completed' ? styles.completed : ''} ${getStageStatus(4, 'dopSpecs') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(4, 'dopSpecs'))} 3. DoP (Cinematography)
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(5, 'promptEngineer') === 'active' ? styles.active : ''} ${getStageStatus(5, 'promptEngineer') === 'completed' ? styles.completed : ''} ${getStageStatus(5, 'promptEngineer') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(5, 'promptEngineer'))} 4. Prompt Engineer
+            </div>
+            <div className={`${styles.stage} ${getStageStatus(6, 'imageGeneration') === 'active' ? styles.active : ''} ${getStageStatus(6, 'imageGeneration') === 'completed' ? styles.completed : ''} ${getStageStatus(6, 'imageGeneration') === 'error' ? styles.error : ''}`}>
+              {getStageIcon(getStageStatus(6, 'imageGeneration'))} 5. Image Generation
+            </div>
+            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Complete!</div>
           </>
         )}
       </div>
@@ -2070,7 +2284,7 @@ export default function MusicVideoPipelinePage() {
                     </div>
                   )}
                   <small style={{ color: '#6b7280', fontSize: '14px' }}>
-                    Supported formats: MP3, WAV, MP4, AAC (max 50MB)
+                    Supported formats: {PIPELINE_CONFIG.AUDIO.SUPPORTED_TYPES.join(', ')} (max {PIPELINE_CONFIG.AUDIO.MAX_FILE_SIZE_MB}MB)
                   </small>
                 </div>
               </div>
@@ -2103,9 +2317,74 @@ export default function MusicVideoPipelinePage() {
 
       {/* Results Section - Shows all completed stages */}
       <div className={styles.resultsSection}>
+        {/* Vision Understanding Error Display (if error occurred) */}
+        {state.stageErrors.visionUnderstanding && (
+          <div className={styles.result}>
+            <h2>❌ Stage 1 Failed: Vision Understanding</h2>
+            
+            <div className={styles.agentError}>
+              <strong>Vision Understanding Error:</strong> {state.stageErrors.visionUnderstanding}
+            </div>
+            
+            {state.visionDocument?._rawResponse && (
+              <div className={styles.rawResponse}>
+                <h3>Raw AI Response (Debug):</h3>
+                <pre className={styles.rawResponseText}>
+                  {state.visionDocument._rawResponse}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Additional Error Display for stages that failed without data */}
+        {(state.stageErrors.mergedVisionDirector && !state.mergedVisionDirector) && (
+          <div className={styles.result}>
+            <h2>❌ Stage 3 Failed: Vision + Director (Merged)</h2>
+            <div className={styles.agentError}>
+              <strong>Merged Vision+Director Error:</strong> {state.stageErrors.mergedVisionDirector}
+            </div>
+          </div>
+        )}
+
+        {(state.stageErrors.dopSpecs && !state.dopSpecs) && (
+          <div className={styles.result}>
+            <h2>❌ Stage 4 Failed: DoP Cinematography</h2>
+            <div className={styles.agentError}>
+              <strong>DoP Agent Error:</strong> {state.stageErrors.dopSpecs}
+            </div>
+          </div>
+        )}
+
+        {(state.stageErrors.promptEngineer && !state.promptEngineerResult) && (
+          <div className={styles.result}>
+            <h2>❌ Stage 5 Failed: Prompt Engineer</h2>
+            <div className={styles.agentError}>
+              <strong>Prompt Engineer Error:</strong> {state.stageErrors.promptEngineer}
+            </div>
+          </div>
+        )}
+
+        {(state.stageErrors.imageGeneration && !state.generatedImages?.length) && (
+          <div className={styles.result}>
+            <h2>❌ Stage 6 Failed: Image Generation</h2>
+            <div className={styles.agentError}>
+              <strong>Image Generation Error:</strong> {state.stageErrors.imageGeneration}
+            </div>
+          </div>
+        )}
+
         {state.mergedVisionDirector && (
           <div className={styles.result}>
             <h2>✅ Stage 3 Complete: Vision + Director (Merged)</h2>
+            
+            {/* Error Display for Merged Vision Director */}
+            {state.stageErrors.mergedVisionDirector && (
+              <div className={styles.agentError}>
+                <strong>Merged Vision+Director Error:</strong> {state.stageErrors.mergedVisionDirector}
+              </div>
+            )}
+            
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2190,6 +2469,14 @@ export default function MusicVideoPipelinePage() {
         {state.musicAnalysis?.stage2_music_analysis && (
           <div className={styles.result}>
             <h2>✅ Stage 1 Complete: Music Analysis</h2>
+            
+            {/* Error Display for Music Analysis */}
+            {state.stageErrors.musicAnalysis && (
+              <div className={styles.warning}>
+                <strong>Music Analysis Warning:</strong> {state.stageErrors.musicAnalysis}
+              </div>
+            )}
+            
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2283,6 +2570,14 @@ export default function MusicVideoPipelinePage() {
         {state.dopSpecs && (
           <div className={styles.result}>
             <h2>✅ Stage 4 Complete: DoP Cinematography</h2>
+            
+            {/* Error Display for DoP */}
+            {state.stageErrors.dopSpecs && (
+              <div className={styles.agentError}>
+                <strong>DoP Agent Error:</strong> {state.stageErrors.dopSpecs}
+              </div>
+            )}
+            
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2341,6 +2636,14 @@ export default function MusicVideoPipelinePage() {
         {state.promptEngineerResult && (
           <div className={styles.result}>
             <h2>✅ Stage 5 Complete: Prompt Engineer</h2>
+            
+            {/* Error Display for Prompt Engineer */}
+            {state.stageErrors.promptEngineer && (
+              <div className={styles.agentError}>
+                <strong>Prompt Engineer Error:</strong> {state.stageErrors.promptEngineer}
+              </div>
+            )}
+            
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2398,6 +2701,14 @@ export default function MusicVideoPipelinePage() {
         {((state.generatedImages && state.generatedImages.length > 0) || state.imageGenerationProgress.isGenerating) ? (
           <div className={styles.result}>
             <h2>✅ Stage 5: Generated Images (FLUX-dev)</h2>
+            
+            {/* Error Display for Image Generation */}
+            {state.stageErrors.imageGeneration && (
+              <div className={styles.agentError}>
+                <strong>Image Generation Error:</strong> {state.stageErrors.imageGeneration}
+              </div>
+            )}
+            
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2521,12 +2832,15 @@ export default function MusicVideoPipelinePage() {
                     stage2Running: false,
                     stage3Running: false,
                     stage4Running: false,
-                    stage5Running: false
+                    stage5Running: false,
+                    stage6Running: false
                   });
                   
                   setState({
                     stage: 1,
+                    visionDocument: null,
                     musicAnalysis: null,
+                    directorBeats: null,
                     mergedVisionDirector: null,
                     dopSpecs: null,
                     promptEngineerResult: null,
@@ -2540,7 +2854,20 @@ export default function MusicVideoPipelinePage() {
                     },
                     error: null,
                     loading: false,
-                    currentStep: ''
+                    currentStep: '',
+                    timer: {
+                      startTime: null,
+                      elapsedTime: 0,
+                      isRunning: false
+                    },
+                    stageErrors: {
+                      visionUnderstanding: null,
+                      musicAnalysis: null,
+                      mergedVisionDirector: null,
+                      dopSpecs: null,
+                      promptEngineer: null,
+                      imageGeneration: null
+                    }
                   });
                 }}
                 className={styles.button}

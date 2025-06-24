@@ -500,7 +500,7 @@ export default function TestTTS() {
         pipeline: {
           mode: 'vision_enhanced',
           timestamp: new Date().toISOString(),
-          sessionId: sessionId || projectFolderId // Use sessionId if available, else projectFolderId
+          sessionId: sessionId || projectFolderId || `session_${Date.now()}` // Use sessionId if available, else projectFolderId
         },
         constraints: {
           mustMatchDuration: true,
@@ -586,8 +586,8 @@ export default function TestTTS() {
           agentName: 'vision_understanding',
           response: visionData,
           pipelineType: 'VISION_ENHANCED',
-          sessionId: sessionId || projectFolderId,
-          projectFolder: projectFolderId,
+          sessionId: sessionId || projectFolderId || `session_${Date.now()}`,
+          projectFolder: projectFolderId || `project_${Date.now()}`,
           input: { userContext },
           rawResponse: visionData.rawResponse,
           executionTime: visionData.executionTime
@@ -653,7 +653,7 @@ export default function TestTTS() {
           pipeline: {
             mode: 'enhanced_script',
             timestamp: new Date().toISOString(),
-            sessionId: sessionId || projectFolderId
+            sessionId: sessionId || projectFolderId || `session_${Date.now()}`
           },
           constraints: {
             scriptFidelity: 'exact' as const,
@@ -886,8 +886,8 @@ export default function TestTTS() {
         agentName: useVisionMode ? 'vision_enhanced_producer' : 'enhanced_script_producer',
         response: producerData,
         pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
-        sessionId: sessionId || projectFolderId,
-        projectFolder: projectFolderId,
+        sessionId: sessionId || projectFolderId || `session_${Date.now()}`,
+        projectFolder: projectFolderId || `project_${Date.now()}`,
         input: useVisionMode 
           ? { transcript: transcriptData, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
           : { transcript: transcriptData, formatted_script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },
@@ -987,8 +987,8 @@ export default function TestTTS() {
         agentName: useVisionMode ? 'vision_enhanced_director' : 'enhanced_script_director',
         response: directorData,
         pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
-        sessionId: sessionId || projectFolderId,
-        projectFolder: projectFolderId,
+        sessionId: sessionId || projectFolderId || `session_${Date.now()}`,
+        projectFolder: projectFolderId || `project_${Date.now()}`,
         input: useVisionMode 
           ? { producer_output: producerOutput, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
           : { producer_output: producerData.producer_output || producerOutput, script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },
@@ -1099,8 +1099,8 @@ export default function TestTTS() {
         agentName: useVisionMode ? 'vision_enhanced_dop' : 'enhanced_script_dop',
         response: dopData,
         pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
-        sessionId: sessionId || projectFolderId,
-        projectFolder: projectFolderId,
+        sessionId: sessionId || projectFolderId || `session_${Date.now()}`,
+        projectFolder: projectFolderId || `project_${Date.now()}`,
         input: useVisionMode 
           ? { producer_output: producerOutputForDoP, director_output: directorOutputForDoP, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
           : { director_output: directorData.director_output || directorOutputForDoP, script: generatedFormattedScript, producer_output: producerData.producer_output || producerOutputForDoP, scriptModeUserContext: currentScriptModeUserContext },
@@ -1232,8 +1232,8 @@ export default function TestTTS() {
         agentName: useVisionMode ? 'vision_enhanced_prompt_engineer' : 'enhanced_script_prompt_engineer',
         response: promptEngineerData,
         pipelineType: useVisionMode ? 'VISION_ENHANCED' : 'SCRIPT_MODE',
-        sessionId: sessionId || projectFolderId,
-        projectFolder: projectFolderId,
+        sessionId: sessionId || projectFolderId || `session_${Date.now()}`,
+        projectFolder: projectFolderId || `project_${Date.now()}`,
         input: useVisionMode 
           ? { director_output: directorOutputForPE, dop_output: dopOutputForPE, script: generatedFormattedScript, visionDocument: currentVisionDocument, userContext }
           : { director_output: directorData.director_output || directorOutputForPE, dop_output: dopData.dop_output || dopOutputForPE, script: generatedFormattedScript, scriptModeUserContext: currentScriptModeUserContext },

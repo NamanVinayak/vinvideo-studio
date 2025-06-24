@@ -36,7 +36,7 @@ export default function PipelineProgress({
       'MUSIC_VIDEO': 'Creating Music Video',
       'NO_MUSIC_VIDEO': 'Creating Visual Story'
     };
-    return titles[pipeline] || 'Processing Video';
+    return titles[pipeline as keyof typeof titles] || 'Processing Video';
   };
 
   const getAgentIcon = (agentName: string) => {
