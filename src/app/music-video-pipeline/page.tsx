@@ -8,9 +8,8 @@ import { saveAgentResponse } from '@/utils/client-agent-response-saver';
 
 interface MusicVideoState {
   stage: number;
-  visionDocument: any;
   musicAnalysis: any;
-  directorBeats: any;
+  mergedVisionDirector: any; // NEW: Combined vision + director output
   dopSpecs: any;
   promptEngineerResult: any;
   generatedImages: string[];
@@ -44,9 +43,8 @@ export default function MusicVideoPipelinePage() {
   
   const [state, setState] = useState<MusicVideoState>({
     stage: 1,
-    visionDocument: null,
     musicAnalysis: null,
-    directorBeats: null,
+    mergedVisionDirector: null, // NEW: Combined vision + director
     dopSpecs: null,
     promptEngineerResult: null,
     generatedImages: [],
@@ -67,7 +65,7 @@ export default function MusicVideoPipelinePage() {
     }
   });
 
-  // DEPENDENCY VALIDATION SYSTEM - now takes current state as parameter
+  // DEPENDENCY VALIDATION SYSTEM - Updated for merged architecture
   const validateStageInputs = (targetStage: number, currentState: MusicVideoState): { isValid: boolean; missingInputs: string[] } => {
     const missingInputs: string[] = [];
     const isNoMusic = currentState.pipelineType === 'no_music';
@@ -75,20 +73,18 @@ export default function MusicVideoPipelinePage() {
     console.log(`🔍 Validating inputs for Stage ${targetStage} (${isNoMusic ? 'no-music' : 'music'} pipeline)...`);
     
     if (isNoMusic) {
-      // NO-MUSIC PIPELINE VALIDATION
+      // NO-MUSIC PIPELINE VALIDATION (unchanged)
       switch (targetStage) {
-        case 2: // No-Music Director needs Vision Document
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        case 2: // No-Music Merged Vision+Director needs nothing (creates both)
+          // No dependencies - it's the first stage
           break;
           
-        case 3: // No-Music DoP needs Vision Document + Director Beats
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
+        case 3: // No-Music DoP needs Merged Vision+Director
+          if (!currentState.mergedVisionDirector) missingInputs.push('mergedVisionDirector');
           break;
           
-        case 4: // No-Music Prompt Engineer needs Vision Document + Director Beats + DoP Specs
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
+        case 4: // No-Music Prompt Engineer needs Merged Vision+Director + DoP Specs
+          if (!currentState.mergedVisionDirector) missingInputs.push('mergedVisionDirector');
           if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
           break;
           
@@ -97,31 +93,24 @@ export default function MusicVideoPipelinePage() {
           break;
       }
     } else {
-      // MUSIC PIPELINE VALIDATION
+      // MUSIC PIPELINE VALIDATION (NEW STRUCTURE)
       switch (targetStage) {
-        case 2: // Music Analysis needs Vision Document
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
-          break;
-          
-        case 4: // Director needs Vision Document + Music Analysis
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        case 2: // Merged Vision+Director needs Music Analysis
           if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
           break;
           
-        case 5: // DoP needs Vision Document + Music Analysis + Director Beats
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        case 3: // DoP needs Merged Vision+Director + Music Analysis
+          if (!currentState.mergedVisionDirector) missingInputs.push('mergedVisionDirector');
           if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
           break;
           
-        case 6: // Prompt Engineer needs ALL previous outputs
-          if (!currentState.visionDocument) missingInputs.push('visionDocument');
+        case 4: // Prompt Engineer needs ALL previous outputs
+          if (!currentState.mergedVisionDirector) missingInputs.push('mergedVisionDirector');
           if (!currentState.musicAnalysis) missingInputs.push('musicAnalysis');
-          if (!currentState.directorBeats) missingInputs.push('directorBeats');
           if (!currentState.dopSpecs) missingInputs.push('dopSpecs');
           break;
           
-        case 7: // Image Generation needs prompts
+        case 5: // Image Generation needs prompts
           if (!currentState.promptEngineerResult) missingInputs.push('promptEngineerResult');
           break;
       }
@@ -180,78 +169,72 @@ export default function MusicVideoPipelinePage() {
   // Execution guards to prevent multiple stage runs
   const [stageExecutionFlags, setStageExecutionFlags] = useState({
     stage2Running: false,
+    stage3Running: false,
     stage4Running: false,
     stage5Running: false,
-    stage6Running: false,
-    stage7Running: false
+    stage6Running: false
   });
 
-  // REACTIVE STAGE TRANSITIONS - No more setTimeout chaining!
+  // REACTIVE STAGE TRANSITIONS - Updated for merged architecture
   
-  // Stage 1 → Stage 2: When visionDocument is ready (MUSIC PIPELINE ONLY)
-  useEffect(() => {
-    console.log('🔍 Stage 1→2 useEffect check:', {
-      stage: state.stage,
-      hasVisionDocument: !!state.visionDocument,
-      loading: state.loading,
-      pipelineType: state.pipelineType,
-      shouldTrigger: state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType !== 'no_music'
-    });
-    
-    if (state.stage === 2 && state.visionDocument && !state.loading && state.pipelineType !== 'no_music') {
-      console.log('🔄 Auto-triggering Stage 2: Music Analysis');
-      runStage2MusicAnalysis();
-    }
-  }, [state.stage, state.visionDocument, state.loading, state.pipelineType]);
+  // For MUSIC PIPELINE: Start with Music Analysis
+  // (No-music pipeline follows different path below)
 
-  // Stage 2 → Stage 4: When musicAnalysis is ready  
+  // Stage 2 → Stage 3: When musicAnalysis is ready, trigger Merged Vision+Director
   useEffect(() => {
-    console.log('🔍 Stage 2→4 useEffect check:', {
+    console.log('🔍 Stage 2→3 useEffect check:', {
       stage: state.stage,
       hasMusicAnalysis: !!state.musicAnalysis,
       loading: state.loading,
-      shouldTrigger: state.stage === 3 && state.musicAnalysis && !state.loading
+      pipelineType: state.pipelineType,
+      shouldTrigger: state.stage === 3 && state.musicAnalysis && !state.loading && state.pipelineType === 'music'
     });
     
-    if (state.stage === 3 && state.musicAnalysis && !state.loading) {
-      console.log('🔄 Auto-triggering Stage 4: Director');
-      runStage4MusicDirector();
+    if (state.stage === 3 && state.musicAnalysis && !state.loading && state.pipelineType === 'music' && !stageExecutionFlags.stage3Running) {
+      console.log('🔄 Auto-triggering Stage 3: Merged Vision+Director');
+      setStageExecutionFlags(prev => ({ ...prev, stage3Running: true }));
+      runStage2MergedVisionDirector();
     }
-  }, [state.stage, state.musicAnalysis, state.loading]);
+  }, [state.stage, state.musicAnalysis, state.loading, state.pipelineType, stageExecutionFlags.stage3Running]);
 
-  // Stage 4 → Stage 5: When directorBeats is ready
+  // Stage 3 → Stage 4: When mergedVisionDirector is ready, trigger DoP
   useEffect(() => {
-    if (state.stage === 4 && state.directorBeats && !state.loading) {
-      console.log('🔄 Auto-triggering Stage 5: DoP');
-      runStage5DoP();
+    if (state.stage === 4 && state.mergedVisionDirector && !state.loading && !stageExecutionFlags.stage4Running) {
+      console.log('🔄 Auto-triggering Stage 4: DoP');
+      setStageExecutionFlags(prev => ({ ...prev, stage4Running: true }));
+      runStage3DoP();
     }
-  }, [state.stage, state.directorBeats, state.loading]);
+  }, [state.stage, state.mergedVisionDirector, state.loading, stageExecutionFlags.stage4Running]);
 
-  // Stage 5 → Stage 6: When dopSpecs is ready
+  // Stage 4 → Stage 5: When dopSpecs is ready, trigger Prompt Engineer
   useEffect(() => {
-    if (state.stage === 5 && state.dopSpecs && !state.loading) {
-      console.log('🔄 Auto-triggering Stage 6: Prompt Engineer');
-      runStage6PromptEngineer();
+    if (state.stage === 5 && state.dopSpecs && !state.loading && !stageExecutionFlags.stage5Running) {
+      console.log('🔄 Auto-triggering Stage 5: Prompt Engineer');
+      setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
+      runStage4PromptEngineer();
     }
-  }, [state.stage, state.dopSpecs, state.loading]);
+  }, [state.stage, state.dopSpecs, state.loading, stageExecutionFlags.stage5Running]);
 
-  // Stage 6 → Stage 7: When promptEngineerResult is ready - COMMENTED OUT FOR DEBUGGING
+  // Stage 5 → Stage 6: When promptEngineerResult is ready, trigger Image Generation
   useEffect(() => {
-    if (state.stage === 6 && state.promptEngineerResult && !state.loading) {
-      console.log('🔄 Music Stage 7: Auto-triggering Image Generation');
+    if (state.stage === 6 && state.promptEngineerResult && !state.loading && !stageExecutionFlags.stage6Running) {
+      console.log('🔄 Music Stage 6: Auto-triggering Image Generation');
       // Apply test-tts pattern: Check data structure validity, not just existence
-      const hasValidPrompts = state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
+      const hasValidPrompts = state.promptEngineerResult.stage4_prompt_engineer_output?.flux_prompts?.length > 0 ||
+                             state.promptEngineerResult.stage6_prompt_engineer_output?.flux_prompts?.length > 0;
       const hasRawResponse = state.promptEngineerResult.rawResponse;
       
       if (hasValidPrompts || hasRawResponse) {
-        console.log('🔄 Auto-triggering Stage 7: Image Generation with valid data');
-        runStage7ImageGeneration();
+        console.log('🔄 Auto-triggering Stage 5: Image Generation with valid data');
+        setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
+        runStage5ImageGeneration();
       } else {
-        console.warn('⚠️ Stage 6 complete but no valid prompts found, Stage 7 may need fallback handling');
-        runStage7ImageGeneration(); // Still proceed - Stage 7 has fallback logic now
+        console.warn('⚠️ Stage 4 complete but no valid prompts found, Stage 5 may need fallback handling');
+        setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
+        runStage5ImageGeneration(); // Still proceed - Stage 5 has fallback logic now
       }
     }
-  }, [state.stage, state.promptEngineerResult, state.loading]);
+  }, [state.stage, state.promptEngineerResult, state.loading, stageExecutionFlags.stage5Running]);
 
   // NO-MUSIC PIPELINE: Stage 1 → Stage 2 (Director)
   useEffect(() => {
@@ -376,14 +359,13 @@ export default function MusicVideoPipelinePage() {
     }
   };
 
-  const runCompleteWorkflow = async () => {
+  const runMusicVideoPipeline = async () => {
     // Reset execution flags for new workflow
     setStageExecutionFlags({
       stage2Running: false,
+      stage3Running: false,
       stage4Running: false,
-      stage5Running: false,
-      stage6Running: false,
-      stage7Running: false
+      stage5Running: false
     });
     
     const startTime = Date.now();
@@ -391,11 +373,10 @@ export default function MusicVideoPipelinePage() {
       ...prev, 
       loading: true, 
       error: null, 
-      currentStep: 'Starting music video pipeline...',
+      currentStep: 'Starting music video pipeline (merged architecture)...',
       stage: 1,
-      visionDocument: null,
       musicAnalysis: null,
-      directorBeats: null,
+      mergedVisionDirector: null,
       dopSpecs: null,
       promptEngineerResult: null,
       generatedImages: [],
@@ -406,6 +387,7 @@ export default function MusicVideoPipelinePage() {
         isGenerating: false,
         message: ''
       },
+      pipelineType: 'music',
       timer: {
         startTime: startTime,
         elapsedTime: 0,
@@ -414,11 +396,13 @@ export default function MusicVideoPipelinePage() {
     }));
 
     try {
-      // Stage 1: Vision Understanding
-      await runStage1VisionUnderstanding();
+      // NEW FLOW: Start with Music Analysis (Stage 1)
+      await runStage1MusicAnalysis();
       
-      // Stage 2: Music Analysis (automatically continues if stage 1 succeeds)
-      // The rest will be called automatically in sequence
+      // Stage 2: Merged Vision+Director (automatically continues when music analysis completes)
+      // Stage 3: DoP (automatically continues)
+      // Stage 4: Prompt Engineer (automatically continues)
+      // Stage 5: Image Generation (automatically continues)
       
     } catch (error) {
       setState(prev => ({
@@ -585,36 +569,14 @@ export default function MusicVideoPipelinePage() {
     }
   };
 
-  const runStage2MusicAnalysis = async () => {
+  const runStage1MusicAnalysis = async () => {
     console.log('🔍 STAGE 2 START - Current state:', {
       stage: state.stage,
       musicAnalysis: state.musicAnalysis,
       loading: state.loading
     });
     
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 2: Analyzing music...' }));
-    
-    // FORCE SET MINIMAL STATE IMMEDIATELY TO PREVENT NULL CRASH
-    console.log('🔧 FORCE SETTING musicAnalysis...');
-    setState(prev => ({
-      ...prev,
-      musicAnalysis: {
-        success: true,
-        stage2_music_analysis: {
-          trackMetadata: { title: 'Emergency', duration: formData.duration || 60 },
-          musicAnalysis: { 
-            bpm: 120, 
-            beats: generateEmergencyBeats(120, formData.duration || 60), 
-            downbeats: generateEmergencyDownbeats(120, formData.duration || 60)
-          }
-        },
-        stage3_producer_output: {
-          cutPoints: generateEmergencyCutPoints(formData.duration || 60),
-          cutStrategy: { totalCuts: 6, averageCutLength: (formData.duration || 60) / 6 }
-        }
-      }
-    }));
-    console.log('✅ Emergency musicAnalysis set');
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 1: Analyzing music and creating cut points...' }));
     
     try {
       let response;
@@ -622,7 +584,6 @@ export default function MusicVideoPipelinePage() {
       
       console.log('Starting Stage 2: Music Analysis...');
       console.log('🔍 Duration being sent to API:', formData.duration);
-      console.log('🔍 Emergency musicAnalysis duration:', formData.duration || 60);
       
       // Prepare the original user input and raw Vision analysis for the Producer
       const originalUserInput = {
@@ -654,7 +615,7 @@ export default function MusicVideoPipelinePage() {
           musicAnalysis: { bpm: 120, beats: [0, 0.5, 1.0], downbeats: [0, 2, 4] }
         };
         
-        setState(prev => ({ ...prev, currentStep: 'Stage 2b: Calling Producer agent...' }));
+        setState(prev => ({ ...prev, currentStep: 'Stage 1b: Creating optimal cut points...' }));
         
         // Simple API call without complex error handling
         console.log('🌐 Making simple API call...');
@@ -694,7 +655,7 @@ export default function MusicVideoPipelinePage() {
         willUseApiData: result.success && result.stage2_music_analysis
       });
       
-      // ALWAYS SET STATE REGARDLESS OF RESULT - keep emergency data as fallback
+      // Set state with the API result
       setState(prev => ({
         ...prev,
         stage: 3,
@@ -706,18 +667,18 @@ export default function MusicVideoPipelinePage() {
           _rawResponse: result.rawResponse,
           _executionTime: result.executionTime,
           fallback_used: result.fallback_used || false
-        } : prev.musicAnalysis, // Keep emergency data if API failed or returned no data
-        loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 4
-        currentStep: 'Stage 2 complete!'
+        } : null, // Don't show any data if API failed
+        loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 2
+        currentStep: 'Stage 1 & 2 complete! Moving to vision and director...'
       }));
       
       console.log('✅ musicAnalysis state set successfully');
-      console.log('🔍 Final Stage 2 state check:', {
+      console.log('🔍 Final Stage 1 state check:', {
         stage: state.stage,
         hasMusicAnalysis: !!state.musicAnalysis,
         loading: state.loading
       });
-      console.log('Stage 2 Complete: Music Analysis', result);
+      console.log('Stage 1 Complete: Music Analysis', result);
       
       // Save agent response for debugging
       await saveAgentResponse({
@@ -740,18 +701,133 @@ export default function MusicVideoPipelinePage() {
       // Stage 4 will auto-trigger via useEffect when musicAnalysis is ready
     } catch (error) {
       console.error('❌ API call failed:', error);
-      // STATE ALREADY SET WITH EMERGENCY DATA - DON'T OVERWRITE
-      console.log('✅ Emergency musicAnalysis already set, continuing to Director');
+      console.log('🔧 Setting emergency musicAnalysis data...');
       
-      // Just advance stage and continue - emergency data is already set
+      // Set emergency data only on API failure
       setState(prev => ({
         ...prev,
         stage: 3,
-        loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 4
-        currentStep: 'Stage 2 complete (using emergency data)! Moving to director...'
+        musicAnalysis: {
+          success: true,
+          stage2_music_analysis: {
+            trackMetadata: { title: 'Emergency Fallback', duration: formData.duration || 60 },
+            musicAnalysis: { 
+              bpm: 120, 
+              beats: generateEmergencyBeats(120, formData.duration || 60), 
+              downbeats: generateEmergencyDownbeats(120, formData.duration || 60)
+            }
+          },
+          stage3_producer_output: {
+            cutPoints: generateEmergencyCutPoints(formData.duration || 60),
+            cutStrategy: { totalCuts: 6, averageCutLength: (formData.duration || 60) / 6 }
+          },
+          fallback_used: true
+        },
+        loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 2
+        currentStep: 'Stage 1 & 2 complete (using emergency data)! Moving to vision+director...'
       }));
       
-      // Stage 4 will auto-trigger via useEffect when musicAnalysis is ready
+      // Stage 2 will auto-trigger via useEffect when musicAnalysis is ready
+    }
+  };
+
+  // NEW MERGED VISION+DIRECTOR FUNCTION
+  const runStage2MergedVisionDirector = async () => {
+    setState(prev => ({ 
+      ...prev, 
+      loading: true, 
+      error: null, 
+      currentStep: 'Stage 3: Creating unified vision and director beats...' 
+    }));
+    
+    try {
+      // Validation already done by runStageWithValidation - data is guaranteed to exist
+      console.log('🎬 Merged Vision+Director starting with validated inputs');
+      console.log('🔍 Merged agent state check:', {
+        hasMusicAnalysis: !!state.musicAnalysis,
+        hasStage2Data: !!state.musicAnalysis?.stage2_music_analysis,
+        hasStage3Data: !!state.musicAnalysis?.stage3_producer_output,
+        musicAnalysisKeys: state.musicAnalysis ? Object.keys(state.musicAnalysis) : 'null'
+      });
+      
+      // Safeguard check
+      if (!state.musicAnalysis) {
+        throw new Error('CRITICAL: musicAnalysis is null despite validation - state timing issue');
+      }
+      
+      // Extract data with fallbacks
+      const musicAnalysisData = state.musicAnalysis.stage2_music_analysis?.musicAnalysis || {};
+      const cutPoints = state.musicAnalysis.stage3_producer_output?.cutPoints || [];
+      
+      if (cutPoints.length === 0) {
+        console.warn('No cut points available from Producer, Merged agent will create fallback beats');
+      }
+      
+      // Prepare comprehensive input
+      const mergedInput = {
+        userInput: formData.concept,
+        musicAnalysis: musicAnalysisData,
+        producerCutPoints: cutPoints,
+        musicUserContext: {
+          pacing: formData.pacing,
+          style: formData.style,
+          contentType: formData.contentType,
+          duration: formData.duration
+        },
+        originalFormData: formData
+      };
+      
+      console.log('📤 Sending to merged vision+director API:', {
+        userInputLength: mergedInput.userInput.length,
+        hasMusicAnalysis: !!mergedInput.musicAnalysis,
+        cutPointsCount: mergedInput.producerCutPoints.length,
+        hasMusicUserContext: !!mergedInput.musicUserContext
+      });
+      
+      const response = await fetch('/api/music-merged-vision-director', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mergedInput)
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.merged_music_vision_director_output) {
+        setState(prev => ({
+          ...prev,
+          stage: 4, // Next stage after merged vision+director
+          mergedVisionDirector: {
+            ...result,
+            _rawResponse: result.rawResponse,
+            _executionTime: result.executionTime
+          },
+          loading: false,
+          currentStep: 'Stage 3 complete! Moving to cinematography...'
+        }));
+        console.log('✅ Stage 2 Complete: Merged Vision+Director', result);
+        
+        // Save agent response for debugging
+        await saveAgentResponse({
+          agentName: 'music_merged_vision_director',
+          response: result,
+          pipelineType: 'MUSIC_VIDEO',
+          sessionId: `music_video_${Date.now()}`,
+          projectFolder: projectFolderId,
+          input: mergedInput,
+          rawResponse: result.rawResponse,
+          executionTime: result.executionTime
+        });
+        
+        // Stage 3 (DoP) will auto-trigger via useEffect when mergedVisionDirector is ready
+      } else {
+        throw new Error(result.error || 'Merged vision+director failed');
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: `Merged vision+director failed: ${error}`,
+        loading: false
+      }));
     }
   };
 
@@ -838,45 +914,41 @@ export default function MusicVideoPipelinePage() {
     }
   };
 
-  const runStage5DoP = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Creating cinematography specifications...' }));
+  const runStage3DoP = async () => {
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 4: Creating cinematography specifications...' }));
     
     try {
       // Apply test-tts pattern: Validate and extract data with fallbacks
       console.log('🎥 DoP starting with robust data validation');
       
-      // Extract director visual beats with DOUBLE NESTING fix + fallback logic
-      let directorVisualBeats = state.directorBeats?.stage4_director_output?.stage4_director_output?.visual_beats || 
-                               state.directorBeats?.stage4_director_output?.visual_beats;
+      // Extract director visual beats from merged output
+      let directorVisualBeats = state.mergedVisionDirector?.merged_music_vision_director_output?.director_output?.visual_beats;
       
-      console.log('🔍 Director data structure debug:', {
-        hasStage4Output: !!state.directorBeats?.stage4_director_output,
-        hasNestedStage4: !!state.directorBeats?.stage4_director_output?.stage4_director_output,
+      console.log('🔍 Merged director data structure debug:', {
+        hasMergedOutput: !!state.mergedVisionDirector?.merged_music_vision_director_output,
+        hasDirectorOutput: !!state.mergedVisionDirector?.merged_music_vision_director_output?.director_output,
         extractedBeatsCount: directorVisualBeats?.length || 0,
         firstBeatPreview: directorVisualBeats?.[0]?.beat_no
       });
       
       if (!directorVisualBeats || !Array.isArray(directorVisualBeats)) {
-        if (state.directorBeats?.rawResponse) {
+        if (state.mergedVisionDirector?.rawResponse) {
           try {
-            const parsedDirector = JSON.parse(state.directorBeats.rawResponse);
-            // Handle double nesting in rawResponse too
-            directorVisualBeats = parsedDirector.stage4_director_output?.stage4_director_output?.visual_beats ||
-                                 parsedDirector.stage4_director_output?.visual_beats || 
-                                 parsedDirector.visual_beats || [];
+            const parsedMerged = JSON.parse(state.mergedVisionDirector.rawResponse);
+            directorVisualBeats = parsedMerged.merged_music_vision_director_output?.director_output?.visual_beats || [];
           } catch {
-            // Create fallback structure like test-tts
+            // Create fallback structure
             directorVisualBeats = [{
               beat_no: 1,
               timecode_start: "00:00:00.000",
-              content_type_treatment: "Raw director output: " + state.directorBeats.rawResponse
+              content_type_treatment: "Raw merged output: " + state.mergedVisionDirector.rawResponse
             }];
           }
         } else {
           directorVisualBeats = [{
             beat_no: 1,
             timecode_start: "00:00:00.000", 
-            content_type_treatment: "Director agent did not return visual beats"
+            content_type_treatment: "Merged agent did not return visual beats"
           }];
         }
       }
@@ -910,7 +982,7 @@ export default function MusicVideoPipelinePage() {
         body: JSON.stringify({
           directorVisualBeats,
           musicAnalysis,
-          visionDocument: state.visionDocument,
+          visionDocument: state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document,
           contentClassification: { type: formData.contentType }
         })
       });
@@ -926,8 +998,8 @@ export default function MusicVideoPipelinePage() {
             _rawResponse: result.rawResponse,
             _executionTime: result.executionTime
           },
-          loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 6
-          currentStep: 'Stage 5 complete! Moving to prompt engineering...'
+          loading: false, // CRITICAL: Set loading to false so useEffect can trigger Stage 4
+          currentStep: 'Stage 3 complete! Moving to prompt engineering...'
         }));
         console.log('Stage 5 Complete: Music DoP', result);
         
@@ -961,45 +1033,41 @@ export default function MusicVideoPipelinePage() {
     }
   };
 
-  const runStage6PromptEngineer = async () => {
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 6: Generating FLUX image prompts...' }));
+  const runStage4PromptEngineer = async () => {
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Generating FLUX image prompts...' }));
     
     try {
       // Apply test-tts pattern: Validate and extract data with fallbacks
       console.log('🎨 Prompt Engineer starting with robust data validation');
       
-      // Extract director visual beats with DOUBLE NESTING fix + fallback logic
-      let directorBeats = state.directorBeats?.stage4_director_output?.stage4_director_output?.visual_beats || 
-                         state.directorBeats?.stage4_director_output?.visual_beats;
+      // Extract director visual beats from merged output
+      let directorBeats = state.mergedVisionDirector?.merged_music_vision_director_output?.director_output?.visual_beats;
       
-      console.log('🔍 Prompt Engineer director data debug:', {
-        hasStage4Output: !!state.directorBeats?.stage4_director_output,
-        hasNestedStage4: !!state.directorBeats?.stage4_director_output?.stage4_director_output,
+      console.log('🔍 Prompt Engineer merged data debug:', {
+        hasMergedOutput: !!state.mergedVisionDirector?.merged_music_vision_director_output,
+        hasDirectorOutput: !!state.mergedVisionDirector?.merged_music_vision_director_output?.director_output,
         extractedBeatsCount: directorBeats?.length || 0,
         firstBeatPreview: directorBeats?.[0]?.beat_no
       });
       
       if (!directorBeats || !Array.isArray(directorBeats)) {
-        if (state.directorBeats?.rawResponse) {
+        if (state.mergedVisionDirector?.rawResponse) {
           try {
-            const parsedDirector = JSON.parse(state.directorBeats.rawResponse);
-            // Handle double nesting in rawResponse too
-            directorBeats = parsedDirector.stage4_director_output?.stage4_director_output?.visual_beats ||
-                           parsedDirector.stage4_director_output?.visual_beats || 
-                           parsedDirector.visual_beats || [];
+            const parsedMerged = JSON.parse(state.mergedVisionDirector.rawResponse);
+            directorBeats = parsedMerged.merged_music_vision_director_output?.director_output?.visual_beats || [];
           } catch {
-            // Create fallback structure like test-tts
+            // Create fallback structure
             directorBeats = [{
               beat_no: 1,
               timecode_start: "00:00:00.000",
-              content_type_treatment: "Raw director output: " + state.directorBeats.rawResponse
+              content_type_treatment: "Raw merged output: " + state.mergedVisionDirector.rawResponse
             }];
           }
         } else {
           directorBeats = [{
             beat_no: 1,
             timecode_start: "00:00:00.000",
-            content_type_treatment: "Director agent did not return visual beats"
+            content_type_treatment: "Merged agent did not return visual beats"
           }];
         }
       }
@@ -1040,7 +1108,7 @@ export default function MusicVideoPipelinePage() {
       }
       
       console.log('🔥 CRITICAL DEBUG - Sending to Prompt Engineer with validated data:', {
-        visionDocument: !!state.visionDocument,
+        visionDocument: !!state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document,
         directorBeatsCount: directorBeats.length,
         directorBeatsPreview: directorBeats.map((b: any) => ({ beat_no: b.beat_no, timecode: b.timecode_start })),
         dopSpecsCount: dopSpecs.length,
@@ -1052,7 +1120,7 @@ export default function MusicVideoPipelinePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userVisionDocument: state.visionDocument,
+          userVisionDocument: state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document,
           directorBeats,
           dopSpecs,
           contentClassification: { type: formData.contentType }
@@ -1070,7 +1138,7 @@ export default function MusicVideoPipelinePage() {
             _rawResponse: result.rawResponse,
             _executionTime: result.executionTime
           },
-          currentStep: 'Stage 6 complete! Moving to image generation...',
+          currentStep: 'Stage 4 complete! Moving to image generation...',
           loading: false
         }));
         console.log('Stage 6 Complete: Prompt Engineer', result);
@@ -1105,15 +1173,15 @@ export default function MusicVideoPipelinePage() {
     }
   };
 
-  const runStage7ImageGeneration = async () => {
+  const runStage5ImageGeneration = async () => {
     // Execution guard to prevent multiple runs
-    if (stageExecutionFlags.stage7Running) {
-      console.warn('🚫 Stage 7 already running, skipping duplicate execution');
+    if (stageExecutionFlags.stage5Running) {
+      console.warn('🚫 Stage 5 already running, skipping duplicate execution');
       return;
     }
     
-    setStageExecutionFlags(prev => ({ ...prev, stage7Running: true }));
-    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 7: Generating images with ComfyUI...' }));
+    setStageExecutionFlags(prev => ({ ...prev, stage5Running: true }));
+    setState(prev => ({ ...prev, loading: true, error: null, currentStep: 'Stage 5: Generating images with ComfyUI...' }));
     
     try {
       // Apply test-tts pattern: Robust prompt extraction with fallbacks
@@ -1351,9 +1419,9 @@ export default function MusicVideoPipelinePage() {
       
       setState(prev => ({
         ...prev,
-        stage: 7,
+        stage: 6,
         generatedImages: finalImages, // Ensure clean images are set
-        currentStep: 'Stage 7 complete! All images generated.',
+        currentStep: 'Stage 6 complete! All images generated.',
         loading: false,
         timer: {
           ...prev.timer,
@@ -1362,13 +1430,13 @@ export default function MusicVideoPipelinePage() {
       }));
       
       // Reset execution flag
-      setStageExecutionFlags(prev => ({ ...prev, stage7Running: false }));
+      setStageExecutionFlags(prev => ({ ...prev, stage5Running: false }));
       
       // Move to final completion stage
       setTimeout(() => {
         setState(prev => ({ 
           ...prev, 
-          stage: 8, 
+          stage: 7, 
           currentStep: 'All stages complete!',
           timer: {
             ...prev.timer,
@@ -1391,7 +1459,7 @@ export default function MusicVideoPipelinePage() {
       }));
       
       // Reset execution flag on error
-      setStageExecutionFlags(prev => ({ ...prev, stage7Running: false }));
+      setStageExecutionFlags(prev => ({ ...prev, stage5Running: false }));
     }
   };
 
@@ -1424,7 +1492,7 @@ export default function MusicVideoPipelinePage() {
             _executionTime: result.executionTime
           },
           loading: false,
-          currentStep: 'Stage 2 complete! Moving to cinematography...'
+          currentStep: 'Stage 3 complete! Moving to cinematography...'
         }));
         
         // Save agent response for debugging
@@ -1475,7 +1543,7 @@ export default function MusicVideoPipelinePage() {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          stage: 4,
+          stage: 5,
           dopSpecs: {
             ...result,
             _rawResponse: result.rawResponse,
@@ -1544,7 +1612,7 @@ export default function MusicVideoPipelinePage() {
       if (result.success) {
         setState(prev => ({
           ...prev,
-          stage: 5,
+          stage: 6,
           promptEngineerResult: {
             ...result,
             _rawResponse: result.rawResponse,
@@ -1830,14 +1898,13 @@ export default function MusicVideoPipelinePage() {
           </>
         ) : (
           <>
-            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Concept Analysis</div>
-            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Music Analysis</div>
-            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. Producer (Cut Points)</div>
-            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. Director (Visual Beats)</div>
-            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. DoP (Cinematography)</div>
-            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Prompt Engineer</div>
-            <div className={`${styles.stage} ${state.stage >= 7 ? styles.active : ''}`}>7. Image Generation</div>
-            <div className={`${styles.stage} ${state.stage >= 8 ? styles.active : ''}`}>8. Complete!</div>
+            <div className={`${styles.stage} ${state.stage >= 1 ? styles.active : ''}`}>1. Music Analysis</div>
+            <div className={`${styles.stage} ${state.stage >= 2 ? styles.active : ''}`}>2. Producer Agent</div>
+            <div className={`${styles.stage} ${state.stage >= 3 ? styles.active : ''}`}>3. Vision + Director (Merged)</div>
+            <div className={`${styles.stage} ${state.stage >= 4 ? styles.active : ''}`}>4. DoP (Cinematography)</div>
+            <div className={`${styles.stage} ${state.stage >= 5 ? styles.active : ''}`}>5. Prompt Engineer</div>
+            <div className={`${styles.stage} ${state.stage >= 6 ? styles.active : ''}`}>6. Image Generation</div>
+            <div className={`${styles.stage} ${state.stage >= 7 ? styles.active : ''}`}>7. Complete!</div>
           </>
         )}
       </div>
@@ -2010,7 +2077,7 @@ export default function MusicVideoPipelinePage() {
             )}
 
             <button 
-              onClick={runCompleteWorkflow}
+              onClick={runMusicVideoPipeline}
               disabled={
                 !formData.concept || 
                 state.loading || 
@@ -2018,7 +2085,7 @@ export default function MusicVideoPipelinePage() {
               }
               className={styles.button}
             >
-              {state.loading ? 'Processing...' : 'Start Complete Pipeline →'}
+              {state.loading ? 'Processing...' : 'Start Music Video Pipeline →'}
             </button>
           </div>
         </div>
@@ -2036,95 +2103,100 @@ export default function MusicVideoPipelinePage() {
 
       {/* Results Section - Shows all completed stages */}
       <div className={styles.resultsSection}>
-        {state.visionDocument && (
+        {state.mergedVisionDirector && (
           <div className={styles.result}>
-            <h2>✅ Stage 1 Complete: Concept Analysis</h2>
+            <h2>✅ Stage 3 Complete: Vision + Director (Merged)</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
-                  <strong>Pipeline Ready:</strong> {state.visionDocument._fullResult?.pipeline_ready ? '✅ Yes' : '❌ No'}
+                  <strong>Pipeline Ready:</strong> {state.mergedVisionDirector?.pipeline_ready ? '✅ Yes' : '❌ No'}
                 </div>
                 <div>
-                  <strong>Execution Time:</strong> {state.visionDocument._fullResult?.executionTime}ms
+                  <strong>Execution Time:</strong> {state.mergedVisionDirector?.executionTime}ms ({(state.mergedVisionDirector?.executionTime/1000).toFixed(1)}s)
                 </div>
                 <div>
-                  <strong>Core Concept:</strong> {state.visionDocument.core_concept}
+                  <strong>Core Concept:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document?.core_concept}
                 </div>
                 <div>
-                  <strong>Content Type:</strong> {state.visionDocument.content_classification?.type}
+                  <strong>Content Type:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document?.content_classification?.type}
                 </div>
                 <div>
-                  <strong>Pacing:</strong> {state.visionDocument.pacing}
+                  <strong>Visual Beats:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.director_output?.visual_beats?.length || 0}
                 </div>
                 <div>
-                  <strong>Visual Style:</strong> {state.visionDocument.visual_style}
+                  <strong>Musical Sync:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.musical_context_preservation?.cut_points_honored ? '✅ Honored' : '❌ Failed'}
                 </div>
               </div>
               
-              {state.visionDocument.emotion_arc && (
+              {state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document?.emotion_arc && (
                 <div className={styles.emotionArc}>
                   <h4>Emotion Arc:</h4>
                   <div className={styles.emotionFlow}>
-                    {state.visionDocument.emotion_arc.map((emotion: string, index: number) => (
+                    {state.mergedVisionDirector.merged_music_vision_director_output.vision_document.emotion_arc.map((emotion: string, index: number) => (
                       <span key={index} className={styles.emotionStep}>
                         {emotion}
-                        {index < state.visionDocument.emotion_arc.length - 1 && <span className={styles.arrow}>→</span>}
+                        {index < state.mergedVisionDirector.merged_music_vision_director_output.vision_document.emotion_arc.length - 1 && <span className={styles.arrow}>→</span>}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
               
-              {state.visionDocument.music_mood_hints && (
-                <div className={styles.musicHints}>
-                  <h4>Music Mood Hints:</h4>
-                  <div className={styles.hintsList}>
-                    {state.visionDocument.music_mood_hints.map((hint: string, index: number) => (
-                      <span key={index} className={styles.moodHint}>{hint}</span>
-                    ))}
-                  </div>
+              {/* Visual Beats Preview */}
+              {state.mergedVisionDirector?.merged_music_vision_director_output?.director_output?.visual_beats && (
+                <div className={styles.visualBeats}>
+                  <h4>Visual Beats Preview (First 3):</h4>
+                  {state.mergedVisionDirector.merged_music_vision_director_output.director_output.visual_beats.slice(0, 3).map((beat: any, index: number) => (
+                    <div key={index} className={styles.beatPreview}>
+                      <strong>Beat {beat.beat_no}:</strong> {beat.content_type_treatment}
+                      <br />
+                      <small>Duration: {beat.estimated_duration_s}s | Subject: {beat.primary_subject}</small>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Raw Response Display */}
-              {state.visionDocument._rawResponse && (
+              {state.mergedVisionDirector?._rawResponse && (
                 <div className={styles.rawResponse}>
-                  <h3>Raw AI Response (Stage 1):</h3>
+                  <h3>Raw AI Response (Stage 3 - Merged Vision+Director):</h3>
                   <pre className={styles.rawResponseText}>
-                    {state.visionDocument._rawResponse}
+                    {state.mergedVisionDirector._rawResponse}
                   </pre>
                 </div>
               )}
 
-              {/* Validation Issues Display */}
-              {state.visionDocument._fullResult?.validation?.issues && state.visionDocument._fullResult.validation.issues.length > 0 && (
-                <div className={styles.validationIssues}>
-                  <h4>Validation Issues:</h4>
-                  <div className={styles.issuesList}>
-                    {state.visionDocument._fullResult.validation.issues.map((issue: string, index: number) => (
-                      <div key={index} className={styles.issueItem}>
-                        ⚠️ {issue}
-                      </div>
-                    ))}
+              {/* Validation Display */}
+              {state.mergedVisionDirector?.quality_validation && (
+                <div className={styles.validation}>
+                  <h4>Quality Validation:</h4>
+                  <div className={styles.validationGrid}>
+                    <div>Musical Alignment: {Math.round((state.mergedVisionDirector.quality_validation.musical_alignment_score || 0) * 100)}%</div>
+                    <div>Subject Diversity: {Math.round((state.mergedVisionDirector.quality_validation.subject_diversity_score || 0) * 100)}%</div>
+                    <div>User Intent: {Math.round((state.mergedVisionDirector.quality_validation.user_intent_preservation || 0) * 100)}%</div>
                   </div>
                 </div>
               )}
 
               <details className={styles.rawData}>
-                <summary>Full Vision Analysis Response</summary>
-                <pre>{JSON.stringify(state.visionDocument._fullResult, null, 2)}</pre>
+                <summary>Full Merged Vision+Director Response</summary>
+                <pre>{JSON.stringify(state.mergedVisionDirector, null, 2)}</pre>
               </details>
             </div>
           </div>
         )}
 
-        {state.musicAnalysis && (
+        {/* Music Analysis Step */}
+        {state.musicAnalysis?.stage2_music_analysis && (
           <div className={styles.result}>
-            <h2>✅ Stage 2 & 3 Complete: Music Analysis & Producer</h2>
+            <h2>✅ Stage 1 Complete: Music Analysis</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
                   <strong>Pipeline Ready:</strong> {state.musicAnalysis?.success ? '✅ Yes' : '❌ No'}
+                </div>
+                <div>
+                  <strong>Execution Time:</strong> {state.musicAnalysis?.stage2_music_analysis?.executionTime || state.musicAnalysis?.timing?.musicAnalysisTime}ms ({((state.musicAnalysis?.stage2_music_analysis?.executionTime || state.musicAnalysis?.timing?.musicAnalysisTime)/1000).toFixed(1)}s)
                 </div>
                 <div>
                   <strong>Track Selected:</strong> {state.musicAnalysis?.stage2_music_analysis?.trackMetadata?.title || 'Auto-selected'}
@@ -2133,13 +2205,44 @@ export default function MusicVideoPipelinePage() {
                   <strong>BPM:</strong> {state.musicAnalysis?.stage2_music_analysis?.musicAnalysis?.bpm || 'Unknown'}
                 </div>
                 <div>
+                  <strong>Duration:</strong> {state.musicAnalysis?.stage2_music_analysis?.musicAnalysis?.totalDuration || 'Unknown'}s
+                </div>
+                <div>
+                  <strong>Beats Detected:</strong> {state.musicAnalysis?.stage2_music_analysis?.musicAnalysis?.beats?.length || 0}
+                </div>
+              </div>
+
+              <details className={styles.rawData}>
+                <summary>Full Music Analysis Data</summary>
+                <pre>{JSON.stringify(state.musicAnalysis?.stage2_music_analysis, null, 2)}</pre>
+              </details>
+            </div>
+          </div>
+        )}
+
+        {/* Producer Agent Step */}
+        {state.musicAnalysis?.stage3_producer_output && (
+          <div className={styles.result}>
+            <h2>✅ Stage 2 Complete: Producer Agent</h2>
+            <div className={styles.resultData}>
+              <div className={styles.resultGrid}>
+                <div>
+                  <strong>Pipeline Ready:</strong> {state.musicAnalysis?.success ? '✅ Yes' : '❌ No'}
+                </div>
+                <div>
+                  <strong>Execution Time:</strong> {state.musicAnalysis?.stage3_producer_output?.executionTime || state.musicAnalysis?.timing?.producerTime}ms ({((state.musicAnalysis?.stage3_producer_output?.executionTime || state.musicAnalysis?.timing?.producerTime)/1000).toFixed(1)}s)
+                </div>
+                <div>
                   <strong>Total Cut Points:</strong> {state.musicAnalysis?.stage3_producer_output?.cutPoints?.length || 0}
                 </div>
                 <div>
-                  <strong>Avg Cut Length:</strong> {state.musicAnalysis?.stage3_producer_output?.cutStrategy?.averageCutLength || 'Unknown'}s
+                  <strong>Avg Cut Length:</strong> {state.musicAnalysis?.stage3_producer_output?.cutStrategy?.averageCutLength || state.musicAnalysis?.stage3_producer_output?.cutStrategy?.average_cut_length || 'Unknown'}s
                 </div>
                 <div>
                   <strong>Musical Sync:</strong> {state.musicAnalysis?.stage3_producer_output?.cutStrategy?.musicalAlignment ? '✅ Yes' : '❌ No'}
+                </div>
+                <div>
+                  <strong>Cut Strategy:</strong> {state.musicAnalysis?.stage3_producer_output?.cutStrategy?.cutting_philosophy || 'Intelligent producer driven'}
                 </div>
               </div>
 
@@ -2150,8 +2253,8 @@ export default function MusicVideoPipelinePage() {
                     {state.musicAnalysis.stage3_producer_output.cutPoints.slice(0, 6).map((cut: any, index: number) => (
                       <div key={index} className={styles.cutPoint}>
                         <div className={styles.cutNumber}>#{cut.cut_number || index + 1}</div>
-                        <div className={styles.cutTime}>{cut.cut_time || cut.timecode_start || '0:00'}s</div>
-                        <div className={styles.cutReason}>{cut.reason || cut.musical_context || 'Beat sync'}</div>
+                        <div className={styles.cutTime}>{cut.cut_time_s || cut.cut_time || cut.timecode_start || '0:00'}s</div>
+                        <div className={styles.cutReason}>{cut.creative_reasoning || cut.reason || cut.musical_context || 'Beat sync'}</div>
                       </div>
                     ))}
                   </div>
@@ -2159,9 +2262,9 @@ export default function MusicVideoPipelinePage() {
               )}
 
               {/* Raw Response Display */}
-              {state.musicAnalysis._rawResponse && (
+              {state.musicAnalysis?._rawResponse && (
                 <div className={styles.rawResponse}>
-                  <h3>Raw AI Response (Stage 2):</h3>
+                  <h3>Raw Producer Response:</h3>
                   <pre className={styles.rawResponseText}>
                     {state.musicAnalysis._rawResponse}
                   </pre>
@@ -2169,66 +2272,24 @@ export default function MusicVideoPipelinePage() {
               )}
 
               <details className={styles.rawData}>
-                <summary>Full Music Analysis Response</summary>
-                <pre>{JSON.stringify(state.musicAnalysis, null, 2)}</pre>
+                <summary>Full Producer Output</summary>
+                <pre>{JSON.stringify(state.musicAnalysis?.stage3_producer_output, null, 2)}</pre>
               </details>
             </div>
           </div>
         )}
 
-        {state.directorBeats && (
-          <div className={styles.result}>
-            <h2>✅ Stage 4 Complete: Music Director</h2>
-            <div className={styles.resultData}>
-              <div className={styles.resultGrid}>
-                <div>
-                  <strong>Pipeline Ready:</strong> {state.directorBeats?.success ? '✅ Yes' : '❌ No'}
-                </div>
-                <div>
-                  <strong>Execution Time:</strong> {state.directorBeats?.executionTime}ms
-                </div>
-                <div>
-                  <strong>Total Visual Beats:</strong> {state.directorBeats?.stage4_director_output?.visual_beats?.length || 0}
-                </div>
-                <div>
-                  <strong>Musical Sync Score:</strong> {state.directorBeats?.stage4_director_output?.quality_validation?.musical_alignment_score || 'Unknown'}
-                </div>
-                <div>
-                  <strong>Subject Diversity:</strong> {state.directorBeats?.stage4_director_output?.quality_validation?.subject_diversity_score || 'Unknown'}
-                </div>
-                <div>
-                  <strong>Beat Count Match:</strong> {state.directorBeats?.validation?.beatCountMatch ? '✅ Yes' : '❌ No'}
-                </div>
-              </div>
-
-              {/* Raw Response Display */}
-              {state.directorBeats._rawResponse && (
-                <div className={styles.rawResponse}>
-                  <h3>Raw AI Response (Stage 4):</h3>
-                  <pre className={styles.rawResponseText}>
-                    {state.directorBeats._rawResponse}
-                  </pre>
-                </div>
-              )}
-
-              <details className={styles.rawData}>
-                <summary>Full Director Response</summary>
-                <pre>{JSON.stringify(state.directorBeats, null, 2)}</pre>
-              </details>
-            </div>
-          </div>
-        )}
 
         {state.dopSpecs && (
           <div className={styles.result}>
-            <h2>✅ Stage 5 Complete: DoP Cinematography</h2>
+            <h2>✅ Stage 4 Complete: DoP Cinematography</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
                   <strong>Pipeline Ready:</strong> {state.dopSpecs?.success ? '✅ Yes' : '❌ No'}
                 </div>
                 <div>
-                  <strong>Execution Time:</strong> {state.dopSpecs?.executionTime}ms
+                  <strong>Execution Time:</strong> {state.dopSpecs?.executionTime}ms ({(state.dopSpecs?.executionTime/1000).toFixed(1)}s)
                 </div>
                 <div>
                   <strong>Total Shots:</strong> {state.dopSpecs?.stage5_dop_output?.cinematographic_shots?.length || 0}
@@ -2262,7 +2323,7 @@ export default function MusicVideoPipelinePage() {
               {/* Raw Response Display */}
               {state.dopSpecs._rawResponse && (
                 <div className={styles.rawResponse}>
-                  <h3>Raw AI Response (Stage 5):</h3>
+                  <h3>Raw AI Response (Stage 4 - DoP):</h3>
                   <pre className={styles.rawResponseText}>
                     {state.dopSpecs._rawResponse}
                   </pre>
@@ -2279,14 +2340,14 @@ export default function MusicVideoPipelinePage() {
 
         {state.promptEngineerResult && (
           <div className={styles.result}>
-            <h2>✅ Stage 6 Complete: Prompt Engineer</h2>
+            <h2>✅ Stage 5 Complete: Prompt Engineer</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
                   <strong>Pipeline Ready:</strong> {state.promptEngineerResult?.success ? '✅ Yes' : '❌ No'}
                 </div>
                 <div>
-                  <strong>Execution Time:</strong> {state.promptEngineerResult?.executionTime}ms
+                  <strong>Execution Time:</strong> {state.promptEngineerResult?.executionTime}ms ({(state.promptEngineerResult?.executionTime/1000).toFixed(1)}s)
                 </div>
                 <div>
                   <strong>Total Prompts:</strong> {state.promptEngineerResult?.stage6_prompt_engineer_output?.flux_prompts?.length || 0}
@@ -2319,7 +2380,7 @@ export default function MusicVideoPipelinePage() {
               {/* Raw Response Display */}
               {state.promptEngineerResult._rawResponse && (
                 <div className={styles.rawResponse}>
-                  <h3>Raw AI Response (Stage 6):</h3>
+                  <h3>Raw AI Response (Stage 4):</h3>
                   <pre className={styles.rawResponseText}>
                     {state.promptEngineerResult._rawResponse}
                   </pre>
@@ -2336,7 +2397,7 @@ export default function MusicVideoPipelinePage() {
 
         {((state.generatedImages && state.generatedImages.length > 0) || state.imageGenerationProgress.isGenerating) ? (
           <div className={styles.result}>
-            <h2>✅ Stage 7: Generated Images (FLUX-dev)</h2>
+            <h2>✅ Stage 5: Generated Images (FLUX-dev)</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
@@ -2425,28 +2486,28 @@ export default function MusicVideoPipelinePage() {
           </div>
         ) : null}
 
-        {state.stage === 8 && (
+        {state.stage === 6 && (
           <div className={styles.result}>
             <h2>🎉 Pipeline Complete!</h2>
             <div className={styles.resultData}>
               <div className={styles.resultGrid}>
                 <div>
-                  <strong>Stages Completed:</strong> 7/7 ✅
+                  <strong>Stages Completed:</strong> 5/5 ✅
                 </div>
                 <div>
-                  <strong>Concept:</strong> {state.visionDocument?.core_concept || 'Unknown'}
+                  <strong>Concept:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.vision_document?.core_concept || 'Unknown'}
                 </div>
                 <div>
                   <strong>Cut Points:</strong> {state.musicAnalysis?.stage3_producer_output?.cutPoints?.length || 0}
                 </div>
                 <div>
-                  <strong>Visual Beats:</strong> {state.directorBeats?.stage4_director_output?.visual_beats?.length || 0}
+                  <strong>Visual Beats:</strong> {state.mergedVisionDirector?.merged_music_vision_director_output?.director_output?.visual_beats?.length || 0}
                 </div>
                 <div>
                   <strong>Cinematography Shots:</strong> {state.dopSpecs?.stage5_dop_output?.cinematographic_shots?.length || 0}
                 </div>
                 <div>
-                  <strong>FLUX Prompts:</strong> {state.promptEngineerResult?.stage6_prompt_engineer_output?.flux_prompts?.length || 0}
+                  <strong>FLUX Prompts:</strong> {state.promptEngineerResult?.stage4_prompt_engineer_output?.flux_prompts?.length || 0}
                 </div>
                 <div>
                   <strong>Generated Images:</strong> {state.generatedImages?.filter(img => img && img !== 'error').length || 0}
@@ -2458,17 +2519,15 @@ export default function MusicVideoPipelinePage() {
                   // Reset execution flags for new pipeline
                   setStageExecutionFlags({
                     stage2Running: false,
+                    stage3Running: false,
                     stage4Running: false,
-                    stage5Running: false,
-                    stage6Running: false,
-                    stage7Running: false
+                    stage5Running: false
                   });
                   
                   setState({
                     stage: 1,
-                    visionDocument: null,
                     musicAnalysis: null,
-                    directorBeats: null,
+                    mergedVisionDirector: null,
                     dopSpecs: null,
                     promptEngineerResult: null,
                     generatedImages: [],

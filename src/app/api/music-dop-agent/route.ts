@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/musicDoP';
+import { MUSIC_DOP_SYSTEM_MESSAGE } from '@/agents/music-pipeline/music-dop';
 
 /**
  * Music-Aware DoP Agent API endpoint for Music Video Pipeline Stage 5
@@ -105,7 +105,7 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash-preview-05-20",
       messages: [
         {
           role: "system",

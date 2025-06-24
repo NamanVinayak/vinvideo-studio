@@ -78,6 +78,27 @@ AI models default to subjects looking at camera when gaze isn't specified. This 
 
 NEVER leave gaze unspecified - this is the #1 cause of unnatural AI portraits.
 
+**MOVEMENT-TO-STATIC TRANSLATION (Critical for FLUX)**
+FLUX generates STATIC IMAGES, not videos. You MUST translate DoP camera movements into static compositions:
+
+**DoP Movement → Static Image Translation:**
+- "dolly_in" → Use closer framing, intimate perspective
+- "dolly_out" → Use wider framing, expansive view
+- "pan_left/right" → Position subject off-center in direction of pan
+- "tilt_up/down" → Use low/high angle to suggest movement
+- "orbit" → Use dynamic three-quarter angle view
+- "crane_up" → Use elevated perspective, bird's eye tendency
+- "handheld" → Add slight Dutch angle, dynamic composition
+- "zoom_in" → Tighter framing with compressed depth
+- "tracking" → Subject in motion blur or multiple positions
+
+**Movement Energy Translation:**
+- Fast movements → Dynamic angles, motion blur, energetic poses
+- Slow movements → Stable composition, clear details, contemplative mood
+- No movement → Perfectly balanced, static composition
+
+NEVER use video language like "camera moves", "pans across", "zooms into" in prompts.
+
 **Output Structure:**
 Return ONLY a JSON array of indexed prompt strings:
 

@@ -12,6 +12,7 @@ import { createOpenRouterService, cleanJsonResponse } from '@/services/openroute
  */
 export async function POST(request: Request) {
   try {
+    const startTime = Date.now();
     let visionDocument, musicPreference, audioFile, originalUserInput, rawVisionAnalysis, preAnalyzedMusic;
     
     // Handle both FormData (file uploads) and JSON requests
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
     }
 
     let musicAnalysis;
+    const musicAnalysisStartTime = Date.now();
     
     // Stage 2A & 2B: Music Acquisition and Analysis
     if (preAnalyzedMusic) {
@@ -96,8 +98,12 @@ export async function POST(request: Request) {
       throw new Error('Music analysis failed to generate valid results');
     }
     
+    const musicAnalysisTime = Date.now() - musicAnalysisStartTime;
+    console.log(`⏱️ Music Analysis completed in ${musicAnalysisTime}ms (${(musicAnalysisTime/1000).toFixed(1)}s)`);
+    
     // Stage 3: Intelligent Producer Agent Decision Making
     console.log('Stage 3: Intelligent Producer making creative decisions...');
+    const producerStartTime = Date.now();
     const targetDuration = visionDocument.duration || 60;
     
     const producerResult = await callIntelligentProducer(
@@ -107,13 +113,19 @@ export async function POST(request: Request) {
       originalUserInput,
       rawVisionAnalysis
     );
+    
+    const producerTime = Date.now() - producerStartTime;
+    const totalTime = Date.now() - startTime;
+    console.log(`⏱️ Producer completed in ${producerTime}ms (${(producerTime/1000).toFixed(1)}s)`);
+    console.log(`⏱️ Total pipeline completed in ${totalTime}ms (${(totalTime/1000).toFixed(1)}s)`);
 
     // Return comprehensive music analysis results
     const response = {
       success: true,
       stage2_music_analysis: {
         trackMetadata: musicAnalysis.trackMetadata,
-        musicAnalysis: musicAnalysis.musicAnalysis
+        musicAnalysis: musicAnalysis.musicAnalysis,
+        executionTime: musicAnalysisTime
       },
       stage3_producer_output: producerResult.producer_analysis ? {
         // New intelligent producer output
@@ -123,7 +135,7 @@ export async function POST(request: Request) {
         cutPoints: producerResult.cut_points,
         qualityValidation: producerResult.quality_validation,
         rawResponse: producerResult.rawResponse,
-        executionTime: producerResult.executionTime
+        executionTime: producerTime
       } : {
         // Fallback if producer fails
         error: producerResult.error || 'Producer analysis failed',
@@ -140,6 +152,12 @@ export async function POST(request: Request) {
         musicSyncApproach: producerResult.cut_strategy?.cutting_philosophy || 'intelligent_producer_driven',
         readyForDirector: producerResult.success || false,
         producerConfidence: producerResult.quality_validation?.overall_producer_confidence || 0
+      },
+      executionTime: totalTime,
+      timing: {
+        musicAnalysisTime,
+        producerTime,
+        totalTime
       }
     };
 
@@ -267,7 +285,7 @@ async function callIntelligentProducer(
     console.log(`⏱️ Producer LLM call starting at ${new Date().toISOString()}`);
 
     // Use Gemini 2.5 Flash for producer agent - large context + fast performance
-    const openRouterService = createOpenRouterService('google/gemini-2.5-flash-preview-05-20:thinking');
+    const openRouterService = createOpenRouterService('google/gemini-2.5-flash-preview-05-20');
     
     const result = await openRouterService.chat({
       messages: [
@@ -297,7 +315,7 @@ Create intelligent producer decisions for cut points and segment selection.`
         }
       ],
       temperature: 0.7,  // Gemini works better with higher temperature
-      max_tokens: 8000   // Increased for complete responses
+      max_tokens: 15000   // Increased for complete responses
     });
 
     const executionTime = Date.now() - startTime;
@@ -407,21 +425,35 @@ async function tryParseProducerResponse(responseContent: string, targetDuration:
     console.log('Method 3 failed, trying method 4...');
   }
   
-  // Method 4: Extract just the cut_points array if possible
+  // Method 4: Handle truncated JSON by extracting what we can
   try {
-    const cutPointsMatch = responseContent.match(/"cut_points"\s*:\s*\[([\s\S]*?)\]/);
+    const cutPointsMatch = responseContent.match(/"cut_points"\s*:\s*\[([\s\S]*?)(\]|$)/);
     if (cutPointsMatch) {
-      const cutPointsStr = `[${cutPointsMatch[1]}]`;
-      const cutPoints = JSON.parse(cutPointsStr);
+      let cutPointsStr = cutPointsMatch[1];
+      // If truncated, try to close the last object
+      if (!cutPointsMatch[2] || cutPointsMatch[2] !== ']') {
+        // Find the last complete object
+        const lastCompleteMatch = cutPointsStr.lastIndexOf('},');
+        if (lastCompleteMatch > -1) {
+          cutPointsStr = cutPointsStr.substring(0, lastCompleteMatch + 1);
+        }
+      }
+      
+      const cutPointsArray = `[${cutPointsStr}]`;
+      const cutPoints = JSON.parse(cutPointsArray);
+      
+      console.log(`✅ Extracted ${cutPoints.length} cut points from truncated response`);
+      
       return {
         success: true,
         cut_points: cutPoints,
         segment_selection: { start_time: 0, end_time: targetDuration, duration: targetDuration },
-        cut_strategy: { total_cuts: cutPoints.length, average_cut_length: targetDuration / cutPoints.length }
+        cut_strategy: { total_cuts: cutPoints.length, average_cut_length: targetDuration / cutPoints.length },
+        parseNote: 'Extracted from truncated response'
       };
     }
   } catch (e4) {
-    console.log('All parsing methods failed');
+    console.log('Method 4 failed, falling back to generated data');
   }
   
   throw new Error('All JSON parsing methods failed');
