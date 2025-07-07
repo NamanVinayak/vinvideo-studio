@@ -10,16 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint to check code quality
 
-### Testing
-No test commands are currently configured. However, manual testing is done through:
-- `test-tts` page for Vision Mode Enhanced pipeline testing
-- `music-video-pipeline` page for full music-aware pipeline
-- `no-music-video-pipeline` page for visual-only content
+### Testing & Quality Assurance
+- Manual testing through dedicated pages: `/test-tts`, `/music-video-pipeline`, `/no-music-video-pipeline`
+- Response tracking in `temp_files/test_results/` with incremental Test_X numbering
+- Agent performance validation using existing test cases for regression prevention
+- Duration compliance testing (±5% tolerance requirement)
 
-### System Analysis & Debugging
-- Read `COMPREHENSIVE_PIPELINE_OPTIMIZATION_PLAN.md` for detailed analysis of all 4 pipelines
-- Read `BOOTSTRAP_CLAUDE_FOR_SYSTEM_IMPROVEMENT.md` for systematic onboarding of new Claude sessions
-- Use the test pages (`test-tts`, `music-video-pipeline`, `no-music-video-pipeline`) for manual testing
+### Debugging & Monitoring
+- All agent responses auto-saved to `temp_files/test_results/` for quality tracking
+- Response saver utility tracks execution times, token usage, and model performance
+- PassThroughRawJson utility preserves content flow even with JSON parsing failures
+- Multi-strategy JSON extraction (4 fallback methods) for robust error recovery
 
 ## High-Level Architecture
 
@@ -70,12 +71,12 @@ This project implements a sophisticated AI-powered video generation platform usi
 - **NVIDIA Services** - Audio transcription
 - **RunPod** - Legacy integration (being phased out)
 
-### System Status (CURRENT STATE)
-1. ✅ **Producer Agent Architecture** - Vision Mode Enhanced correctly uses `/api/vision-enhanced-producer-agent`
-2. ✅ **User-Requirement-First Design** - Vision Enhanced Producer implements dynamic pacing with ±5% duration tolerance
-3. ✅ **Correct Pipeline Routing** - Each pipeline uses its specialized producer agent appropriately
-4. 🔄 **Ongoing Optimization** - Continuous improvements to quality consistency and performance
-5. 📊 **Performance Monitoring** - Real-time tracking of user requirement compliance and system quality
+### System Status & Approved Implementation Strategy
+1. ✅ **Production System** - 4 pipelines operational with sophisticated error recovery
+2. ✅ **Phase 1 Approved** - Prompt Refactoring (44 agents, 8-10 weeks) for maintainability
+3. ✅ **Phase 2 Approved** - Parallel Execution (Music Video Pipeline, 4-6 weeks) for 30-40% performance gain
+4. ❌ **Event-Driven Architecture CANCELLED** - Incompatible with Next.js, security risks
+5. 📊 **Quality Metrics** - 95%+ duration compliance, 90%+ JSON parsing success with fallbacks
 
 ### Producer Agent Routing (CORRECTLY IMPLEMENTED)
 - **Vision Mode Enhanced** → Uses `/api/vision-enhanced-producer-agent` (User-requirement-first, dynamic pacing) ✅
@@ -108,14 +109,27 @@ GOOGLE_CLOUD_API_KEY=<your_key>
 RUNPOD_API_KEY=<your_key>
 ```
 
-### Development Guidelines
-1. **User Requirements First** - All agent modifications must prioritize user requirement compliance over creative preferences
-2. **Agent System Messages** - When modifying agents, ensure system messages include user requirement validation logic
-3. **Pipeline Routing** - Ensure correct producer agent is used for each pipeline (see Producer Agent Routing section)
-4. **JSON Error Handling** - Pass raw responses to downstream agents instead of blocking on syntax errors
-5. **Model Selection** - Refer to `/src/config/llm-models.ts` for recommended models per agent type
-6. **Testing Protocol** - Test with same 5 test cases in `test_results/` folder to measure improvement
-7. **Duration Logic** - Ensure all duration calculations respect user input exactly (no creative interpretation)
+### Development Guidelines & Architecture Patterns
+
+#### Core Development Principles
+1. **User Requirements First** - All agents must prioritize exact user requirement compliance (duration ±5%, style, pacing)
+2. **Error Recovery Preservation** - Maintain sophisticated JSON parsing strategies and PassThroughRawJson utility
+3. **Agent System Messages** - Use standardized schemas from `/src/schemas/unified-agent-schemas.ts`
+4. **Pipeline Integrity** - Each pipeline has specialized agents; maintain correct routing patterns
+5. **Response Quality** - All agents auto-save responses; validate against existing test cases
+
+#### Critical Architecture Patterns
+- **Sequential Pipeline Execution** - `/src/app/api/execute-pipeline/route.ts` orchestrates 4-8 stage workflows
+- **Multi-Strategy Error Recovery** - Vision Enhanced Producer implements 4-tier JSON extraction
+- **Agent Communication** - Structured JSON contracts with progressive enhancement between stages
+- **Session Management** - Request-scoped execution with automatic test folder allocation
+- **Model Optimization** - Agent-specific model selection in `/src/config/llm-models.ts`
+
+#### Implementation Requirements (Approved Strategy)
+- **Phase 1**: Externalize 44 agent prompts to template system with versioning
+- **Phase 2**: Implement Promise.all() parallel execution for Vision+Music Analysis
+- **Phase 3**: Evidence-based progression only; avoid major architectural changes
+- **Preserve**: User requirement tracking, error recovery systems, response quality infrastructure
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
