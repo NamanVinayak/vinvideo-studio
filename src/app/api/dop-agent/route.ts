@@ -118,7 +118,7 @@ Please analyze these inputs and output your cinematography directions as a JSON 
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",
@@ -184,20 +184,55 @@ Please analyze these inputs and output your cinematography directions as a JSON 
       }, { status: 500 });
     }
 
-    // Process the response (SAME LOGIC AS BEFORE)
+    // Process the response with enhanced validation
     try {
       // Clean the response by removing markdown code blocks
       let cleanedResponse = dopResponse.trim();
       
-      // Remove markdown code blocks if present
-      if (cleanedResponse.startsWith('```json') && cleanedResponse.endsWith('```')) {
-        cleanedResponse = cleanedResponse.slice(7, -3).trim();
-      } else if (cleanedResponse.startsWith('```') && cleanedResponse.endsWith('```')) {
-        cleanedResponse = cleanedResponse.slice(3, -3).trim();
+      // Enhanced markdown cleanup
+      if (cleanedResponse.startsWith('```json')) {
+        cleanedResponse = cleanedResponse.replace(/```json\s*/, '').replace(/\s*```$/, '').trim();
+      } else if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.replace(/```\s*/, '').replace(/\s*```$/, '').trim();
+      }
+      
+      // Remove any leading/trailing whitespace and control characters
+      cleanedResponse = cleanedResponse.replace(/^[\s\r\n]+|[\s\r\n]+$/g, '');
+      
+      // Validate JSON structure before parsing
+      if (!cleanedResponse) {
+        throw new Error('Empty response after cleaning');
+      }
+      
+      if (!cleanedResponse.startsWith('{') && !cleanedResponse.startsWith('[')) {
+        throw new Error(`Response does not start with valid JSON character. Starts with: "${cleanedResponse.substring(0, 20)}"`);  
+      }
+      
+      if (!cleanedResponse.endsWith('}') && !cleanedResponse.endsWith(']')) {
+        throw new Error(`Response does not end with valid JSON character. Ends with: "${cleanedResponse.slice(-20)}"`);  
+      }
+      
+      // Check for balanced braces/brackets
+      const openBraces = (cleanedResponse.match(/\{/g) || []).length;
+      const closeBraces = (cleanedResponse.match(/\}/g) || []).length;
+      const openBrackets = (cleanedResponse.match(/\[/g) || []).length;
+      const closeBrackets = (cleanedResponse.match(/\]/g) || []).length;
+      
+      if (openBraces !== closeBraces) {
+        throw new Error(`Unbalanced braces: ${openBraces} open, ${closeBraces} close`);
+      }
+      
+      if (openBrackets !== closeBrackets) {
+        throw new Error(`Unbalanced brackets: ${openBrackets} open, ${closeBrackets} close`);
       }
       
       // Try to parse the cleaned JSON response
       const dopOutput = JSON.parse(cleanedResponse);
+      
+      // Validate that the parsed output is an object or array
+      if (typeof dopOutput !== 'object' || dopOutput === null) {
+        throw new Error(`Parsed output is not an object or array, got: ${typeof dopOutput}`);
+      }
       
       // Auto-save the response
       const sessionId = body.sessionId || await generateSessionId();
@@ -207,7 +242,7 @@ Please analyze these inputs and output your cinematography directions as a JSON 
         dopResponse,
         {
           apiSource: 'openrouter',
-          model: 'google/gemini-2.5-flash-preview-05-20',
+          model: 'google/gemini-2.5-flash',
           executionTime,
           tokenUsage: result.usage
         },
@@ -223,9 +258,26 @@ Please analyze these inputs and output your cinematography directions as a JSON 
         sessionId
       });
     } catch (parseError) {
-      // If JSON parsing fails, still save and pass the raw response
+      // Enhanced error logging for better debugging
       console.error('Failed to parse DoP response as JSON:', parseError);
+      console.error('Parse error type:', parseError instanceof Error ? parseError.constructor.name : typeof parseError);
       console.log('DoP raw response (first 500 chars):', dopResponse.substring(0, 500));
+      console.log('DoP raw response (last 100 chars):', dopResponse.slice(-100));
+      console.log('DoP response length:', dopResponse.length);
+      
+      // Try to extract any JSON-like content for partial recovery
+      let partialData = null;
+      try {
+        // Look for JSON objects within the response
+        const jsonMatch = dopResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          console.log('Attempting to parse partial JSON...');
+          partialData = JSON.parse(jsonMatch[0]);
+          console.log('Successfully parsed partial JSON:', Object.keys(partialData));
+        }
+      } catch (partialError) {
+        console.log('Partial JSON extraction also failed:', partialError);
+      }
       
       // Still save the raw response for debugging
       const sessionId = body.sessionId || await generateSessionId();
@@ -235,20 +287,28 @@ Please analyze these inputs and output your cinematography directions as a JSON 
         dopResponse,
         {
           apiSource: 'openrouter',
-          model: 'google/gemini-2.5-flash-preview-05-20',
+          model: 'google/gemini-2.5-flash',
           executionTime,
           tokenUsage: result.usage
         },
         sessionId
       );
       
-      // CRITICAL: Pass raw response as dopOutput so next agent can use it
+      // CRITICAL: Pass structured fallback or partial data as dopOutput
+      const fallbackOutput = partialData || {
+        cinematography: dopResponse.substring(0, 1000), // Truncate to prevent issues
+        error: 'JSON parsing failed',
+        parseError: parseError instanceof Error ? parseError.message : String(parseError),
+        fallback: true
+      };
+      
       return NextResponse.json({
         success: true,
-        dopOutput: dopResponse, // Pass raw response as dopOutput
+        dopOutput: fallbackOutput,
         rawResponse: dopResponse,
         executionTime,
-        warning: 'Response could not be parsed as JSON, but raw response passed to next agent',
+        warning: 'Response could not be parsed as JSON, using fallback structure',
+        parseError: parseError instanceof Error ? parseError.message : String(parseError),
         usage: result.usage,
         sessionId
       });

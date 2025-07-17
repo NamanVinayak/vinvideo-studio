@@ -55,7 +55,7 @@ Please create visual beats that:
 Remember: You're visualizing their exact words with their preferred aesthetic.`;
     
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",

@@ -71,10 +71,27 @@ export async function POST(request: Request) {
         const generatedImages: (string | undefined)[] = new Array(prompts.length);
         let currentImageIndex = 0;
         
-        // Send initial progress event
+        // Send initial progress event with JSON validation
         const sendEvent = (type: string, data: any) => {
-          const event = `event: ${type}\ndata: ${JSON.stringify(data)}\n\n`;
-          controller.enqueue(new TextEncoder().encode(event));
+          try {
+            // Validate data can be serialized to JSON
+            const jsonData = JSON.stringify(data);
+            if (!jsonData || jsonData === 'undefined' || jsonData === 'null') {
+              console.warn(`Invalid data for SSE event ${type}:`, data);
+              return;
+            }
+            
+            const event = `event: ${type}\ndata: ${jsonData}\n\n`;
+            controller.enqueue(new TextEncoder().encode(event));
+          } catch (jsonError) {
+            console.error(`Failed to serialize SSE event ${type}:`, jsonError, data);
+            // Send a safe error event instead
+            const errorEvent = `event: error\ndata: ${JSON.stringify({
+              message: `Failed to serialize ${type} event`,
+              timestamp: new Date().toISOString()
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(errorEvent));
+          }
         };
         
         // Send start event
@@ -182,8 +199,10 @@ export async function POST(request: Request) {
           
           // Don't send error events for normal logging output
           if (text.includes('ERROR') || text.includes('Failed') || text.includes('❌')) {
+            // Clean the error message to prevent JSON issues
+            const cleanMessage = text.replace(/[\r\n\t]/g, ' ').trim();
             sendEvent('error', {
-              message: text,
+              message: cleanMessage,
               timestamp: new Date().toISOString()
             });
           }
@@ -200,6 +219,10 @@ export async function POST(request: Request) {
           // Filter out undefined entries and create a clean array
           const cleanGeneratedImages = generatedImages.filter(img => img !== undefined);
           
+          // Clean output strings to prevent JSON serialization issues
+          const cleanOutput = output.replace(/[\r\n\t]/g, ' ').trim();
+          const cleanErrorOutput = errorOutput.replace(/[\r\n\t]/g, ' ').trim();
+          
           if (code === 0 || cleanGeneratedImages.length > 0) {
             console.log(`ComfyUI image generation completed. Generated ${cleanGeneratedImages.length} images.`);
             sendEvent('complete', {
@@ -207,15 +230,15 @@ export async function POST(request: Request) {
               generatedImages: cleanGeneratedImages,
               totalImages: cleanGeneratedImages.length,
               message: `Successfully generated ${cleanGeneratedImages.length} images`,
-              output
+              output: cleanOutput.substring(0, 1000) // Limit output size
             });
           } else {
             console.error(`ComfyUI image generation failed with code ${code}`);
             sendEvent('complete', {
               success: false,
               error: `Image generation failed with exit code ${code}`,
-              errorOutput,
-              output,
+              errorOutput: cleanErrorOutput.substring(0, 1000), // Limit error output size
+              output: cleanOutput.substring(0, 1000),
               generatedImages: cleanGeneratedImages // Send whatever images were generated
             });
           }

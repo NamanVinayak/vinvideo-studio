@@ -8,6 +8,7 @@ import styles from './page.module.css';
 import type { UserContext } from '@/types/userContext';
 import type { ScriptModeUserContext } from '@/types/scriptModeUserContext';
 import { saveAgentResponse } from '@/utils/client-agent-response-saver';
+import { errorLogger } from '@/utils/errorLogger';
 
 interface CutPoint {
   cut_number: number;
@@ -195,6 +196,18 @@ export default function TestTTS() {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [loadingDots, setLoadingDots] = useState<string>('');
   const [runId, setRunId] = useState<string | null>(null);
+  
+  // Stage-specific error tracking (like music pipeline pattern)
+  const [stageErrors, setStageErrors] = useState({
+    scriptFormatting: null as string | null,
+    audioGeneration: null as string | null,
+    transcription: null as string | null,
+    producer: null as string | null,
+    director: null as string | null,
+    dop: null as string | null,
+    promptEngineer: null as string | null,
+    imageGeneration: null as string | null
+  });
   
   // NEW: Vision form state (with URL parameter defaults)
   const [useVisionMode, setUseVisionMode] = useState<boolean>(urlUseVisionMode);
@@ -410,6 +423,17 @@ export default function TestTTS() {
     
     setLoading(true);
     setError(null);
+    // Reset all stage errors
+    setStageErrors({
+      scriptFormatting: null,
+      audioGeneration: null,
+      transcription: null,
+      producer: null,
+      director: null,
+      dop: null,
+      promptEngineer: null,
+      imageGeneration: null
+    });
     setVisionDocument(null); // NEW: Reset vision document
     setVisionAgentResult(null); // NEW: Reset vision agent result
     setNarrationScript(null); // NEW: Reset narration script
@@ -1129,34 +1153,117 @@ export default function TestTTS() {
       }
       
       // Ensure we have DoP output to pass to Prompt Engineer
-      let dopOutputForPE = dopData.dopOutput;
-      if (!dopOutputForPE) {
-        if (dopData.rawResponse) {
-          try {
-            dopOutputForPE = JSON.parse(dopData.rawResponse);
-          } catch {
-            dopOutputForPE = { cinematography: "Raw DoP output: " + dopData.rawResponse };
-          }
-        } else {
-          dopOutputForPE = { cinematography: "DoP agent did not return structured output" };
-        }
-      }
+      console.log('🚨 FRONTEND: Processing DoP output for Prompt Engineer...');
+      console.log('🚨 FRONTEND: dopData structure:', {
+        hasdopOutput: !!dopData.dopOutput,
+        hasDopOutput2: !!dopData.dop_output,
+        dopOutputType: typeof dopData.dopOutput,
+        dopOutput2Type: typeof dopData.dop_output,
+        dopOutputKeys: dopData.dopOutput && typeof dopData.dopOutput === 'object' ? Object.keys(dopData.dopOutput) : 'not_object',
+        dopOutput2Keys: dopData.dop_output && typeof dopData.dop_output === 'object' ? Object.keys(dopData.dop_output) : 'not_object'
+      });
       
-      // Calculate number of images from DoP output
+      // ENHANCED ERROR HANDLING: Wrap DoP processing in try-catch to capture exact error
+      let dopOutputForPE: any;
       let numImages = 1; // Default fallback
-      if (Array.isArray(dopOutputForPE)) {
-        numImages = dopOutputForPE.length;
-      } else if (dopOutputForPE && typeof dopOutputForPE === 'object' && 'length' in dopOutputForPE) {
-        numImages = dopOutputForPE.length as number;
-      } else if (dopData.rawResponse) {
-        try {
-          const parsedResponse = JSON.parse(dopData.rawResponse);
-          if (Array.isArray(parsedResponse)) {
-            numImages = parsedResponse.length;
+      
+      try {
+        console.log('🔍 STARTING DoP OUTPUT PROCESSING - Error logging enabled');
+        
+        // Step 1: Get initial DoP output
+        dopOutputForPE = dopData.dopOutput;
+        console.log('🔍 Step 1 - Initial dopOutputForPE:', { 
+          exists: !!dopOutputForPE, 
+          type: typeof dopOutputForPE,
+          isArray: Array.isArray(dopOutputForPE)
+        });
+        
+        // Step 2: Fallback to parsing rawResponse if needed
+        if (!dopOutputForPE) {
+          console.log('🔍 Step 2 - No dopOutput, checking rawResponse...');
+          if (dopData.rawResponse) {
+            console.log('🔍 Step 2a - Attempting to parse rawResponse...');
+            try {
+              dopOutputForPE = JSON.parse(dopData.rawResponse);
+              console.log('🔍 Step 2a - Successfully parsed rawResponse');
+            } catch (parseError) {
+              console.log('🔍 Step 2a - Parse failed, using fallback');
+              errorLogger.logDoPProcessingError(`JSON.parse failed: ${parseError}`, { 
+                rawResponse: dopData.rawResponse,
+                parseError 
+              });
+              dopOutputForPE = { cinematography: "Raw DoP output: " + dopData.rawResponse };
+            }
+          } else {
+            console.log('🔍 Step 2b - No rawResponse, using default fallback');
+            dopOutputForPE = { cinematography: "DoP agent did not return structured output" };
           }
-        } catch {
-          // Keep default of 1
         }
+        
+        // Step 3: Calculate number of images safely
+        console.log('🔍 Step 3 - Calculating numImages from dopOutputForPE...');
+        if (Array.isArray(dopOutputForPE)) {
+          numImages = dopOutputForPE.length;
+          console.log('🔍 Step 3a - dopOutputForPE is array, numImages:', numImages);
+        } else if (dopOutputForPE && typeof dopOutputForPE === 'object' && 'length' in dopOutputForPE) {
+          numImages = dopOutputForPE.length as number;
+          console.log('🔍 Step 3b - dopOutputForPE has length property, numImages:', numImages);
+        } else if (dopData.rawResponse) {
+          console.log('🔍 Step 3c - Trying to parse rawResponse for length...');
+          try {
+            const parsedResponse = JSON.parse(dopData.rawResponse);
+            if (Array.isArray(parsedResponse)) {
+              numImages = parsedResponse.length;
+              console.log('🔍 Step 3c - Parsed rawResponse is array, numImages:', numImages);
+            }
+          } catch (parseError) {
+            console.log('🔍 Step 3c - Parse failed, keeping default numImages:', numImages);
+            errorLogger.logDoPProcessingError(`numImages calculation failed: ${parseError}`, { 
+              rawResponse: dopData.rawResponse,
+              parseError 
+            });
+          }
+        }
+        
+        console.log('🔍 COMPLETED DoP OUTPUT PROCESSING - Final values:', {
+          dopOutputForPE_type: typeof dopOutputForPE,
+          dopOutputForPE_isArray: Array.isArray(dopOutputForPE),
+          numImages
+        });
+        
+      } catch (criticalError) {
+        // This is the critical error that likely causes Fast Refresh!
+        console.error('🚨 CRITICAL ERROR in DoP Processing - This is likely what caused Fast Refresh!');
+        console.error('Critical error details:', criticalError);
+        
+        // Safe error logging without potentially circular references
+        errorLogger.logDoPProcessingError(`Critical DoP processing error: ${criticalError}`, {
+          dopDataKeys: dopData ? Object.keys(dopData) : 'dopData is null/undefined',
+          dopDataType: typeof dopData,
+          hasRawResponse: !!(dopData?.rawResponse),
+          rawResponseLength: dopData?.rawResponse?.length || 0,
+          criticalError: criticalError?.message || String(criticalError),
+          errorStack: (criticalError as Error)?.stack
+        });
+        
+        // Provide safe fallbacks
+        dopOutputForPE = { 
+          cinematography: "DoP processing failed, using safe fallback",
+          error: 'Critical processing error',
+          fallback: true
+        };
+        numImages = 8; // Keep expected number of images
+        
+        // Also set stage error for user visibility
+        setStageErrors(prev => ({
+          ...prev,
+          dop: `Critical DoP processing error: ${criticalError?.message || String(criticalError)}`
+        }));
+        
+        // Log additional context safely
+        console.error('🚨 DoP Data keys:', dopData ? Object.keys(dopData) : 'dopData is null/undefined');
+        console.error('🚨 DoP Data type:', typeof dopData);
+        console.error('🚨 Error details:', criticalError?.message || String(criticalError));
       }
       
       // Extract prompt engineer instructions from Vision Agent output
@@ -1182,17 +1289,14 @@ export default function TestTTS() {
       const promptEngineerEndpoint = useVisionMode ? '/api/prompt-engineer-agent' : '/api/enhanced-script-prompt-engineer-agent';
       console.log(`🎬 Using Prompt Engineer endpoint: ${promptEngineerEndpoint} (Vision Mode: ${useVisionMode})`);
       
-      const promptEngineerResponse = await fetch(promptEngineerEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...(useVisionMode ? {
-            // Vision Mode parameters
-            script: generatedFormattedScript,
-            director_output: directorOutputForPE,
-            dop_output: dopOutputForPE,
+      console.log('🚨 FRONTEND: About to call Prompt Engineer...');
+      
+      const requestPayload = {
+        ...(useVisionMode ? {
+          // Vision Mode parameters
+          script: generatedFormattedScript,
+          director_output: directorOutputForPE,
+          dop_output: dopOutputForPE,
             num_images: numImages,
             userContext,
             ...(promptEngineerInstructions && { prompt_engineer_instructions: promptEngineerInstructions }),
@@ -1209,15 +1313,35 @@ export default function TestTTS() {
           }),
           // Common parameter
           ...(sessionId && { sessionId })
-        }),
+        };
+      
+      console.log('🚨 FRONTEND: About to send payload to Prompt Engineer:', {
+        director_output_type: typeof requestPayload.director_output,
+        dop_output_type: typeof requestPayload.dop_output,
+        director_output_keys: requestPayload.director_output && typeof requestPayload.director_output === 'object' ? Object.keys(requestPayload.director_output) : 'not_object',
+        dop_output_keys: requestPayload.dop_output && typeof requestPayload.dop_output === 'object' ? Object.keys(requestPayload.dop_output) : 'not_object',
+        dop_output_is_array: Array.isArray(requestPayload.dop_output)
+      });
+      
+      const promptEngineerResponse = await fetch(promptEngineerEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload),
       });
 
+      console.log('🚨 FRONTEND: Prompt Engineer response received', promptEngineerResponse.status);
+      
       if (!promptEngineerResponse.ok) {
+        console.log('🚨 FRONTEND: Prompt Engineer response not OK');
         const errorData = await promptEngineerResponse.json();
         throw new Error(errorData.error || 'Failed to get Prompt Engineer agent response');
       }
 
+      console.log('🚨 FRONTEND: About to parse Prompt Engineer JSON...');
       const promptEngineerData = await promptEngineerResponse.json();
+      console.log('🚨 FRONTEND: Prompt Engineer JSON parsed successfully');
       if (useVisionMode) {
         setPromptEngineerResult(promptEngineerData);
       } else {
@@ -1346,7 +1470,33 @@ export default function TestTTS() {
               if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
                 const dataLine = lines[i + 1];
                 try {
-                  const data = JSON.parse(dataLine.substring(5).trim());
+                  const dataContent = dataLine.substring(5).trim();
+                  
+                  // Validate JSON before parsing
+                  if (!dataContent || dataContent.length === 0) {
+                    console.warn('Empty SSE data content, skipping...');
+                    continue;
+                  }
+                  
+                  // Check for incomplete JSON (common issue with streaming)
+                  if (!dataContent.startsWith('{') && !dataContent.startsWith('[')) {
+                    console.warn('Invalid JSON format in SSE data:', dataContent);
+                    continue;
+                  }
+                  
+                  // Try to detect incomplete JSON
+                  const openBraces = (dataContent.match(/\{/g) || []).length;
+                  const closeBraces = (dataContent.match(/\}/g) || []).length;
+                  const openBrackets = (dataContent.match(/\[/g) || []).length;
+                  const closeBrackets = (dataContent.match(/\]/g) || []).length;
+                  
+                  if (openBraces !== closeBraces || openBrackets !== closeBrackets) {
+                    console.warn('Incomplete JSON detected in SSE data, adding to buffer for next chunk:', dataContent);
+                    buffer = dataContent + '\n' + buffer; // Prepend to buffer for next processing
+                    continue;
+                  }
+                  
+                  const data = JSON.parse(dataContent);
                   
                   switch (eventType) {
                   case 'start':
@@ -1402,23 +1552,46 @@ export default function TestTTS() {
                     console.log('Generation complete:', data);
                     
                     if (data.success) {
+                      // Check if we got all expected images
+                      const generatedCount = data.generatedImages ? data.generatedImages.length : 0;
+                      const expectedCount = promptsToGenerate.length;
+                      
+                      console.log(`Generated ${generatedCount}/${expectedCount} images`);
+                      
                       // Update final images if provided
                       if (data.generatedImages && data.generatedImages.length > 0) {
                         setGeneratedImages(data.generatedImages);
                       }
                       
-                      // finalOutput = data; // Commented out as not used
+                      // Check if we're missing images
+                      if (generatedCount < expectedCount) {
+                        console.warn(`Only generated ${generatedCount}/${expectedCount} images. Some may have failed.`);
+                        
+                        // Update progress with warning
+                        setImageGenerationProgress(prev => ({
+                          ...prev,
+                          percentage: Math.round((generatedCount / expectedCount) * 100),
+                          isGenerating: false,
+                          message: `Generated ${generatedCount}/${expectedCount} images (${expectedCount - generatedCount} failed)`
+                        }));
+                        
+                        // Set stage error to inform user
+                        setStageErrors(prev => ({
+                          ...prev,
+                          imageGeneration: `Only generated ${generatedCount}/${expectedCount} images. ${expectedCount - generatedCount} images failed to generate.`
+                        }));
+                      } else {
+                        // All images generated successfully
+                        setImageGenerationProgress(prev => ({
+                          ...prev,
+                          percentage: 100,
+                          isGenerating: false,
+                          message: data.message
+                        }));
+                      }
                       
                       // Save Image Generation output
                       await saveAgentOutput('image-generation', data);
-                      
-                      // Update progress to completed
-                      setImageGenerationProgress(prev => ({
-                        ...prev,
-                        percentage: 100,
-                        isGenerating: false,
-                        message: data.message
-                      }));
                       
                       updateStepStatus(8, 'completed', data, undefined, Date.now() - step9Start);
                       isComplete = true;
@@ -1431,7 +1604,27 @@ export default function TestTTS() {
                   // Skip the data line in the next iteration
                   i++;
                 } catch (error) {
-                  console.error('Error parsing SSE data:', error, dataLine);
+                  console.error('Error parsing SSE data:', error);
+                  console.error('Problematic data line:', dataLine);
+                  console.error('Data content after trim:', dataLine.substring(5).trim());
+                  
+                  // Enhanced error recovery: Try to extract partial data
+                  const dataContent = dataLine.substring(5).trim();
+                  if (dataContent.includes('"message"')) {
+                    try {
+                      // Try to extract just the message for user feedback
+                      const messageMatch = dataContent.match(/"message"\s*:\s*"([^"]+)"/); 
+                      if (messageMatch) {
+                        console.log('Recovered message from malformed JSON:', messageMatch[1]);
+                        setImageGenerationProgress(prev => ({
+                          ...prev,
+                          message: `Processing: ${messageMatch[1]}`
+                        }));
+                      }
+                    } catch (recoveryError) {
+                      console.error('JSON recovery also failed:', recoveryError);
+                    }
+                  }
                 }
               }
             }
@@ -1440,34 +1633,87 @@ export default function TestTTS() {
       } catch (error) {
         console.error('Streaming error:', error);
         
+        // Check if we got any images before the error
+        const currentImages = allGeneratedImages.filter(img => img && img.length > 0);
+        
         setImageGenerationProgress(prev => ({
           ...prev,
           isGenerating: false,
-          message: 'Error during image generation, falling back to batch mode'
+          message: `Error during streaming: ${currentImages.length}/${promptsToGenerate.length} images completed. Falling back to batch mode.`
         }));
         
-        // Fall back to regular API
-        const comfyResponse = await fetch('/api/generate-comfy-images-concurrent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompts: promptsToGenerate,
-            folderId: projectFolderId
-          }),
-        });
+        console.log(`Streaming failed, but got ${currentImages.length}/${promptsToGenerate.length} images`);
         
-        if (!comfyResponse.ok) {
-          const errorData = await comfyResponse.json();
-          throw new Error(errorData.error || 'Failed to generate images with ComfyUI');
+        try {
+          // Fall back to regular API
+          const comfyResponse = await fetch('/api/generate-comfy-images-concurrent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              prompts: promptsToGenerate,
+              folderId: projectFolderId
+            }),
+          });
+          
+          if (!comfyResponse.ok) {
+            const errorData = await comfyResponse.json();
+            throw new Error(errorData.error || 'Failed to generate images with ComfyUI');
+          }
+          
+          const comfyData = await comfyResponse.json();
+          const fallbackImages = comfyData.generatedImages || [];
+          
+          console.log(`Fallback generated ${fallbackImages.length} images`);
+          
+          // Use fallback images, but prefer any we got from streaming
+          const finalImages = [...allGeneratedImages];
+          for (let i = 0; i < fallbackImages.length && i < finalImages.length; i++) {
+            if (!finalImages[i] || finalImages[i].length === 0) {
+              finalImages[i] = fallbackImages[i];
+            }
+          }
+          
+          setGeneratedImages(finalImages.filter(img => img && img.length > 0));
+          await saveAgentOutput('image-generation', {
+            ...comfyData,
+            streamingFallback: true,
+            streamingError: error instanceof Error ? error.message : String(error),
+            finalImageCount: finalImages.filter(img => img && img.length > 0).length
+          });
+          
+          updateStepStatus(8, 'completed', comfyData, undefined, Date.now() - step9Start);
+          isComplete = true;
+          
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+          
+          // If both streaming and fallback failed, but we have some images, use them
+          if (currentImages.length > 0) {
+            console.log(`Using partial results: ${currentImages.length} images`);
+            setGeneratedImages(currentImages);
+            
+            setStageErrors(prev => ({
+              ...prev,
+              imageGeneration: `Image generation partially failed. Got ${currentImages.length}/${promptsToGenerate.length} images. Streaming error: ${error instanceof Error ? error.message : String(error)}. Fallback error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`
+            }));
+            
+            await saveAgentOutput('image-generation', {
+              partialSuccess: true,
+              generatedImages: currentImages,
+              errors: {
+                streaming: error instanceof Error ? error.message : String(error),
+                fallback: fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+              }
+            });
+            
+            updateStepStatus(8, 'completed', { partialSuccess: true, imageCount: currentImages.length }, undefined, Date.now() - step9Start);
+            isComplete = true;
+          } else {
+            throw new Error(`Both streaming and fallback failed. Streaming: ${error instanceof Error ? error.message : String(error)}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+          }
         }
-        
-        const comfyData = await comfyResponse.json();
-        setGeneratedImages(comfyData.generatedImages || []);
-        await saveAgentOutput('image-generation', comfyData);
-        updateStepStatus(8, 'completed', comfyData, undefined, Date.now() - step9Start);
-        isComplete = true;
       }
       
       // Ensure we've completed before continuing
@@ -1609,6 +1855,8 @@ export default function TestTTS() {
       */
 
     } catch (err: unknown) {
+      console.error('🚨 FRONTEND: Caught error in main workflow:', err);
+      console.error('🚨 FRONTEND: Error stack:', err instanceof Error ? err.stack : 'No stack');
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(errorMessage);
       
@@ -1909,9 +2157,10 @@ export default function TestTTS() {
       )}
       
       {error && (
-        <div className={styles.error}>
-          <h2>Error:</h2>
+        <div className={styles.warning}>
+          <h2>⚠️ Pipeline Error:</h2>
           <p>{error}</p>
+          <p><small>The pipeline encountered an error but you can see partial results below. Check individual stage errors for more details.</small></p>
         </div>
       )}
       
@@ -2073,14 +2322,14 @@ export default function TestTTS() {
                         <div className={styles.agentInstructionSection}>
                           <h4>📽️ Producer Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
-                            <div><strong>Target Cut Timing:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing}</div>
-                            <div><strong>Audio Analysis Enhancement:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement}</div>
+                            <div><strong>Target Cut Timing:</strong> {typeof (visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing === 'string' ? (visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing : JSON.stringify((visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.target_cut_timing)}</div>
+                            <div><strong>Audio Analysis Enhancement:</strong> {typeof (visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement === 'string' ? (visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement : JSON.stringify((visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.audio_analysis_enhancement)}</div>
                             {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules && (
                               <div>
                                 <strong>Pacing Rules:</strong>
                                 <ul>
                                   {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.producer_instructions.pacing_rules.map((rule: any, index: any) => (
-                                    <li key={index}>{rule}</li>
+                                    <li key={index}>{typeof rule === 'string' ? rule : JSON.stringify(rule)}</li>
                                   ))}
                                 </ul>
                               </div>
@@ -2122,13 +2371,13 @@ export default function TestTTS() {
                           <h4>📹 DoP Agent Instructions:</h4>
                           <div className={styles.instructionContent}>
                             {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy && (
-                              <div><strong>Lighting Philosophy:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy}</div>
+                              <div><strong>Lighting Philosophy:</strong> {typeof (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy === 'string' ? (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy : JSON.stringify((visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.lighting_philosophy)}</div>
                             )}
                             {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style && (
-                              <div><strong>Movement Style:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style}</div>
+                              <div><strong>Movement Style:</strong> {typeof (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style === 'string' ? (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style : JSON.stringify((visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.movement_style)}</div>
                             )}
                             {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support && (
-                              <div><strong>Artistic Style Support:</strong> {(visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support}</div>
+                              <div><strong>Artistic Style Support:</strong> {typeof (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support === 'string' ? (visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support : JSON.stringify((visionAgentResult as any).stage1_vision_analysis.agent_instructions.dop_instructions.artistic_style_support)}</div>
                             )}
                           </div>
                         </div>
@@ -2527,9 +2776,9 @@ export default function TestTTS() {
                       <div key={index} className={styles.beatItem}>
                         <div className={styles.beatNumber}>Beat {index + 1}:</div>
                         <div className={styles.beatContent}>
-                          <div><strong>Creative Vision:</strong> {beat.creative_vision}</div>
-                          <div><strong>Emotion:</strong> {beat.emotion}</div>
-                          <div><strong>Narrative Function:</strong> {beat.narrative_function}</div>
+                          <div><strong>Creative Vision:</strong> {typeof beat.creative_vision === 'string' ? beat.creative_vision : JSON.stringify(beat.creative_vision)}</div>
+                          <div><strong>Emotion:</strong> {typeof beat.emotion === 'string' ? beat.emotion : JSON.stringify(beat.emotion)}</div>
+                          <div><strong>Narrative Function:</strong> {typeof beat.narrative_function === 'string' ? beat.narrative_function : JSON.stringify(beat.narrative_function)}</div>
                         </div>
                       </div>
                     ))}
@@ -2553,6 +2802,14 @@ export default function TestTTS() {
         {enhancedDopResult && (
           <div className={styles.result}>
             <h2>6. Enhanced Script DoP Cinematography:</h2>
+            
+            {/* DoP Stage Error Display */}
+            {stageErrors.dop && (
+              <div className={styles.agentError}>
+                <strong>DoP Agent Error:</strong> {stageErrors.dop}
+              </div>
+            )}
+            
             <div className={styles.dopResult}>
               <div className={styles.executionStats}>
                 <h3>Execution Stats:</h3>
@@ -2580,10 +2837,10 @@ export default function TestTTS() {
                       <div key={index} className={styles.shotItem}>
                         <div className={styles.shotNumber}>Shot {index + 1}:</div>
                         <div className={styles.shotContent}>
-                          <div><strong>Shot Type:</strong> {shot.shot_type}</div>
-                          <div><strong>Camera Movement:</strong> {shot.camera_movement}</div>
-                          <div><strong>Lighting:</strong> {shot.lighting}</div>
-                          <div><strong>Style Notes:</strong> {shot.style_notes}</div>
+                          <div><strong>Shot Type:</strong> {typeof shot.shot_type === 'string' ? shot.shot_type : JSON.stringify(shot.shot_type)}</div>
+                          <div><strong>Camera Movement:</strong> {typeof shot.camera_movement === 'string' ? shot.camera_movement : JSON.stringify(shot.camera_movement)}</div>
+                          <div><strong>Lighting:</strong> {typeof shot.lighting === 'string' ? shot.lighting : JSON.stringify(shot.lighting)}</div>
+                          <div><strong>Style Notes:</strong> {typeof shot.style_notes === 'string' ? shot.style_notes : JSON.stringify(shot.style_notes)}</div>
                         </div>
                       </div>
                     ))}
@@ -2607,6 +2864,14 @@ export default function TestTTS() {
         {enhancedPromptEngineerResult && (
           <div className={styles.result}>
             <h2>7. Enhanced Script Prompt Engineer Image Prompts:</h2>
+            
+            {/* Prompt Engineer Stage Error Display */}
+            {stageErrors.promptEngineer && (
+              <div className={styles.agentError}>
+                <strong>Prompt Engineer Error:</strong> {stageErrors.promptEngineer}
+              </div>
+            )}
+            
             <div className={styles.promptEngineerResult}>
               <div className={styles.executionStats}>
                 <h3>Execution Stats:</h3>

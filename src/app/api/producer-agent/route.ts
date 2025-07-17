@@ -97,7 +97,7 @@ Please output the full list of cuts as a JSON array exactly as specified above.`
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",

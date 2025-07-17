@@ -99,7 +99,7 @@ Please create FLUX prompts that:
 Generate exactly ${director_output.narrative_beats?.length || 10} prompts, one for each beat.`;
     
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20:thinking",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",

@@ -350,7 +350,7 @@ interface MusicAnalysisResult {
 // Model Selection Strategy (Enhanced)
 const ENHANCED_MODEL_CONFIG = {
   vision_understanding: {
-    primary: 'google/gemini-2.5-flash-preview-05-20',
+    primary: 'google/gemini-2.5-flash',
     fallback: 'anthropic/claude-3.5-sonnet',
     temperature: 0.1,
     maxTokens: 15000

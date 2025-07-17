@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
     let modelName;
     
     if (testMode === 'thinking') {
-      modelName = 'google/gemini-2.5-flash-preview-05-20:thinking';
+      modelName = 'google/gemini-2.5-flash:thinking';
     } else if (testMode === 'regular') {
-      modelName = 'google/gemini-2.5-flash-preview-05-20';
+      modelName = 'google/gemini-2.5-flash';
     } else {
-      modelName = process.env.NO_MUSIC_MODEL || 'google/gemini-2.5-flash-preview-05-20';
+      modelName = process.env.NO_MUSIC_MODEL || 'google/gemini-2.5-flash';
     }
     
     console.log(`🧠 Using model: ${modelName} (test mode: ${testMode || 'default'})`);

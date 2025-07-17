@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     console.log('📝 Calling LLM with enhanced story-focused prompt...');
     
     // Call LLM with story-optimized parameters
-    const openRouterService = createOpenRouterService('google/gemini-2.5-flash-preview-05-20:thinking');
+    const openRouterService = createOpenRouterService('google/gemini-2.5-flash:thinking');
     const llmResponse = await openRouterService.chat({
       messages: [
         { role: 'system', content: VISION_DIRECTOR_NO_MUSIC_SYSTEM_MESSAGE },

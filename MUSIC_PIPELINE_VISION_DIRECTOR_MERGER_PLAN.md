@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
   
   // Use Gemini 2.5 Flash with proper context
   const requestBody = {
-    model: 'google/gemini-2.5-flash-preview-05-20',
+    model: 'google/gemini-2.5-flash',
     messages: [
       {
         role: 'system',

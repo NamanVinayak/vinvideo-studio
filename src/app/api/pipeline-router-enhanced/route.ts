@@ -57,7 +57,7 @@ Your task: Extract the requirements from the conversation and format them correc
 Provide your analysis and routing decision in the specified JSON format.`;
 
     const requestBody = {
-      model: 'google/gemini-2.5-flash-preview-05-20:thinking',
+      model: 'google/gemini-2.5-flash:thinking',
       messages: [
         { 
           role: 'system', 

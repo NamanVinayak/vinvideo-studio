@@ -339,11 +339,11 @@ Analyze this script and reformat it for optimal Gemini TTS performance:
 
 ${script}`;
     
-    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-flash-preview-05-20:thinking)...');
+    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-flash:thinking)...');
     
     // OpenRouter API call
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20", // Remove :thinking to avoid meta-commentary
+      model: "google/gemini-2.5-flash", // Remove :thinking to avoid meta-commentary
       messages: [
         {
           role: "user",

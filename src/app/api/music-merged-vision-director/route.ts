@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the model configuration
-    const modelName = process.env.MUSIC_MERGED_MODEL || 'google/gemini-2.5-flash-preview-05-20';
+    const modelName = process.env.MUSIC_MERGED_MODEL || 'google/gemini-2.5-flash';
     
     console.log(`🎵 Music Merged Vision+Director using model: ${modelName}`);
     console.log(`📊 Input summary:`, {

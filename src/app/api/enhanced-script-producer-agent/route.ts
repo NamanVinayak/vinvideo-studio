@@ -47,7 +47,7 @@ CRITICAL REMINDERS:
 - Visual style preference is "${scriptModeUserContext.settings.visualStyle}"`;
     
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",

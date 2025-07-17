@@ -22,7 +22,7 @@ Based on comprehensive analysis of the VinVideo_Connected multi-agent AI video g
 
 ### 1.1 Strategic Model Optimization
 
-**Current State**: All agents use `google/gemini-2.5-flash-preview-05-20:thinking` (5-8s response time)
+**Current State**: All agents use `google/gemini-2.5-flash:thinking` (5-8s response time)
 
 **Optimization Strategy**:
 ```typescript
@@ -43,8 +43,8 @@ const OPTIMIZED_AGENT_MODELS = {
   music_director: "anthropic/claude-3.5-sonnet",
   
   // Ultra-high complexity (5-8s response time - only when needed)
-  music_analysis: "google/gemini-2.5-flash-preview-05-20:thinking",
-  prompt_engineer: "google/gemini-2.5-flash-preview-05-20:thinking"
+  music_analysis: "google/gemini-2.5-flash:thinking",
+  prompt_engineer: "google/gemini-2.5-flash:thinking"
 };
 ```
 

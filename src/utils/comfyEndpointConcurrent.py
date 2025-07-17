@@ -82,18 +82,22 @@ class ConcurrentImageGenerator:
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         
-        # Create aiohttp connector with SSL context and conservative settings
+        # Create aiohttp connector with SSL context and enhanced reliability settings
         connector = aiohttp.TCPConnector(
             ssl=ssl_context,
-            limit=8,  # Total connection pool size
-            limit_per_host=4,  # Max connections per host
-            enable_cleanup_closed=True
+            limit=12,  # Increased total connection pool size for better concurrency
+            limit_per_host=6,  # Increased max connections per host
+            enable_cleanup_closed=True,
+            keepalive_timeout=60,  # Keep connections alive for 60 seconds
+            force_close=False,  # Allow connection reuse
+            ttl_dns_cache=300  # Cache DNS for 5 minutes
         )
         
-        # Conservative timeout configuration  
+        # Enhanced timeout configuration for better reliability
         timeout = aiohttp.ClientTimeout(
-            total=120,  # 2 minutes total timeout
-            connect=30  # 30 seconds to establish connection
+            total=180,  # 3 minutes total timeout (increased for stability)
+            connect=45,  # 45 seconds to establish connection (increased)
+            sock_read=60  # 60 seconds socket read timeout
         )
         
         # Create session with standard configuration

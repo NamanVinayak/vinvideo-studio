@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
     // EXACT OpenRouter payload structure
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",

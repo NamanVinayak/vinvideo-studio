@@ -77,7 +77,7 @@ Generate the complete vision analysis as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash-preview-05-20",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",

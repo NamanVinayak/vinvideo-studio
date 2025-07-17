@@ -96,11 +96,11 @@ export async function POST(request: Request) {
     let modelName;
     
     if (testMode === 'thinking') {
-      modelName = 'google/gemini-2.5-flash-preview-05-20:thinking';
+      modelName = 'google/gemini-2.5-flash:thinking';
     } else if (testMode === 'regular') {
-      modelName = 'google/gemini-2.5-flash-preview-05-20';
+      modelName = 'google/gemini-2.5-flash';
     } else {
-      modelName = 'google/gemini-2.5-flash-preview-05-20'; // default
+      modelName = 'google/gemini-2.5-flash'; // default
     }
     
     console.log(`🧠 Director using model: ${modelName} (test mode: ${testMode || 'default'})`);
