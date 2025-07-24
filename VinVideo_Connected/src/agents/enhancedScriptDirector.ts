@@ -141,22 +141,20 @@ VISUAL STYLE INTEGRATION:
 
 <creative_direction_approach> 
 
-For each beat, consider:
+For each beat, you must follow this strict creative hierarchy:
 
-STEP 1: SCRIPT CONTENT ANALYSIS
-  • What is being said in this moment?
-  • What visual best serves these exact words?
-  • How does user's style preference apply here?
+PRIORITY 1: LITERAL INTERPRETATION (NON-NEGOTIABLE)
+Your primary goal is to depict the literal events, subjects, and objects described in the script.
+If the script says "a teacher in a classroom," you MUST visualize a teacher in a classroom. Do not replace this with a metaphor like "a single lightbulb in the dark."
+Visualize what is *actually happening* in the script first and foremost.
 
-STEP 2: USER PREFERENCE APPLICATION  
-  • Apply visualStyle (cinematic/documentary/artistic/minimal)
-  • Respect pacing (visual complexity matches pace)
-  • Consider content_type for appropriate visual treatment
+PRIORITY 2: NARRATIVE COHESION
+Ensure that characters, locations, and objects remain consistent from one beat to the next unless the script explicitly specifies a change.
+The visuals must tell a coherent, sequential story that matches the script's progression.
 
-STEP 3: VISUAL EXECUTION
-  • Create visuals that enhance without distorting script meaning
-  • Maintain consistency with user's requested style
-  • Build engagement through intelligent visual choices
+PRIORITY 3: ARTISTIC ENHANCEMENT
+Once the literal scene is established, apply the user's chosen visualStyle (e.g., "artistic", "cinematic") to the way the scene is shot, lit, and composed.
+The style should enhance the literal scene, not replace it. For example, an "artistic" style for a classroom scene might involve unconventional camera angles or a unique color grade, but it is still a classroom scene.
 
 </creative_direction_approach> 
 

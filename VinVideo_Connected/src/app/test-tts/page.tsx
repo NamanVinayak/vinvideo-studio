@@ -8,7 +8,9 @@ import styles from './page.module.css';
 import type { UserContext } from '@/types/userContext';
 import type { ScriptModeUserContext } from '@/types/scriptModeUserContext';
 import { saveAgentResponse } from '@/utils/client-agent-response-saver';
+import { selectVoiceByPreference } from '@/utils/voiceDatabase';
 import { errorLogger } from '@/utils/errorLogger';
+import VoiceSelector, { type VoicePreference } from '@/components/VoiceSelector';
 
 interface CutPoint {
   cut_number: number;
@@ -224,6 +226,11 @@ export default function TestTTS() {
     style: 'cinematic' as 'cinematic' | 'documentary' | 'artistic' | 'minimal',
     pacing: 'medium' as 'slow' | 'medium' | 'fast',
     contentType: 'general' as string
+  });
+
+  // NEW: Voice preference state
+  const [voicePreference, setVoicePreference] = useState<VoicePreference>({
+    mode: 'auto'
   });
 
   // Workflow state (UPDATED: Separated vision understanding from audio generation)
@@ -519,7 +526,8 @@ export default function TestTTS() {
           pacing: visionFormData.pacing,
           visualStyle: visionFormData.style,
           contentType: visionFormData.contentType,
-          voiceSelection: 'enceladus' // Default voice for now - TODO: Add voice selection UI
+          voiceSelection: 'enceladus', // Will be overridden by agent voice selection
+          voicePreference: voicePreference // Pass user's voice preference to agent
         },
         pipeline: {
           mode: 'vision_enhanced',
@@ -623,10 +631,16 @@ export default function TestTTS() {
         updateStepStatus(2, 'processing');
         const step3Start = Date.now();
         
+        // Extract voice recommendation from Vision Understanding Agent
+        const recommendedVoice = visionData.visionAgentData?.stage1_vision_analysis?.voice_selection?.recommended_voice || 'enceladus';
+        console.log('🎤 Voice selection from Vision Agent:', visionData.visionAgentData?.stage1_vision_analysis?.voice_selection);
+        console.log('🎯 Selected voice for TTS:', recommendedVoice);
+        
         // Debug: Log what we're sending to TTS
         console.log('🔍 DEBUG - test-tts sending to TTS API:');
         console.log('- visionData.narrationScript:', visionData.narrationScript);
         console.log('- typeof visionData.narrationScript:', typeof visionData.narrationScript);
+        console.log('- voiceName:', recommendedVoice);
         
         const audioResponse = await fetch('/api/generate-audio-from-script', {
           method: 'POST',
@@ -635,6 +649,7 @@ export default function TestTTS() {
           },
           body: JSON.stringify({
             narrationScript: visionData.narrationScript,
+            voiceName: recommendedVoice,
             folderId: projectFolderId
           }),
         });
@@ -672,7 +687,8 @@ export default function TestTTS() {
             pacing: scriptFormData.pacing,
             visualStyle: scriptFormData.style,
             contentType: scriptFormData.contentType || 'narrative',
-            voiceSelection: 'enceladus' // TODO: Add voice selection UI
+            voiceSelection: 'enceladus', // Default, may be overridden by voice preference
+            voicePreference: voicePreference // Pass user's voice preference
           },
           pipeline: {
             mode: 'enhanced_script',
@@ -716,12 +732,31 @@ export default function TestTTS() {
         updateStepStatus(2, 'processing');
         const ttsStart = Date.now();
         
+        // Intelligent voice selection for Script Mode
+        const contentAnalysis = {
+          type: scriptModeUserContext.settings.contentType || 'storytelling',
+          emotion: scriptModeUserContext.settings.pacing === 'fast' ? 'energetic' : 
+                   scriptModeUserContext.settings.pacing === 'slow' ? 'calm' : 'conversational',
+          tone: scriptModeUserContext.settings.visualStyle || 'cinematic'
+        };
+        
+        const voiceSelection = selectVoiceByPreference(contentAnalysis, voicePreference);
+        const selectedVoice = voiceSelection.recommendedVoice;
+        
+        console.log('🎯 Script Mode - Intelligent Voice Selection:');
+        console.log('- Content Analysis:', contentAnalysis);
+        console.log('- Voice Preference:', voicePreference);
+        console.log('- Selected Voice:', selectedVoice);
+        console.log('- Selection Reasoning:', voiceSelection.reasoning);
+        console.log('- Confidence Score:', voiceSelection.confidenceScore);
+        console.log('- Fallback Voices:', voiceSelection.fallbackVoices);
+        
         const ttsResponse = await fetch('/api/generate-audio-from-script', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             narrationScript: formatResult.formatted_script_for_tts,
-            voiceName: 'enceladus', // TODO: Use voice from settings
+            voiceName: selectedVoice,
             folderId: projectFolderId
           })
         });
@@ -1242,7 +1277,7 @@ export default function TestTTS() {
           dopDataType: typeof dopData,
           hasRawResponse: !!(dopData?.rawResponse),
           rawResponseLength: dopData?.rawResponse?.length || 0,
-          criticalError: criticalError?.message || String(criticalError),
+          criticalError: (criticalError as Error)?.message || String(criticalError),
           errorStack: (criticalError as Error)?.stack
         });
         
@@ -1257,13 +1292,13 @@ export default function TestTTS() {
         // Also set stage error for user visibility
         setStageErrors(prev => ({
           ...prev,
-          dop: `Critical DoP processing error: ${criticalError?.message || String(criticalError)}`
+          dop: `Critical DoP processing error: ${(criticalError as Error)?.message || String(criticalError)}`
         }));
         
         // Log additional context safely
         console.error('🚨 DoP Data keys:', dopData ? Object.keys(dopData) : 'dopData is null/undefined');
         console.error('🚨 DoP Data type:', typeof dopData);
-        console.error('🚨 Error details:', criticalError?.message || String(criticalError));
+        console.error('🚨 Error details:', (criticalError as Error)?.message || String(criticalError));
       }
       
       // Extract prompt engineer instructions from Vision Agent output
@@ -2111,6 +2146,14 @@ export default function TestTTS() {
             </div>
           </>
         )}
+        
+        {/* Voice Selection - Show for both Vision and Script modes */}
+        <VoiceSelector
+          onVoicePreferenceChange={setVoicePreference}
+          showVoiceOptions={true}
+          initialPreference={voicePreference}
+          className={styles.voiceSelector}
+        />
         
         <button 
           type="submit" 

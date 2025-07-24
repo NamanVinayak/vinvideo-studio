@@ -3,6 +3,8 @@
  * Contains user's exact script + preferences for intelligent agent processing
  */
 
+import type { VoicePreference } from '@/components/VoiceSelector';
+
 export interface ScriptModeUserContext {
   // Original user input without any interpretation  
   originalScript: string;  // The exact script as user pasted it
@@ -14,7 +16,8 @@ export interface ScriptModeUserContext {
     pacing: 'slow' | 'medium' | 'fast';  // 8-10s, 5-7s, 1-4s
     visualStyle: 'cinematic' | 'documentary' | 'artistic' | 'minimal';
     contentType?: string;  // Optional content classification
-    voiceSelection?: string;  // For TTS voice selection
+    voiceSelection?: string;  // For TTS voice selection (may be overridden by agent)
+    voicePreference?: VoicePreference;  // User's voice preference for agent analysis
   };
   
   // Pipeline metadata

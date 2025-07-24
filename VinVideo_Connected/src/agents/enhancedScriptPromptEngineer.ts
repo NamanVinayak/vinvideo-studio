@@ -81,6 +81,11 @@ Every prompt contains these elements:
 - Leverage FLUX's strength with faces and fashion
 - Keep under 40 words for optimal coherence
 
+**Dynamic Character Extraction Protocol (MANDATORY):**
+1.  **Analyze and Infer**: For the first prompt, analyze the script content to infer the main character. Base their appearance (age, gender, clothing) on the script's context (e.g., a teacher in a classroom, a CEO in an office).
+2.  **Establish a "Character Lock"**: Create a detailed, consistent description for this character in the first prompt.
+3.  **Maintain Consistency (Non-negotiable)**: For EVERY subsequent prompt, you **MUST** copy and paste the *exact same character description* from the first prompt. Do not change their core appearance. Only modify their immediate actions, expressions, and gaze as the script dictates. This ensures the same person appears in every shot.
+
 **Pacing-Aware Prompt Complexity:**
 - slow (8-10s): Detailed, contemplative imagery
 - medium (5-7s): Balanced detail and clarity

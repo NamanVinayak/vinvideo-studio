@@ -81,17 +81,17 @@ export function createMusicUserContext(formData: any): MusicUserContext {
       contentType: formData.contentType,
       
       // Music-specific settings
-      musicSource: formData.audioFile ? {
-        type: 'upload',
-        file: formData.audioFile,
-        fileName: formData.audioFileName
-      } : {
-        type: 'auto'
-      },
+      // musicSource: formData.audioFile ? {
+      //   type: 'upload',
+      //   file: formData.audioFile,
+      //   fileName: formData.audioFileName
+      // } : {
+      //   type: 'auto'
+      // },
       
-      narrativeApproach: formData.narrativeApproach || 'abstract',
-      visualIntensity: formData.visualIntensity || 'moderate',
-      genreAwareness: formData.genreAwareness || 'auto-detect',
+      // narrativeApproach: formData.narrativeApproach || 'abstract',
+      // visualIntensity: formData.visualIntensity || 'moderate',
+      // genreAwareness: formData.genreAwareness || 'auto-detect',
       
       syncPreferences: {
         syncTightness: formData.syncTightness || 'moderate',

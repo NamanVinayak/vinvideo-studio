@@ -380,37 +380,24 @@ export async function saveAgentResponse({
   }
 
   try {
-    const folderName = PIPELINE_FOLDERS[pipelineType];
-    const pipelinePath = path.join(getAgentResponsesBasePath(), folderName);
-    
-    // Get or assign test folder number for this session
-    let testFolderNumber = sessionTestFolders.get(sessionId);
-    if (!testFolderNumber) {
-      testFolderNumber = await getNextTestFolderNumber(pipelineType);
-      sessionTestFolders.set(sessionId, testFolderNumber);
-      console.log(`📁 New test session: ${sessionId} → Test_${testFolderNumber}`);
-    }
-    
-    // Create test folder path
-    const testFolderName = `Test_${testFolderNumber}`;
-    const testFolderPath = path.join(pipelinePath, testFolderName);
-    
-    // Ensure test folder exists
-    await fs.mkdir(testFolderPath, { recursive: true });
-    
-    // Create filename with timestamp for uniqueness within test folder
+    // The project folder path is now directly the projectFolder ID in the public directory
+    const projectFolderPath = path.join(process.cwd(), 'public', projectFolder);
+
+    // Ensure project folder exists
+    await fs.mkdir(projectFolderPath, { recursive: true });
+
+    // Create filename for the agent's output
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `${agentName}_${timestamp}_${sessionId.substring(0, 8)}.json`;
-    const filePath = path.join(testFolderPath, fileName);
-    
-    // Create structured data
+    const fileName = `${agentName}_${timestamp}.json`;
+    const filePath = path.join(projectFolderPath, fileName);
+
+    // Create structured data to save
     const agentResponseData = {
       metadata: {
         agentName,
         pipelineType,
         sessionId,
         projectFolder,
-        testFolder: testFolderName,
         timestamp: new Date().toISOString(),
         executionTime: executionTime || 0,
         model: model || 'unknown'
@@ -419,16 +406,16 @@ export async function saveAgentResponse({
       response,
       rawResponse: rawResponse || null
     };
-    
-    // Save to file
+
+    // Save the JSON data to the file
     await fs.writeFile(
       filePath,
       JSON.stringify(agentResponseData, null, 2),
       'utf-8'
     );
-    
-    console.log(`📁 Agent response saved: ${testFolderName}/${fileName}`);
-    
+
+    console.log(`📁 Agent response saved to: ${projectFolder}/${fileName}`);
+
   } catch (error) {
     console.error(`❌ Failed to save agent response for ${agentName}:`, error);
     // Don't throw - agent response saving should never break the pipeline

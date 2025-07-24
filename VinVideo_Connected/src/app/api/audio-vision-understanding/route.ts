@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/visionUnderstandingWithAudio';
+import { AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE } from '@/agents/infrastructure/vision-understanding-with-audio';
 import type { UserContext } from '@/types/userContext';
 
 /**

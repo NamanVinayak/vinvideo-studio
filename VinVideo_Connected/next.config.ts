@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Disable Fast Refresh to capture runtime errors
+  // Experimental features
   experimental: {
-    reactRefresh: false,
+    // Remove deprecated reactRefresh option
   },
   // Disable HMR in development for error debugging
   ...(process.env.NODE_ENV === 'development' && {

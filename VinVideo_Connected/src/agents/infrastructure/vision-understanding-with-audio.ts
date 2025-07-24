@@ -175,6 +175,14 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
       }
     },
     "narration_script": "COMPLETE speakable story for TTS voice-over (MUST match duration word count target, engaging narrative that tells the actual story)",
+    "voice_selection": {
+      "recommended_voice": "string (exact voice name from the 30-voice database)",
+      "reasoning": "string (detailed explanation of content analysis + user preference matching)",
+      "personality_match": "string (which Gen-Z personality traits this voice satisfies)",
+      "content_analysis": "string (brief content tone/genre analysis that influenced selection)",
+      "fallback_voices": ["alternative1", "alternative2"],
+      "confidence_score": number_0_to_1
+    },
     "audio_optimization": {
       "concept_speakability": "excellent|good|fair",
       "vocal_performance_potential": "high|medium|low",
@@ -278,12 +286,86 @@ Return ONLY a valid JSON object with this exact structure. DO NOT include markdo
 - Core Concept (for agents): "Creative awakening through abstract visual metamorphosis"
 - Narration Script (for TTS): "In the quiet moments before dawn, something stirred within her mind. Colors she had never seen began to dance, awakening her creative soul." (25 words ✓)
 
-You are creating THREE CRITICAL OUTPUTS that work together: 
-1. VISION BLUEPRINT for agents
-2. SPEAKABLE STORY for voice-over
-3. AGENT INSTRUCTIONS for enhanced pipeline performance
+**VOICE SELECTION INTELLIGENCE:**
 
-**MANDATORY REQUIREMENT:** You MUST generate ALL sections including the complete "agent_instructions" block with all four agent instruction types (producer_instructions, director_instructions, dop_instructions, prompt_engineer_instructions). Every decision should consider what viewers will SEE, what they will HEAR, and how each agent should perform.
+You now have access to the complete Gemini TTS voice database with 29 distinct voices optimized for different content types and personality traits. You MUST analyze user input and recommend the optimal voice for TTS generation.
+
+**COMPLETE VOICE DATABASE (29 VOICES):**
+
+**FEMALE VOICES (13):**
+- **Zephyr** (Bright) → Sunshine Personality | Best for: upbeat commercials, children's content
+- **Kore** (Firm, Confident) → Main Character Energy | Best for: corporate presentations, tutorials  
+- **Leda** (Professional, Composed) → Boss Mode | Best for: corporate training, serious narration
+- **Aoede** (Conversational, Intelligent) → Chill & Laid-back | Best for: podcasts, e-learning
+- **Autonoe** (Mature, Experienced) → Professor Mode | Best for: documentaries, audiobooks
+- **Callirhoe** (Confident, Direct) → Main Character Energy | Best for: business presentations
+- **Despina** (Warm, Trustworthy) → Cozy Storyteller | Best for: lifestyle commercials, hospitality
+- **Erinome** (Articulate, Sophisticated) → Dark Academia | Best for: educational, academic content
+- **Gacrux** (Authoritative, Experienced) → Boss Mode | Best for: documentaries, executive communications
+- **Laomedeia** (Engaging, Inquisitive) → Sunshine Personality | Best for: e-learning, explainers
+- **Pulcherrima** (Bright, Youthful) → Main Character Energy | Best for: commercials, animation
+- **Sulafat** (Warm, Intelligent) → Cozy Storyteller | Best for: corporate narration, marketing
+- **Vindemiatrix** (Calm, Gentle) → Soft & Dreamy | Best for: meditation, wellness content
+
+**MALE VOICES (16):**
+- **Puck** (Upbeat, Friendly) → Bestie Energy | Best for: how-to videos, product demos
+- **Charon** (Smooth, Assured) → Professor Mode | Best for: podcasts, educational content
+- **Fenrir** (Energetic, Engaging) → Hype Beast | Best for: explainers, dynamic presentations
+- **Enceladus** (Breathy, Enthusiastic) → Hype Beast | Best for: promotional videos, commercials
+- **Iapetus** (Casual, Relatable) → Bestie Energy | Best for: informal tutorials, vlogs
+- **Umbriel** (Calm, Authoritative) → Chill & Laid-back | Best for: documentaries, audiobooks
+- **Algieba** (Professional, Experienced) → Professor Mode | Best for: corporate presentations
+- **Algenib** (Gravelly, Distinctive) → Mysterious Vibes | Best for: character work, creative projects
+- **Orus** (Mature, Thoughtful) → Professor Mode | Best for: documentaries, serious audiobooks
+- **Rasalgethi** (Conversational, Inquisitive) → Bestie Energy | Best for: podcasts, discussions
+- **Sadachbia** (Confident, Distinctive) → No Cap Confident | Best for: trailers, edgy commercials
+- **Sadaltager** (Professional, Engaging) → Professor Mode | Best for: training videos, webinars
+- **Schedar** (Balanced, Relatable) → Chill & Laid-back | Best for: casual tutorials, explainers
+- **Zubenelgenubi** (Deep, Commanding) → Boss Mode | Best for: movie trailers, formal announcements
+- **Achird** (Youthful, Contemporary) → Bestie Energy | Best for: young adult content, tutorials
+- **Achernar** (Gentle, Enthusiastic) → Bestie Energy | Best for: corporate narration, podcasts
+
+**VOICE SELECTION ALGORITHM:**
+1. **Analyze Content Type**: educational, commercial, narrative, professional, wellness, etc.
+2. **Determine Emotional Tone**: dramatic, conversational, mysterious, inspiring, energetic, calm
+3. **Consider User Voice Preferences** (if provided in userContext):
+   - mode: 'auto' → Use content analysis only
+   - mode: 'tags' → Match personality tags (Chill & Laid-back, Main Character Energy, etc.)
+   - mode: 'custom' → Parse custom description for voice characteristics
+4. **Match Optimal Voice** using personality traits, use cases, and content suitability
+5. **Provide Detailed Reasoning** explaining why this voice fits content + user preferences
+6. **Include Fallback Options** for reliability
+
+**VOICE SELECTION OUTPUT REQUIREMENTS:**
+You MUST include a "voice_selection" object in your JSON response with:
+- "recommended_voice": Exact voice name from the database
+- "reasoning": Detailed explanation of content analysis + user preference matching
+- "personality_match": Which Gen-Z personality traits this voice satisfies
+- "content_analysis": Brief analysis of content tone/genre that influenced selection
+- "fallback_voices": Array of 2-3 alternative voices
+- "confidence_score": Number 0.0-1.0 indicating selection confidence
+
+**VOICE SELECTION EXAMPLES:**
+
+*Educational Content + Auto Mode:*
+"recommended_voice": "Charon"
+"reasoning": "Educational content requires clear, trustworthy delivery. Charon's smooth conversational style with assured tone is optimal for podcast-style educational narration."
+
+*Energetic Commercial + Personality Tags [Hype Beast]:*
+"recommended_voice": "Enceladus" 
+"reasoning": "User selected 'Hype Beast' personality tag, and content is promotional. Enceladus delivers the perfect energetic, enthusiastic tone for high-energy commercials."
+
+*Wellness Content + Custom Description "calm and soothing":*
+"recommended_voice": "Vindemiatrix"
+"reasoning": "User requested 'calm and soothing' voice. Vindemiatrix offers gentle authority with calm, thoughtful delivery perfect for wellness and meditation content."
+
+You are creating FOUR CRITICAL OUTPUTS that work together: 
+1. VISION BLUEPRINT for agents
+2. SPEAKABLE STORY for voice-over  
+3. INTELLIGENT VOICE SELECTION for optimal TTS delivery
+4. AGENT INSTRUCTIONS for enhanced pipeline performance
+
+**MANDATORY REQUIREMENT:** You MUST generate ALL sections including the complete "agent_instructions" block with all four agent instruction types (producer_instructions, director_instructions, dop_instructions, prompt_engineer_instructions) AND the complete "voice_selection" block. Every decision should consider what viewers will SEE, what they will HEAR, and how each agent should perform.
 
 **CRITICAL JSON FORMATTING RULES:**
 1. Return ONLY valid JSON - no text before or after

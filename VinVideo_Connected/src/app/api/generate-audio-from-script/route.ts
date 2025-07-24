@@ -53,18 +53,8 @@ export async function POST(request: Request) {
     console.log('Step 1: Checking if script needs TTS formatting...');
     const formatStartTime = Date.now();
     
-    // Check if script is already TTS-optimized from Vision Understanding Agent or Script Formatting Agent
-    const isTTSOptimized = 
-      narrationScript.length > 50 && 
-      !narrationScript.includes('INT.') && 
-      !narrationScript.includes('EXT.') &&
-      !narrationScript.includes('CUT TO') &&
-      !narrationScript.includes('FADE IN') &&
-      !narrationScript.includes('CLOSE-UP') &&
-      // Vision Understanding Agent typically outputs clean narrative text
-      (narrationScript.includes('...') || // Uses ellipses for pauses
-       narrationScript.includes('—') || // Uses em dashes
-       narrationScript.length < 1000); // Vision scripts are typically shorter and cleaner
+    // Enhanced TTS optimization detection
+    const isTTSOptimized = checkIfScriptIsTTSReady(narrationScript);
     
     if (isTTSOptimized) {
       console.log('🎯 Script is already TTS-optimized (from Vision Understanding or Script Formatting Agent) - skipping additional formatting');
@@ -85,6 +75,11 @@ export async function POST(request: Request) {
     
     // Step 2: Generate audio from formatted script
     console.log('Step 2: Converting to speech with Google Gemini TTS...');
+    console.log('📝 Final script being sent to TTS:');
+    console.log('📝 Length:', formattedScript.length);
+    console.log('📝 First 200 chars:', formattedScript.substring(0, 200));
+    console.log('📝 Last 100 chars:', formattedScript.substring(formattedScript.length - 100));
+    
     const ttsStartTime = Date.now();
     
     const audioUrl = await textToSpeech(formattedScript, folderId, voiceName);
@@ -126,6 +121,146 @@ export async function POST(request: Request) {
 }
 
 /**
+ * Check if script is already TTS-ready and doesn't need formatting
+ */
+function checkIfScriptIsTTSReady(script: string): boolean {
+  console.log('🔍 Checking if script is TTS-ready...');
+  console.log('📝 Script length:', script.length);
+  
+  // Technical film language indicators (script needs formatting if present)
+  const filmLanguage = [
+    'INT.', 'EXT.', 'CUT TO', 'FADE IN', 'FADE OUT', 'CLOSE-UP', 'WIDE SHOT',
+    'VOICEOVER', 'MONTAGE', 'TRANSITION', 'SOUND EFFECTS', 'MUSIC SWELLS',
+    'Pan left', 'Zoom in', 'Dolly shot', 'Tracking shot'
+  ];
+  
+  const hasFilmLanguage = filmLanguage.some(term => 
+    script.toUpperCase().includes(term.toUpperCase())
+  );
+  
+  if (hasFilmLanguage) {
+    console.log('❌ Script contains film language - needs formatting');
+    return false;
+  }
+  
+  // Check for characteristics of already clean TTS scripts
+  const cleanScriptIndicators = {
+    // Reasonable length for TTS (not too short, not extremely long)
+    reasonableLength: script.length > 100 && script.length < 10000,
+    
+    // Contains natural speech patterns
+    hasNaturalFlow: script.includes('.') || script.includes('!') || script.includes('?'),
+    
+    // Doesn't have excessive technical formatting
+    noExcessiveFormatting: !script.includes('##') && !script.includes('```'),
+    
+    // Has conversational or narrative tone (contains common words)
+    conversationalTone: /\b(you|your|we|I|me|this|that|what|how|why|when)\b/i.test(script)
+  };
+  
+  const indicatorsPassed = Object.entries(cleanScriptIndicators).filter(([key, value]) => {
+    console.log(`📝 ${key}:`, value);
+    return value;
+  }).length;
+  
+  const isOptimized = indicatorsPassed >= 3; // Need at least 3 out of 4 indicators
+  
+  console.log(`🔍 TTS-ready check result: ${isOptimized} (${indicatorsPassed}/4 indicators passed)`);
+  
+  // Universal content analysis: Check if script appears to be narrative/conversational
+  const commonWords = ['the', 'and', 'you', 'to', 'a', 'is', 'it', 'that', 'this', 'with', 'for', 'as', 'was', 'on', 'are', 'but'];
+  const wordCount = script.toLowerCase().split(/\s+/).length;
+  const commonWordCount = commonWords.filter(word => 
+    script.toLowerCase().includes(word)
+  ).length;
+  
+  // If script has good density of common words and reasonable length, likely TTS-ready
+  const hasNaturalLanguage = commonWordCount >= 5 && wordCount > 50;
+  
+  if (hasNaturalLanguage && script.length > 200) {
+    console.log('✅ Script appears to be natural language content - likely TTS-ready');
+    console.log(`📊 Analysis: ${commonWordCount} common words, ${wordCount} total words`);
+    return true;
+  }
+  
+  return isOptimized;
+}
+
+/**
+ * Validate that formatted script matches original content intent
+ */
+function validateScriptContent(original: string, formatted: string): { isValid: boolean; reason: string } {
+  console.log('🔍 Validating script content integrity...');
+  
+  // Convert to lowercase for comparison
+  const origLower = original.toLowerCase();
+  const formattedLower = formatted.toLowerCase();
+  
+  // Statistical similarity analysis - content-agnostic
+  const origWords = origLower.split(/\s+/).filter(word => word.length > 2);
+  const formattedWords = formattedLower.split(/\s+/).filter(word => word.length > 2);
+  
+  // Calculate word overlap percentage
+  const origWordSet = new Set(origWords);
+  const formattedWordSet = new Set(formattedWords);
+  const intersection = new Set([...origWordSet].filter(word => formattedWordSet.has(word)));
+  const overlapPercentage = intersection.size / Math.max(origWordSet.size, 1);
+  
+  console.log(`📊 Word overlap analysis: ${intersection.size}/${origWordSet.size} words (${(overlapPercentage * 100).toFixed(1)}%)`);
+  
+  // Length similarity check
+  const lengthRatio = formatted.length / Math.max(original.length, 1);
+  const lengthReasonable = lengthRatio > 0.2 && lengthRatio < 5.0;
+  
+  console.log(`📊 Length ratio: ${lengthRatio.toFixed(2)} (${formatted.length}/${original.length} chars)`);
+  
+  // Key phrase preservation (universal approach)
+  const origSentences = original.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  const firstSentence = origSentences[0]?.trim().toLowerCase();
+  const lastSentence = origSentences[origSentences.length - 1]?.trim().toLowerCase();
+  
+  const hasFirstSentenceWords = firstSentence ? 
+    firstSentence.split(/\s+/).slice(0, 5).some(word => 
+      word.length > 3 && formattedLower.includes(word)
+    ) : true;
+    
+  const hasLastSentenceWords = lastSentence ?
+    lastSentence.split(/\s+/).slice(-3).some(word => 
+      word.length > 3 && formattedLower.includes(word)
+    ) : true;
+  
+  // Universal validation criteria
+  if (overlapPercentage < 0.3) {
+    return { isValid: false, reason: `Insufficient word overlap: ${(overlapPercentage * 100).toFixed(1)}% (need >30%)` };
+  }
+  
+  if (!lengthReasonable) {
+    return { isValid: false, reason: `Length ratio too extreme: ${lengthRatio.toFixed(2)} (need 0.2-5.0)` };
+  }
+  
+  if (!hasFirstSentenceWords && !hasLastSentenceWords) {
+    return { isValid: false, reason: 'Key phrases from beginning/end not preserved' };
+  }
+  
+  // Check for complete topic shift (generic detection)
+  const topicShiftIndicators = [
+    'in a world where', 'once upon a time', 'meanwhile', 'chapter', 'episode',
+    'feline', 'titans', 'wrestling', 'arena', 'spectacle', 'legends'
+  ];
+  
+  const hasTopicShift = topicShiftIndicators.some(indicator => 
+    formattedLower.includes(indicator) && !origLower.includes(indicator)
+  );
+  
+  if (hasTopicShift) {
+    return { isValid: false, reason: 'Formatted script appears to introduce unrelated narrative elements' };
+  }
+  
+  console.log('✅ Content validation passed - script integrity maintained');
+  return { isValid: true, reason: 'Script content validation passed' };
+}
+
+/**
  * Clean script response from meta-commentary
  */
 function cleanScriptResponse(response: string): string {
@@ -161,30 +296,39 @@ async function formatScriptForTTS(script: string): Promise<string> {
       return script;
     }
     
+    console.log('🔧 SCRIPT FORMATTING DEBUG - Starting formatScriptForTTS...');
+    console.log('📝 Original script length:', script.length);
+    console.log('📝 Original script first 200 chars:', script.substring(0, 200));
+    console.log('📝 Original script last 200 chars:', script.substring(script.length - 200));
+    
     console.log('Making OpenRouter Gemini API request for script formatting...');
     console.log('=== INPUT TEXT ===');
     console.log(script);
     console.log('=== END INPUT TEXT ===');
     
-    const prompt = `You are an AI assistant working within an advanced audio production pipeline. Your specific role is to analyze and optimize scripts for Google Gemini TTS (Text-to-Speech) generation to ensure maximum audio quality and expressiveness.
+    const prompt = `UNIVERSAL CONTENT PRESERVATION DIRECTIVE: You are a script cleaner for TTS generation. Your ONLY purpose is to remove technical film language while preserving 100% of the original content.
 
-CONTEXT: You are preparing text that will be fed directly into Google Gemini 2.5 TTS, which features 30+ distinct voices with emotional and tonal variations. The TTS system can detect nuances in text formatting and respond with appropriate vocal expressiveness, pacing, and emotional delivery.
+**ABSOLUTE REQUIREMENT**: The original script contains the EXACT content that must be spoken. You MUST NOT alter, replace, or generate alternative content under any circumstances.
 
-YOUR MISSION: Transform the provided script to give the Gemini TTS system maximum understanding of:
-1. HOW the speaker should sound (vocal character, emotion, energy)
-2. HOW they should speak (pacing, rhythm, emphasis, pauses)
-3. WHAT vocal style best serves the story/content
+**UNIVERSAL PROCESSING RULES** (applies to ALL content types):
+1. PRESERVE: All dialogue, narrative text, educational content, stories, technical explanations, conversations - everything that should be spoken aloud
+2. REMOVE ONLY: Technical film/video production language that shouldn't be vocalized
+3. MAINTAIN: Original meaning, context, tone, and message exactly as provided
 
-CRITICAL SCRIPT CLEANING RULES:
-• REMOVE all technical film language that shouldn't be spoken aloud:
-  - "Opening shot", "Close-up", "Wide shot", "Cut to", "Fade in/out"
-  - "INT./EXT.", "DAY/NIGHT", "MONTAGE", "VOICEOVER", "TRANSITION"
-  - Camera movements: "Pan left", "Zoom in", "Dolly shot", "Tracking shot"
-  - Technical directions: "Sound effects", "Music swells", "Lighting change"
-  - Action lines: "Character walks to window", "Door slams", "Phone rings"
-• KEEP only dialogue and narrative text that should be spoken
-• PRESERVE the emotional and narrative intent
-• CLEAN UP while maintaining story flow
+**TECHNICAL ELEMENTS TO REMOVE** (and ONLY these):
+• Film directions: "Opening shot", "Close-up", "Wide shot", "Cut to", "Fade in/out", "INT./EXT.", "DAY/NIGHT"
+• Camera language: "Pan left", "Zoom in", "Dolly shot", "Tracking shot", "MONTAGE", "TRANSITION"
+• Production notes: "Sound effects", "Music swells", "Lighting change", "VOICEOVER"
+• Action descriptions: Stage directions that describe non-verbal actions
+
+**FORBIDDEN OPERATIONS**:
+- Creating new content, stories, or examples
+- Changing the subject matter, theme, or message
+- Adding unrelated content from any domain
+- Substituting different narratives or scenarios
+- Generating placeholder or sample text
+
+**CONTENT-AGNOSTIC APPROACH**: Whether the script is educational, motivational, technical, narrative, conversational, or any other type - preserve its original essence completely.
 
 ANALYSIS FRAMEWORK:
 1. Story Genre & Mood Assessment:
@@ -220,13 +364,25 @@ VOICE OPTIMIZATION:
 
 Remember: You're not just formatting text—you're directing a voice performance. The Gemini TTS will interpret your formatting choices as vocal instructions. Make every punctuation mark, word choice, and sentence structure deliberate to create the most compelling audio experience possible.
 
-RETURN ONLY THE CLEANED AND FORMATTED SCRIPT - NO EXPLANATIONS OR METADATA.
+**FINAL VERIFICATION STEP**: Before responding, confirm:
+1. Does your output contain the same core message/content as the input?
+2. Have you only removed technical film language, nothing else?
+3. Are all substantive words, phrases, and ideas from the original preserved?
 
-Analyze this script and reformat it for optimal Gemini TTS performance:
+If you detect ANY content deviation, restart and preserve the original exactly.
+
+**OUTPUT SPECIFICATION**: Return ONLY the cleaned script text ready for TTS. No explanations, analysis, or additional content.
+
+Process this script for TTS while maintaining complete content fidelity:
 
 ${script}`;
     
-    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-flash:thinking)...');
+    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-flash)...');
+    console.log('🔧 OpenRouter request payload preview:');
+    console.log('- Model:', "google/gemini-2.5-flash");
+    console.log('- Max tokens:', 2000);
+    console.log('- Temperature:', 0.3);
+    console.log('- Prompt contains original script:', prompt.includes(script));
     
     // OpenRouter API call
     const payload = {
@@ -260,11 +416,19 @@ ${script}`;
     const result = await response.json();
     let formattedScript = result.choices?.[0]?.message?.content;
     
+    console.log('🔧 OpenRouter raw response received');
+    console.log('📝 Response has choices:', !!result.choices);
+    console.log('📝 Response choices length:', result.choices?.length || 0);
+    console.log('📝 First choice has content:', !!result.choices?.[0]?.message?.content);
+    
     if (!formattedScript) {
-      console.warn('OpenRouter Gemini did not return a formatted script, using original script instead');
+      console.warn('❌ OpenRouter Gemini did not return a formatted script, using original script instead');
       console.log('Full OpenRouter response:', JSON.stringify(result, null, 2));
       return script;
     }
+    
+    console.log('📝 RAW OpenRouter response length:', formattedScript.length);
+    console.log('📝 RAW OpenRouter response first 200 chars:', formattedScript.substring(0, 200));
     
     // Clean up any meta-commentary that might have been included
     formattedScript = cleanScriptResponse(formattedScript);
@@ -272,13 +436,35 @@ ${script}`;
     console.log('=== FORMATTED SCRIPT FROM GEMINI ===');
     console.log(formattedScript);
     console.log('=== END FORMATTED SCRIPT ===');
+    console.log('📝 Cleaned script length:', formattedScript.length);
+    console.log('📝 Cleaned script first 200 chars:', formattedScript.substring(0, 200));
     console.log(`Script formatting complete. Original: ${script.length} chars, Formatted: ${formattedScript.length} chars`);
     
+    // CRITICAL: Validate that the formatted script matches the original intent
+    const validationResult = validateScriptContent(script, formattedScript);
+    if (!validationResult.isValid) {
+      console.error('❌ SCRIPT CORRUPTION DETECTED!');
+      console.error('🚨 Validation failed:', validationResult.reason);
+      console.error('🚨 Using original script instead of corrupted formatted version');
+      console.error('🚨 Original script preview:', script.substring(0, 200));
+      console.error('🚨 Corrupted script preview:', formattedScript.substring(0, 200));
+      return script; // Return original script to prevent corruption
+    }
+    
+    console.log('✅ Script validation passed - content integrity maintained');
     return formattedScript;
   } catch (error) {
-    console.error('Error formatting script with OpenRouter Gemini:', error);
-    console.log('FALLBACK: Using original narration script without formatting');
-    // Return original script if formatting fails
-    return script;
+    console.error('❌ Error formatting script with OpenRouter Gemini:', error);
+    console.log('🔄 SAFE FALLBACK: Using original narration script without formatting');
+    console.log('📝 Fallback script preview:', script.substring(0, 200));
+    
+    // Log the error for debugging but return original script safely
+    console.log('🚨 Formatting error details:', {
+      error: error instanceof Error ? error.message : String(error),
+      originalScriptLength: script.length,
+      timestamp: new Date().toISOString()
+    });
+    
+    return script; // Always return original script to prevent corruption
   }
 }

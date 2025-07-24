@@ -16,50 +16,30 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Create the run folder path
+    // The project folder path is now directly the runId  
     const publicDir = path.join(process.cwd(), 'public');
-    const runFolderPath = path.join(publicDir, `run-${runId}`);
-    
-    // Create the run folder if it doesn't exist
-    try {
-      await mkdir(runFolderPath, { recursive: true });
-    } catch (error) {
-      // Folder might already exist, that's fine
-    }
+    const projectFolderPath = path.join(publicDir, runId);
 
-    // Create agent-specific subfolder
-    const agentFolderPath = path.join(runFolderPath, agentName);
-    try {
-      await mkdir(agentFolderPath, { recursive: true });
-    } catch (error) {
-      // Folder might already exist, that's fine
-    }
+    // Create the project folder if it doesn't exist
+    await mkdir(projectFolderPath, { recursive: true });
 
-    // Save the structured output
-    const outputPath = path.join(agentFolderPath, 'output.json');
-    await writeFile(outputPath, JSON.stringify(output, null, 2), 'utf8');
+    // Save the structured output directly in the project folder
+    const fileName = `${agentName}_output.json`;
+    const filePath = path.join(projectFolderPath, fileName);
+    await writeFile(filePath, JSON.stringify(output, null, 2), 'utf8');
 
-    // Save the raw response if provided
+    // Save the raw response if provided, in the same folder
+    let rawFileName = null;
     if (rawResponse) {
-      const rawPath = path.join(agentFolderPath, 'raw-response.txt');
+      rawFileName = `${agentName}_raw-response.txt`;
+      const rawPath = path.join(projectFolderPath, rawFileName);
       await writeFile(rawPath, rawResponse, 'utf8');
     }
 
-    // Save metadata
-    const metadata = {
-      agentName,
-      runId,
-      timestamp: new Date().toISOString(),
-      outputSize: JSON.stringify(output).length,
-      hasRawResponse: !!rawResponse
-    };
-    const metadataPath = path.join(agentFolderPath, 'metadata.json');
-    await writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
-
     return NextResponse.json({
       success: true,
-      savedTo: `run-${runId}/${agentName}`,
-      files: ['output.json', rawResponse ? 'raw-response.txt' : null, 'metadata.json'].filter(Boolean)
+      savedTo: runId,
+      files: [fileName, rawFileName].filter(Boolean)
     });
 
   } catch (error: unknown) {

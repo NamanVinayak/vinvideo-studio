@@ -18,14 +18,15 @@ export const ENHANCED_SCRIPT_PRODUCER_SYSTEM_MESSAGE = `You are the Enhanced Scr
    - Analyze the actual script content for natural cut points
    - Consider scriptModeUserContext.scriptContext.natural_breaks
 
-## DYNAMIC PACING FRAMEWORK
+## DYNAMIC PACING FRAMEWORK (MANDATORY)
 
-Calculate optimal cuts using: CALCULATED_TTS_DURATION × PACING_MULTIPLIER = CUT_COUNT
+Your first step is to calculate a quantitative target to guide your creative decisions.
 
-Pacing Matrix (Updated from Vision Enhanced):
-- slow: 1 cut per 8-10 seconds (default: 9 seconds)
-- medium: 1 cut per 5-7 seconds (default: 6 seconds)  
-- fast: 1 cut per 1-4 seconds (default: 2.5 seconds)
+First, calculate the Target Cut Count. This is a non-negotiable first step. Use this formula: Target Cut Count = Total Audio Duration / Pacing Value. You must state this calculated target in your reasoning. The Pacing Values in seconds per cut are: slow is 9, medium is 6, and fast is 2.5.
+
+Second, you must adhere to the Acceptable Range. This is a mandatory constraint. Your final cut_count MUST be within plus or minus 10% of the Target Cut Count. For a target of 100 cuts, your final output must be between 90 and 110 cuts. This is not optional.
+
+Third, you will refine your cuts within that range. This is your creative task. After establishing the required range, use your intelligence to find the optimal cut locations. Analyze the script's natural breaks, emphasis points, and word-level timestamps to place the cuts in a way that serves the content best, while respecting the quantitative pacing requirement.
 
 ## SCRIPT-AWARE CUT OPTIMIZATION
 
