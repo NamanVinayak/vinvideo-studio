@@ -8,7 +8,11 @@ import type { UserContext } from '@/types/userContext';
  */
 export async function POST(request: Request) {
   try {
+    console.log('🚀 STEP 1: Audio-Vision-Understanding POST started');
+    
     const body = await request.json();
+    console.log('✅ STEP 2: Request body parsed successfully');
+    
     const { userInput, additionalContext, userContext } = body as { 
       userInput?: string; 
       additionalContext?: any; 
@@ -17,9 +21,11 @@ export async function POST(request: Request) {
     
     // Use userContext if provided, otherwise fall back to legacy format
     const concept = userContext?.originalPrompt || userInput;
+    console.log('✅ STEP 3: Concept extracted:', concept?.substring(0, 100) + '...');
     
     // Validate required inputs
     if (!concept || !concept.trim()) {
+      console.log('❌ STEP 3.1: Concept validation failed');
       return NextResponse.json({ 
         error: 'User input is required for vision analysis' 
       }, { status: 400 });
@@ -27,14 +33,31 @@ export async function POST(request: Request) {
 
     // CRITICAL: Use exact environment variable name
     const apiKey = process.env.OPENROUTER_API_KEY;
+    console.log('✅ STEP 4: API key check - exists:', !!apiKey, 'length:', apiKey?.length, 'starts with:', apiKey?.substring(0, 8) + '...');
+    
     if (!apiKey) {
+      console.log('❌ STEP 4.1: API key validation failed');
       return NextResponse.json({ 
         error: 'OpenRouter API key is not configured' 
       }, { status: 500 });
     }
     
-    console.log('Calling Audio-Enhanced Vision Understanding Agent...');
-    console.log('UserContext provided:', !!userContext);
+    console.log('✅ STEP 5: Calling Audio-Enhanced Vision Understanding Agent...');
+    console.log('✅ STEP 6: UserContext provided:', !!userContext);
+    
+    // CRITICAL: Validate system message import
+    console.log('🔍 STEP 7: System message validation');
+    console.log('- System message type:', typeof AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE);
+    console.log('- System message defined:', !!AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE);
+    console.log('- System message length:', AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE?.length);
+    console.log('- System message first 200 chars:', AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE?.substring(0, 200) + '...');
+    
+    if (!AUDIO_VISION_UNDERSTANDING_SYSTEM_MESSAGE) {
+      console.log('❌ STEP 7.1: System message import failed');
+      return NextResponse.json({ 
+        error: 'System message import failed' 
+      }, { status: 500 });
+    }
     
     // Merge contexts - userContext takes precedence
     const mergedContext = userContext ? {
@@ -94,9 +117,13 @@ export async function POST(request: Request) {
     
     Return complete vision document with audio optimization as JSON only.`;
 
-    // EXACT OpenRouter payload structure
+    // EXACT OpenRouter payload structure with validation
+    console.log('🔍 STEP 8: Building payload');
+    console.log('- User content length:', userContent.length);
+    console.log('- User content preview:', userContent.substring(0, 200) + '...');
+    
     const payload = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",
@@ -112,6 +139,26 @@ export async function POST(request: Request) {
       top_p: 0.5,                 // Balanced for audio-visual creativity
       stream: false
     };
+    
+    console.log('✅ STEP 9: Payload constructed successfully');
+    console.log('- Model:', payload.model);
+    console.log('- Messages count:', payload.messages.length);
+    console.log('- System message length:', payload.messages[0].content.length);
+    console.log('- User message length:', payload.messages[1].content.length);
+    console.log('- Max tokens:', payload.max_tokens);
+
+    // Test JSON serialization
+    console.log('🔍 STEP 10: Testing JSON serialization');
+    let serializedPayload;
+    try {
+      serializedPayload = JSON.stringify(payload);
+      console.log('✅ STEP 10.1: JSON serialization successful, length:', serializedPayload.length);
+    } catch (serializeError) {
+      console.log('❌ STEP 10.1: JSON serialization failed:', serializeError);
+      return NextResponse.json({ 
+        error: `Payload serialization failed: ${serializeError}` 
+      }, { status: 500 });
+    }
 
     // EXACT OpenRouter request structure
     const url = 'https://openrouter.ai/api/v1/chat/completions';
@@ -123,13 +170,33 @@ export async function POST(request: Request) {
         'HTTP-Referer': 'https://vinvideo.ai',
         'X-Title': 'VinVideo Connected - Audio Vision Understanding'
       },
-      body: JSON.stringify(payload)
+      body: serializedPayload
     };
+    
+    console.log('✅ STEP 11: Request options prepared');
+    console.log('- URL:', url);
+    console.log('- Method:', options.method);
+    console.log('- Headers keys:', Object.keys(options.headers));
+    console.log('- Body length:', options.body.length);
 
-    console.log('Sending request to Audio-Enhanced Vision Understanding Agent via OpenRouter...');
+    console.log('🚀 STEP 12: Sending request to Audio-Enhanced Vision Understanding Agent via OpenRouter...');
     const startTime = Date.now();
-    const response = await fetch(url, options);
+    
+    let response;
+    try {
+      console.log('🔍 STEP 12.1: Executing fetch call...');
+      response = await fetch(url, options);
+      console.log('✅ STEP 12.2: Fetch call completed, status:', response.status);
+    } catch (fetchError) {
+      console.log('❌ STEP 12.1: Fetch call failed:', fetchError);
+      console.log('our call never went to open router');
+      return NextResponse.json({ 
+        error: `Fetch failed: ${fetchError}` 
+      }, { status: 500 });
+    }
+    
     const executionTime = Date.now() - startTime;
+    console.log('✅ STEP 13: Response received in', executionTime, 'ms');
     
     if (!response.ok) {
       const errorData = await response.json();

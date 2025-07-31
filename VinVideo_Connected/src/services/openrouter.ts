@@ -71,7 +71,7 @@ export class OpenRouterService {
   constructor(config: OpenRouterConfig) {
     this.config = {
       apiKey: config.apiKey,
-      defaultModel: config.defaultModel || 'google/gemini-2.5-flash',
+      defaultModel: config.defaultModel || 'google/gemini-2.5-pro',
       baseUrl: config.baseUrl || 'https://openrouter.ai/api/v1',
       maxRetries: config.maxRetries || 3,
       retryDelay: config.retryDelay || 1000,
@@ -313,7 +313,7 @@ export function createOpenRouterService(
   
   return new OpenRouterService({
     apiKey,
-    defaultModel: modelOverride || process.env.OPENROUTER_DEFAULT_MODEL || 'google/gemini-2.5-flash',
+    defaultModel: modelOverride || process.env.OPENROUTER_DEFAULT_MODEL || 'google/gemini-2.5-pro',
     headers: additionalHeaders
   });
 }

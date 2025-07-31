@@ -181,7 +181,7 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",
@@ -335,7 +335,7 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         promptResponse,
         {
           apiSource: 'openrouter',
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-2.5-pro',
           executionTime,
           tokenUsage: result.usage
         },
@@ -363,7 +363,7 @@ Please analyze these inputs and output your FLUX image prompts as a JSON array e
         promptResponse,
         {
           apiSource: 'openrouter',
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-2.5-pro',
           executionTime,
           tokenUsage: result.usage
         },

@@ -44,6 +44,13 @@ interface PipelineState {
   };
   error: string | null;
   sessionId: string | null;
+  videoConversion: {
+    isConverting: boolean;
+    editingPlan: any | null;
+    finalVideoUrl: string | null;
+    error: string | null;
+    message: string;
+  };
 }
 
 export default function ConversationMode() {
@@ -170,7 +177,14 @@ export default function ConversationMode() {
       message: ''
     },
     error: null,
-    sessionId: null
+    sessionId: null,
+    videoConversion: {
+      isConverting: false,
+      editingPlan: null,
+      finalVideoUrl: null,
+      error: null,
+      message: ''
+    }
   });
 
   const handleVideoTypeSelect = (type: 'music_only' | 'voiceover_music' | 'pure_visuals') => {
@@ -881,7 +895,14 @@ export default function ConversationMode() {
         message: ''
       },
       error: null,
-      sessionId
+      sessionId,
+      videoConversion: {
+        isConverting: false,
+        editingPlan: null,
+        finalVideoUrl: null,
+        error: null,
+        message: ''
+      }
     });
     
     try {
@@ -1794,6 +1815,92 @@ export default function ConversationMode() {
     
   }, [pipelineState.isRunning, pipelineState.sessionId]);
 
+  // Video conversion handler
+  const handleConvertToVideo = async () => {
+    console.log('🎬 Starting video conversion...');
+    
+    if (!pipelineState.sessionId) {
+      console.error('No session ID available for video conversion');
+      return;
+    }
+    
+    setPipelineState(prev => ({
+      ...prev,
+      videoConversion: {
+        ...prev.videoConversion,
+        isConverting: true,
+        error: null,
+        message: 'Preparing assets for video conversion...'
+      }
+    }));
+
+    try {
+      // Get user requirements from extracted requirements
+      const defaultRequirements = {
+        concept: 'Vision mode video content',
+        duration: 30,
+        style: 'dynamic',
+        pacing: 'medium'
+      };
+
+      // Call the submit-for-editing bridge API
+      const response = await fetch('/api/submit-for-editing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: pipelineState.sessionId,
+          subtitleStyle: 'simple_caption',
+          advancedMode: false, // Start with simple mode
+          platform: 'tiktok',
+          userContext: {
+            originalPrompt: defaultRequirements.concept,
+            projectSettings: {
+              duration: defaultRequirements.duration,
+              style_preference: defaultRequirements.style,
+              pacing_preference: defaultRequirements.pacing,
+              target_audience: 'general'
+            }
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Video conversion failed');
+      }
+
+      const result = await response.json();
+      
+      setPipelineState(prev => ({
+        ...prev,
+        videoConversion: {
+          ...prev.videoConversion,
+          isConverting: false,
+          editingPlan: result.editingPlan,
+          message: 'Editing plan generated successfully! Video processing will begin shortly.',
+          error: null
+        }
+      }));
+
+      console.log('✅ Video conversion completed:', result);
+
+    } catch (error) {
+      console.error('❌ Video conversion failed:', error);
+      
+      setPipelineState(prev => ({
+        ...prev,
+        videoConversion: {
+          ...prev.videoConversion,
+          isConverting: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+          message: 'Video conversion failed'
+        }
+      }));
+    }
+  };
+
   return (
     <div className={styles.container}>
       {showVideoTypeSelector && (
@@ -1847,13 +1954,68 @@ export default function ConversationMode() {
           
           {/* Show pipeline progress when running */}
           {pipelineState.isRunning && pipelineState.pipeline && (
-            <PipelineProgress
+            <>
+              <PipelineProgress
               pipeline={pipelineState.pipeline}
               stages={pipelineState.stages}
               currentStage={pipelineState.currentStage || undefined}
               generatedImages={pipelineState.generatedImages}
               imageGenerationProgress={pipelineState.imageGenerationProgress}
             />
+
+            {/* Convert to Video Section */}
+            {pipelineState.generatedImages.length > 0 && !pipelineState.imageGenerationProgress.isGenerating && (
+              <div className={styles.convertToVideoSection}>
+                <h3>🎬 Professional Video Editing</h3>
+                
+                {pipelineState.videoConversion.error && (
+                  <div className={styles.agentError}>
+                    <strong>Video Conversion Error:</strong> {pipelineState.videoConversion.error}
+                  </div>
+                )}
+                
+                <div className={styles.videoConversionStatus}>
+                  <div>
+                    <strong>Status:</strong> {pipelineState.videoConversion.isConverting ? '🔄 Converting...' : 
+                      pipelineState.videoConversion.editingPlan ? '✅ Ready for Processing' : '⏸️ Ready to Convert'}
+                  </div>
+                  {pipelineState.videoConversion.message && (
+                    <div>
+                      <strong>Message:</strong> {pipelineState.videoConversion.message}
+                    </div>
+                  )}
+                </div>
+
+                {!pipelineState.videoConversion.isConverting ? (
+                  <button 
+                    onClick={handleConvertToVideo}
+                    className={styles.convertToVideoButton}
+                    disabled={pipelineState.generatedImages.length === 0}
+                  >
+                    🎬 Convert to Professional Video
+                  </button>
+                ) : (
+                  <div className={styles.conversionProgress}>
+                    <div className={styles.loadingIcon}>⏳</div>
+                    <p>Converting images to professional video...</p>
+                  </div>
+                )}
+
+                {pipelineState.videoConversion.editingPlan && (
+                  <div className={styles.editingPlanPreview}>
+                    <h4>📋 Editing Plan Generated</h4>
+                    <div className={styles.planDetails}>
+                      <div><strong>Platform:</strong> {pipelineState.videoConversion.editingPlan.export?.platform || 'TikTok'}</div>
+                      <div><strong>Duration:</strong> {pipelineState.videoConversion.editingPlan.composition?.duration || 0}s</div>
+                      <div><strong>Layers:</strong> {pipelineState.videoConversion.editingPlan.layers?.length || 0}</div>
+                      <div><strong>Effects:</strong> {pipelineState.videoConversion.editingPlan.transitions?.length || 0} transitions</div>
+                    </div>
+                    <p><em>Video processing will begin automatically. Your final video will be ready shortly!</em></p>
+                  </div>
+                )}
+              </div>
+            )}
+            </>
           )}
           
           {/* Debug Mode Indicator */}

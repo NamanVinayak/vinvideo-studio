@@ -82,7 +82,7 @@ export async function POST(request: Request) {
 
     // Create the request payload using existing FLUX system
     const payload = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",

@@ -13,48 +13,48 @@ export interface ModelConfig {
 
 export const AGENT_MODELS: Record<string, ModelConfig> = {
   producer: {
-    primary: process.env.OPENROUTER_PRODUCER_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_PRODUCER_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0,
     maxTokens: 15000,
     description: 'Producer agent - generates precise cut points for video editing'
   },
   
   director: {
-    primary: process.env.OPENROUTER_DIRECTOR_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_DIRECTOR_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0.1,
     maxTokens: 15000,
     description: 'Director agent - creates creative vision and story beats'
   },
   
   dop: {
-    primary: process.env.OPENROUTER_DOP_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_DOP_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0,
     maxTokens: 15000,
     description: 'DoP agent - generates cinematography directions'
   },
   
   promptEngineer: {
-    primary: process.env.OPENROUTER_PROMPT_ENGINEER_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_PROMPT_ENGINEER_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0.1,
     maxTokens: 15000,
     description: 'Prompt Engineer agent - creates FLUX image generation prompts'
   },
   
   visionUnderstanding: {
-    primary: process.env.OPENROUTER_VISION_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_VISION_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0.7,
     maxTokens: 15000,
     description: 'Vision Understanding agent - analyzes user concepts and creates vision documents'
   },
   
   mergedVisionDirector: {
-    primary: process.env.OPENROUTER_MERGED_MODEL || 'google/gemini-2.5-flash',
-    fallback: ['google/gemini-2.5-flash', 'google/gemini-pro'],
+    primary: process.env.OPENROUTER_MERGED_MODEL || 'google/gemini-2.5-pro',
+    fallback: ['google/gemini-2.5-pro', 'google/gemini-2.5-flash', 'google/gemini-pro'],
     temperature: 0.7,
     maxTokens: 25000,
     description: 'Merged Vision+Director agent - combines vision analysis and director beats'

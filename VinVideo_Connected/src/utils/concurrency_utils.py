@@ -208,8 +208,8 @@ def create_flux_workflow(prompt: str, negative_prompt: str = "") -> Dict:
         },
         "27": {
             "inputs": {
-                "width": 1216,
-                "height": 832,
+                "width": 1344,
+                "height": 768,
                 "batch_size": 1
             },
             "class_type": "EmptySD3LatentImage",

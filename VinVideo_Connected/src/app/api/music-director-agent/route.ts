@@ -75,7 +75,7 @@ Generate the complete visual beat sequence as JSON only.`;
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash:thinking",
+      model: "google/gemini-2.5-pro:thinking",
       messages: [
         {
           role: "system",

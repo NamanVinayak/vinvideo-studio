@@ -57,7 +57,7 @@ Please create cinematography that:
 CRITICAL: Every shot must specify gaze direction for any characters.`;
     
     const payload = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",

@@ -285,7 +285,7 @@ async function callIntelligentProducer(
     console.log(`⏱️ Producer LLM call starting at ${new Date().toISOString()}`);
 
     // Use Gemini 2.5 Flash for producer agent - large context + fast performance
-    const openRouterService = createOpenRouterService('google/gemini-2.5-flash');
+    const openRouterService = createOpenRouterService('google/gemini-2.5-pro');
     
     const result = await openRouterService.chat({
       messages: [

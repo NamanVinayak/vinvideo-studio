@@ -109,9 +109,8 @@ async function geminiTTS(text: string, folderName?: string, voiceName?: string):
       // Convert the audio data to a buffer (it's already PCM data)
       const audioBuffer = Buffer.from(audioData, 'base64');
       
-      // Generate a unique filename with timestamp
-      const timestamp = new Date().getTime();
-      const filename = `generated-audio-${timestamp}.wav`;
+      // Use universal audio filename for S3 integration
+      const filename = `audio.wav`;
       
       // Determine the output directory based on whether a folderName was provided
       let outputDir;
@@ -237,10 +236,8 @@ async function minimaxTTS(text: string, folderName?: string, voiceName?: string)
     
     console.log(`📊 Audio data received: ${audioBuffer.length} bytes`);
     
-    // Generate a unique filename with timestamp
-    const timestamp = new Date().getTime();
-    const format = process.env.MINIMAX_FORMAT || 'mp3';
-    const filename = `minimax-audio-${timestamp}.${format}`;
+    // Use universal audio filename for S3 integration  
+    const filename = `audio.wav`;
     
     // Determine the output directory
     let outputDir;

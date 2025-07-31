@@ -112,7 +112,7 @@ Please analyze this and output your creative vision as JSON exactly as specified
 
     // Create the request payload for OpenRouter with DeepSeek R1
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",
@@ -199,7 +199,7 @@ Please analyze this and output your creative vision as JSON exactly as specified
       processedResponse.rawContent,
       {
         apiSource: 'openrouter',
-        model: 'deepseek/deepseek-r1-distill-llama-70b',
+        model: 'google/gemini-2.5-pro-distill-llama-70b',
         executionTime,
         tokenUsage: result.usage
       },

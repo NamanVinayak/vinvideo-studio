@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     // Construct the full paths
     const audioPath = path.join(process.cwd(), 'public', folderName, audioFileName);
-    const transcriptionFileName = audioFileName.replace(/\.(wav|mp3)$/, '_transcription.json');
+    const transcriptionFileName = 'transcription.json'; // Universal transcription filename
     const outputPath = path.join(process.cwd(), 'public', folderName, transcriptionFileName);
 
     console.log('Audio file path:', audioPath);
@@ -93,8 +93,7 @@ export async function POST(request: Request) {
     // Determine the output file path
     let resultPath = outputPath;
     if (!resultPath) {
-      const baseName = path.basename(audioPath, path.extname(audioPath));
-      resultPath = path.join(process.cwd(), 'public', `${baseName}_transcription.json`);
+      resultPath = path.join(process.cwd(), 'public', 'transcription.json'); // Universal transcription filename
     }
 
     // Check if the output file was created

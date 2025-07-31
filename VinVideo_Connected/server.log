@@ -1,0 +1,2432 @@
+
+> ddp@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+ ⚠ Port 3001 is in use, trying 3002 instead.
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3002
+   - Network:      http://10.0.0.76:3002
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 806ms
+ ○ Compiling /api/submit-for-editing ...
+ ✓ Compiled /api/submit-for-editing in 818ms (643 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T10:46:56.208Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📤 [SERVER] Step 3: Uploading assets to S3...
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+✅ Successfully uploaded 9 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 9 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json'
+]
+📖 [SERVER] Step 4: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 10 agent outputs: [
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 116ms (647 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+OpenRouter API error (404): {
+  error: {
+    message: 'No endpoints found for google/gemini-2.5-flash-preview-05-20.',
+    code: 404
+  },
+  user_id: 'user_2x5a9HIFb6dmFrpALrCo0TZiJgA'
+}
+ POST /api/editing-agent 500 in 332ms
+⏱️ [SERVER] Editing agent request completed in 340ms, status: 500
+❌ [SERVER] Editing agent failed: {"success":false,"error":{"code":"OPENROUTER_ERROR","message":"API request failed: 404","details":{"error":{"message":"No endpoints found for google/gemini-2.5-flash-preview-05-20.","code":404},"user_id":"user_2x5a9HIFb6dmFrpALrCo0TZiJgA"}},"processing_info":{"execution_time_ms":191,"tokens_used":0,"mode_used":"simple","cost_estimate":0}}
+ POST /api/submit-for-editing 500 in 4174ms
+ ✓ Compiled in 73ms (87 modules)
+ ✓ Compiled in 9ms
+ ✓ Compiled /api/submit-for-editing in 32ms (369 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T10:48:21.993Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📤 [SERVER] Step 3: Uploading assets to S3...
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+✅ Successfully uploaded 9 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 9 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json'
+]
+📖 [SERVER] Step 4: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 10 agent outputs: [
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 35ms (373 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+✅ Editing Agent response received in 868ms
+Raw response preview: {
+  "composition": {
+    "format": "9:16",
+    "duration": 21,
+    "fps": 30,
+    "background_color": [
+      0,
+      0,
+      0
+    ]
+  },
+  "layers": [
+    {
+      "type": "video",
+      "source": ...
+[editing-agent] JSON parsing status: valid
+✅ Editing plan validation passed
+📁 Saved editing-agent response to: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/temp_files/test_results/Test_52
+🎬 Editing Agent completed successfully:
+- Mode: Simple
+- Layers: 7
+- Duration: 21s
+- Platform: tiktok
+- Transitions: 0
+- Cost: $0.0067
+ POST /api/editing-agent 200 in 5303ms
+⏱️ [SERVER] Editing agent request completed in 5308ms, status: 200
+📋 [SERVER] Editing agent response: {
+  success: true,
+  hasEditingPlan: true,
+  processingInfo: {
+    execution_time_ms: 868,
+    tokens_used: 3343,
+    mode_used: 'simple',
+    cost_estimate: 0.006686
+  },
+  errorCode: undefined
+}
+✅ [SERVER] Submit-for-editing completed successfully in 8110ms
+📊 [SERVER] Final summary:
+   - Assets uploaded: 9
+   - Images processed: 7
+   - Audio file: true
+   - Transcription: true
+   - Agent files processed: 10
+   - Editing plan generated: true
+   - Total execution time: 8110ms
+🎉 [SERVER] ===== SUBMIT FOR EDITING COMPLETED =====
+
+ POST /api/submit-for-editing 200 in 8184ms
+ ✓ Compiled in 80ms (274 modules)
+ ✓ Compiled /api/process-with-runpod in 112ms (357 modules)
+ GET /api/process-with-runpod 200 in 125ms
+ ✓ Compiled /api/submit-for-editing in 70ms (371 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T10:53:55.522Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📖 [SERVER] Step 3: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+📤 [SERVER] Step 4: Uploading assets to S3...
+📋 [SERVER] Prepared 5 agent outputs for upload
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+📤 Uploaded: director.json -> input/project-script-1753331953615-0080ca8f/director.json
+📤 Uploaded agent output: director.json
+📤 Uploaded: dop.json -> input/project-script-1753331953615-0080ca8f/dop.json
+📤 Uploaded agent output: dop.json
+📤 Uploaded: producer.json -> input/project-script-1753331953615-0080ca8f/producer.json
+📤 Uploaded agent output: producer.json
+📤 Uploaded: prompt_engineer.json -> input/project-script-1753331953615-0080ca8f/prompt_engineer.json
+📤 Uploaded agent output: prompt_engineer.json
+📤 Uploaded: vision.json -> input/project-script-1753331953615-0080ca8f/vision.json
+📤 Uploaded agent output: vision.json
+✅ Successfully uploaded 14 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 14 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/director.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/dop.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/producer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/prompt_engineer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/vision.json'
+]
+📖 [SERVER] Step 5: Parsing session data for editing agent...
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 10 agent outputs: [
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 35ms (373 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+✅ Editing Agent response received in 799ms
+Raw response preview: {
+  "composition": {
+    "format": "9:16",
+    "duration": 21.0,
+    "fps": 30,
+    "background_color": [
+      0,
+      0,
+      0
+    ]
+  },
+  "layers": [
+    {
+      "type": "video",
+      "source"...
+[editing-agent] JSON parsing status: valid
+✅ Editing plan validation passed
+📁 Saved editing-agent response to: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/temp_files/test_results/Test_53
+🎬 Editing Agent completed successfully:
+- Mode: Simple
+- Layers: 7
+- Duration: 21s
+- Platform: tiktok
+- Transitions: 0
+- Cost: $0.0069
+ POST /api/editing-agent 200 in 5901ms
+⏱️ [SERVER] Editing agent request completed in 5906ms, status: 200
+📋 [SERVER] Editing agent response: {
+  success: true,
+  hasEditingPlan: true,
+  processingInfo: {
+    execution_time_ms: 799,
+    tokens_used: 3452,
+    mode_used: 'simple',
+    cost_estimate: 0.0069039999999999995
+  },
+  errorCode: undefined
+}
+🚀 [SERVER] Step 8: Calling RunPod for video generation...
+ ✓ Compiled /api/process-with-runpod in 29ms (375 modules)
+
+🎬 [RUNPOD] ===== PROCESS WITH RUNPOD API STARTED =====
+🕐 [RUNPOD] Start time: 2025-07-24T10:54:05.216Z
+📋 [RUNPOD] Request body received: {
+  projectId: 'script-1753331953615-0080ca8f',
+  hasEditingPlan: true,
+  s3AssetsCount: 14,
+  processingMode: 'simple'
+}
+🔑 [RUNPOD] API key configured: rpa_49YTTC...
+🚀 [RUNPOD] Endpoint ID: kd0fqbvh60tgdp
+📦 [RUNPOD] Payload prepared: {
+  projectId: 'script-1753331953615-0080ca8f',
+  s3FolderPath: 'input/project-script-1753331953615-0080ca8f',
+  outputPath: 'output/project-script-1753331953615-0080ca8f/final_video.mp4',
+  processingMode: 'simple',
+  hasEditingPlan: true,
+  s3AssetsCount: 14
+}
+🚀 [RUNPOD] Calling RunPod endpoint...
+⏱️ [RUNPOD] RunPod request completed in 204ms, status: 404
+❌ [RUNPOD] RunPod API error: 
+ POST /api/process-with-runpod 500 in 243ms
+⏱️ [SERVER] RunPod request completed in 246ms, status: 500
+⚠️ [SERVER] RunPod call failed, but continuing with editing plan: {"success":false,"error":{"code":"RUNPOD_API_ERROR","message":"RunPod API request failed: 404","details":""},"processingInfo":{"startTime":1753354445216,"executionTime":204,"status":"failed"}}
+✅ [SERVER] Submit-for-editing completed successfully in 9900ms
+📊 [SERVER] Final summary:
+   - Assets uploaded: 14
+   - Images processed: 7
+   - Audio file: true
+   - Transcription: true
+   - Agent files processed: 10
+   - Editing plan generated: true
+   - Final video generated: false
+   - RunPod job ID: N/A
+   - Total execution time: 9900ms
+🎉 [SERVER] ===== SUBMIT FOR EDITING COMPLETED =====
+
+ POST /api/submit-for-editing 200 in 9997ms
+ ✓ Compiled in 10ms
+   Reload env: .env.local
+ ✓ Compiled in 55ms (274 modules)
+ ✓ Compiled /api/submit-for-editing in 55ms (369 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T10:58:48.962Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📖 [SERVER] Step 3: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'director.json',
+  'dop.json',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'producer.json',
+  'prompt_engineer.json',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+📤 [SERVER] Step 4: Uploading assets to S3...
+📋 [SERVER] Prepared 5 agent outputs for upload
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+📤 Uploaded: director.json -> input/project-script-1753331953615-0080ca8f/director.json
+📤 Uploaded agent output: director.json
+📤 Uploaded: dop.json -> input/project-script-1753331953615-0080ca8f/dop.json
+📤 Uploaded agent output: dop.json
+📤 Uploaded: producer.json -> input/project-script-1753331953615-0080ca8f/producer.json
+📤 Uploaded agent output: producer.json
+📤 Uploaded: prompt_engineer.json -> input/project-script-1753331953615-0080ca8f/prompt_engineer.json
+📤 Uploaded agent output: prompt_engineer.json
+📤 Uploaded: vision.json -> input/project-script-1753331953615-0080ca8f/vision.json
+📤 Uploaded agent output: vision.json
+✅ Successfully uploaded 14 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 14 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/director.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/dop.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/producer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/prompt_engineer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/vision.json'
+]
+📖 [SERVER] Step 5: Parsing session data for editing agent...
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 15 agent outputs: [
+  'director.json',
+  'dop.json',
+  'producer.json',
+  'prompt_engineer.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: director.json
+📊 [SERVER] Agent file director.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in director.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: dop.json
+📊 [SERVER] Agent file dop.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: producer.json
+📊 [SERVER] Agent file producer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: prompt_engineer.json
+📊 [SERVER] Agent file prompt_engineer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision.json
+📊 [SERVER] Agent file vision.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 27ms (373 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+✅ Editing Agent response received in 908ms
+Raw response preview: {
+  "composition": {
+    "format": "9:16",
+    "duration": 21,
+    "fps": 30,
+    "background_color": [
+      0,
+      0,
+      0
+    ]
+  },
+  "layers": [
+    {
+      "type": "video",
+      "source": ...
+[editing-agent] JSON parsing status: valid
+✅ Editing plan validation passed
+📁 Saved editing-agent response to: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/temp_files/test_results/Test_54
+🎬 Editing Agent completed successfully:
+- Mode: Simple
+- Layers: 7
+- Duration: 21s
+- Platform: tiktok
+- Transitions: 0
+- Cost: $0.0067
+ POST /api/editing-agent 200 in 5519ms
+⏱️ [SERVER] Editing agent request completed in 5522ms, status: 200
+📋 [SERVER] Editing agent response: {
+  success: true,
+  hasEditingPlan: true,
+  processingInfo: {
+    execution_time_ms: 908,
+    tokens_used: 3343,
+    mode_used: 'simple',
+    cost_estimate: 0.006686
+  },
+  errorCode: undefined
+}
+🚀 [SERVER] Step 8: Calling RunPod for video generation...
+ ✓ Compiled /api/process-with-runpod in 60ms (375 modules)
+
+🎬 [RUNPOD] ===== PROCESS WITH RUNPOD API STARTED =====
+🕐 [RUNPOD] Start time: 2025-07-24T10:58:58.463Z
+📋 [RUNPOD] Request body received: {
+  projectId: 'script-1753331953615-0080ca8f',
+  hasEditingPlan: true,
+  s3AssetsCount: 14,
+  processingMode: 'simple'
+}
+🔑 [RUNPOD] API key configured: rpa_49YTTC...
+🚀 [RUNPOD] Endpoint ID: 24rtmo4glx3bun
+📦 [RUNPOD] Payload prepared: {
+  projectId: 'script-1753331953615-0080ca8f',
+  s3FolderPath: 'input/project-script-1753331953615-0080ca8f',
+  outputPath: 'output/project-script-1753331953615-0080ca8f/final_video.mp4',
+  processingMode: 'simple',
+  hasEditingPlan: true,
+  s3AssetsCount: 14
+}
+🚀 [RUNPOD] Calling RunPod endpoint...
+⏱️ [RUNPOD] RunPod request completed in 12130ms, status: 200
+📋 [RUNPOD] RunPod response: { status: 'COMPLETED', hasOutput: false, executionTime: 55 }
+❌ [RUNPOD] RunPod processing failed: {
+  delayTime: 11584,
+  executionTime: 55,
+  id: 'sync-4516a5a7-79ff-4f32-908a-92a6996983e7-u2',
+  status: 'COMPLETED',
+  workerId: '7tsomrp2xv58xg'
+}
+ POST /api/process-with-runpod 500 in 12202ms
+⏱️ [SERVER] RunPod request completed in 12204ms, status: 500
+⚠️ [SERVER] RunPod call failed, but continuing with editing plan: {"success":false,"error":{"code":"RUNPOD_PROCESSING_FAILED","message":"RunPod video processing failed","details":{"delayTime":11584,"executionTime":55,"id":"sync-4516a5a7-79ff-4f32-908a-92a6996983e7-u2","status":"COMPLETED","workerId":"7tsomrp2xv58xg"}},"processingInfo":{"startTime":1753354738463,"executionTime":12130,"status":"failed"}}
+✅ [SERVER] Submit-for-editing completed successfully in 21633ms
+📊 [SERVER] Final summary:
+   - Assets uploaded: 14
+   - Images processed: 7
+   - Audio file: true
+   - Transcription: true
+   - Agent files processed: 15
+   - Editing plan generated: true
+   - Final video generated: false
+   - RunPod job ID: N/A
+   - Total execution time: 21633ms
+🎉 [SERVER] ===== SUBMIT FOR EDITING COMPLETED =====
+
+ POST /api/submit-for-editing 200 in 21709ms
+ ✓ Compiled in 50ms (83 modules)
+ ✓ Compiled /api/submit-for-editing in 28ms (369 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T11:00:06.524Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📖 [SERVER] Step 3: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'director.json',
+  'dop.json',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'producer.json',
+  'prompt_engineer.json',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+📤 [SERVER] Step 4: Uploading assets to S3...
+📋 [SERVER] Prepared 5 agent outputs for upload
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+📤 Uploaded: director.json -> input/project-script-1753331953615-0080ca8f/director.json
+📤 Uploaded agent output: director.json
+📤 Uploaded: dop.json -> input/project-script-1753331953615-0080ca8f/dop.json
+📤 Uploaded agent output: dop.json
+📤 Uploaded: producer.json -> input/project-script-1753331953615-0080ca8f/producer.json
+📤 Uploaded agent output: producer.json
+📤 Uploaded: prompt_engineer.json -> input/project-script-1753331953615-0080ca8f/prompt_engineer.json
+📤 Uploaded agent output: prompt_engineer.json
+📤 Uploaded: vision.json -> input/project-script-1753331953615-0080ca8f/vision.json
+📤 Uploaded agent output: vision.json
+✅ Successfully uploaded 14 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 14 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/director.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/dop.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/producer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/prompt_engineer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/vision.json'
+]
+📖 [SERVER] Step 5: Parsing session data for editing agent...
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 15 agent outputs: [
+  'director.json',
+  'dop.json',
+  'producer.json',
+  'prompt_engineer.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: director.json
+📊 [SERVER] Agent file director.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in director.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: dop.json
+📊 [SERVER] Agent file dop.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: producer.json
+📊 [SERVER] Agent file producer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: prompt_engineer.json
+📊 [SERVER] Agent file prompt_engineer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision.json
+📊 [SERVER] Agent file vision.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 26ms (373 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+✅ Editing Agent response received in 1038ms
+Raw response preview: {
+  "composition": {
+    "format": "9:16",
+    "duration": 21.0,
+    "fps": 30,
+    "background_color": [
+      0,
+      0,
+      0
+    ]
+  },
+  "layers": [
+    {
+      "type": "video",
+      "source"...
+[editing-agent] JSON parsing status: valid
+✅ Editing plan validation passed
+📁 Saved editing-agent response to: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/temp_files/test_results/Test_55
+🎬 Editing Agent completed successfully:
+- Mode: Simple
+- Layers: 7
+- Duration: 21s
+- Platform: tiktok
+- Transitions: 0
+- Cost: $0.0069
+ POST /api/editing-agent 200 in 6111ms
+⏱️ [SERVER] Editing agent request completed in 6113ms, status: 200
+📋 [SERVER] Editing agent response: {
+  success: true,
+  hasEditingPlan: true,
+  processingInfo: {
+    execution_time_ms: 1038,
+    tokens_used: 3452,
+    mode_used: 'simple',
+    cost_estimate: 0.0069039999999999995
+  },
+  errorCode: undefined
+}
+🚀 [SERVER] Step 8: Calling RunPod for video generation...
+ ✓ Compiled /api/process-with-runpod in 25ms (375 modules)
+
+🎬 [RUNPOD] ===== PROCESS WITH RUNPOD API STARTED =====
+🕐 [RUNPOD] Start time: 2025-07-24T11:00:16.466Z
+📋 [RUNPOD] Request body received: {
+  projectId: 'script-1753331953615-0080ca8f',
+  hasEditingPlan: true,
+  s3AssetsCount: 14,
+  processingMode: 'simple'
+}
+🔑 [RUNPOD] API key configured: rpa_49YTTC...
+🚀 [RUNPOD] Endpoint ID: 24rtmo4glx3bun
+📦 [RUNPOD] Payload prepared: {
+  projectId: 'script-1753331953615-0080ca8f',
+  s3FolderPath: 'input/project-script-1753331953615-0080ca8f',
+  outputPath: 'output/project-script-1753331953615-0080ca8f/final_video.mp4',
+  processingMode: 'simple',
+  hasEditingPlan: true,
+  s3AssetsCount: 14
+}
+🚀 [RUNPOD] Calling RunPod endpoint...
+⏱️ [RUNPOD] RunPod request completed in 1167ms, status: 200
+📋 [RUNPOD] RunPod response: { status: 'COMPLETED', hasOutput: false, executionTime: 36 }
+✅ [RUNPOD] RunPod job completed
+📊 [RUNPOD] Execution time: 36ms
+🎥 [RUNPOD] Video URL: Still processing...
+📊 [RUNPOD] Total request time: 1167ms
+⏳ [RUNPOD] Job completed but video still processing...
+
+ POST /api/process-with-runpod 200 in 1201ms
+⏱️ [SERVER] RunPod request completed in 1202ms, status: 200
+📋 [SERVER] RunPod response: {
+  success: true,
+  hasVideoUrl: false,
+  runpodJobId: 'sync-1e9fdf3f-a5a1-43cc-8277-e698f35eab20-u2',
+  processingStatus: 'processing'
+}
+🎥 [SERVER] Final video generated: null
+✅ [SERVER] Submit-for-editing completed successfully in 11110ms
+📊 [SERVER] Final summary:
+   - Assets uploaded: 14
+   - Images processed: 7
+   - Audio file: true
+   - Transcription: true
+   - Agent files processed: 15
+   - Editing plan generated: true
+   - Final video generated: false
+   - RunPod job ID: sync-1e9fdf3f-a5a1-43cc-8277-e698f35eab20-u2
+   - Total execution time: 11110ms
+🎉 [SERVER] ===== SUBMIT FOR EDITING COMPLETED =====
+
+ POST /api/submit-for-editing 200 in 11153ms
+ ✓ Compiled in 10ms
+ ✓ Compiled /api/submit-for-editing in 57ms (369 modules)
+
+🎬 [SERVER] ===== SUBMIT FOR EDITING API STARTED =====
+🕐 [SERVER] Start time: 2025-07-24T11:02:30.244Z
+📖 [SERVER] Step 1: Parsing request body...
+📋 [SERVER] Raw body received: {
+  "sessionId": "script-1753331953615-0080ca8f",
+  "subtitleStyle": "simple_caption",
+  "advancedMode": false,
+  "platform": "tiktok"
+}
+📊 [SERVER] Parsed parameters: {
+  sessionId: 'script-1753331953615-0080ca8f',
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  platform: 'tiktok',
+  hasUserContext: false,
+  userContextKeys: []
+}
+📁 [SERVER] Processing session: script-1753331953615-0080ca8f
+🎨 [SERVER] Settings: simple_caption style, simple mode, tiktok platform
+📂 [SERVER] Step 2: Checking session directory...
+📍 [SERVER] Session directory path: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+🏷️ [SERVER] Project ID: script-1753331953615-0080ca8f
+✅ [SERVER] Session directory exists
+📖 [SERVER] Step 3: Reading session data...
+📋 [SERVER] All files in session directory: [
+  'audio.wav',
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png',
+  'director.json',
+  'dop.json',
+  'generated-audio-1753331990037.wav',
+  'generated-audio-1753331990037_transcription.json',
+  'generated-audio-1753332429627.wav',
+  'generated-audio-1753332429627_transcription.json',
+  'original-script.txt',
+  'producer.json',
+  'prompt_engineer.json',
+  'prompt_engineer_image_1.png',
+  'prompt_engineer_image_10.png',
+  'prompt_engineer_image_11.png',
+  'prompt_engineer_image_12.png',
+  'prompt_engineer_image_13.png',
+  'prompt_engineer_image_14.png',
+  'prompt_engineer_image_15.png',
+  'prompt_engineer_image_16.png',
+  'prompt_engineer_image_17.png',
+  'prompt_engineer_image_18.png',
+  'prompt_engineer_image_19.png',
+  'prompt_engineer_image_2.png',
+  'prompt_engineer_image_20.png',
+  'prompt_engineer_image_21.png',
+  'prompt_engineer_image_22.png',
+  'prompt_engineer_image_23.png',
+  'prompt_engineer_image_24.png',
+  'prompt_engineer_image_25.png',
+  'prompt_engineer_image_3.png',
+  'prompt_engineer_image_4.png',
+  'prompt_engineer_image_5.png',
+  'prompt_engineer_image_6.png',
+  'prompt_engineer_image_7.png',
+  'prompt_engineer_image_8.png',
+  'prompt_engineer_image_9.png',
+  'transcription.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+📤 [SERVER] Step 4: Uploading assets to S3...
+📋 [SERVER] Prepared 5 agent outputs for upload
+📁 Scanning session directory: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/public/script-1753331953615-0080ca8f
+📤 Uploaded: beat_1.png -> input/project-script-1753331953615-0080ca8f/beat_1.png
+📤 Uploaded image: beat_1.png
+📤 Uploaded: beat_2.png -> input/project-script-1753331953615-0080ca8f/beat_2.png
+📤 Uploaded image: beat_2.png
+📤 Uploaded: beat_3.png -> input/project-script-1753331953615-0080ca8f/beat_3.png
+📤 Uploaded image: beat_3.png
+📤 Uploaded: beat_4.png -> input/project-script-1753331953615-0080ca8f/beat_4.png
+📤 Uploaded image: beat_4.png
+📤 Uploaded: beat_5.png -> input/project-script-1753331953615-0080ca8f/beat_5.png
+📤 Uploaded image: beat_5.png
+📤 Uploaded: beat_6.png -> input/project-script-1753331953615-0080ca8f/beat_6.png
+📤 Uploaded image: beat_6.png
+📤 Uploaded: beat_7.png -> input/project-script-1753331953615-0080ca8f/beat_7.png
+📤 Uploaded image: beat_7.png
+📤 Uploaded: audio.wav -> input/project-script-1753331953615-0080ca8f/audio.wav
+📤 Uploaded audio: audio.wav
+📤 Uploaded: transcription.json -> input/project-script-1753331953615-0080ca8f/transcription.json
+📤 Uploaded transcription: transcription.json
+📤 Uploaded: director.json -> input/project-script-1753331953615-0080ca8f/director.json
+📤 Uploaded agent output: director.json
+📤 Uploaded: dop.json -> input/project-script-1753331953615-0080ca8f/dop.json
+📤 Uploaded agent output: dop.json
+📤 Uploaded: producer.json -> input/project-script-1753331953615-0080ca8f/producer.json
+📤 Uploaded agent output: producer.json
+📤 Uploaded: prompt_engineer.json -> input/project-script-1753331953615-0080ca8f/prompt_engineer.json
+📤 Uploaded agent output: prompt_engineer.json
+📤 Uploaded: vision.json -> input/project-script-1753331953615-0080ca8f/vision.json
+📤 Uploaded agent output: vision.json
+✅ Successfully uploaded 14 assets for project script-1753331953615-0080ca8f
+✅ [SERVER] Uploaded 14 assets to S3: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/audio.wav',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/transcription.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/director.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/dop.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/producer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/prompt_engineer.json',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/vision.json'
+]
+📖 [SERVER] Step 5: Parsing session data for editing agent...
+🖼️ [SERVER] Found 7 images: [
+  'beat_1.png',
+  'beat_2.png',
+  'beat_3.png',
+  'beat_4.png',
+  'beat_5.png',
+  'beat_6.png',
+  'beat_7.png'
+]
+🎵 [SERVER] Found audio: true (audio.wav)
+📝 [SERVER] Found transcription: true (transcription.json)
+🤖 [SERVER] Found 15 agent outputs: [
+  'director.json',
+  'dop.json',
+  'producer.json',
+  'prompt_engineer.json',
+  'vision.json',
+  'vision_enhanced_director_2025-07-24T04-41-19-952Z.json',
+  'vision_enhanced_director_2025-07-24T04-47-31-810Z.json',
+  'vision_enhanced_dop_2025-07-24T04-41-44-038Z.json',
+  'vision_enhanced_dop_2025-07-24T04-47-39-485Z.json',
+  'vision_enhanced_producer_2025-07-24T04-40-01-600Z.json',
+  'vision_enhanced_producer_2025-07-24T04-47-15-967Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json',
+  'vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json',
+  'vision_understanding_2025-07-24T04-39-32-307Z.json',
+  'vision_understanding_2025-07-24T04-46-53-682Z.json'
+]
+🤖 [SERVER] Step 5: Parsing agent outputs...
+📄 [SERVER] Processing agent file: director.json
+📊 [SERVER] Agent file director.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in director.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: dop.json
+📊 [SERVER] Agent file dop.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: producer.json
+📊 [SERVER] Agent file producer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: prompt_engineer.json
+📊 [SERVER] Agent file prompt_engineer.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision.json
+📊 [SERVER] Agent file vision.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-41-19-952Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-41-19-952Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 25,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+📊 [SERVER] Agent file vision_enhanced_director_2025-07-24T04-47-31-810Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: true,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+🎬 [SERVER] Found director data in vision_enhanced_director_2025-07-24T04-47-31-810Z.json
+🎭 [SERVER] Extracted director structure: {
+  hasProjectMetadata: true,
+  hasNarrativeBeats: true,
+  narrativeBeatsCount: 7,
+  contentType: undefined,
+  primaryConcept: undefined,
+  coreConcept: undefined
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-41-44-038Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-41-44-038Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_dop_2025-07-24T04-47-39-485Z.json
+📊 [SERVER] Agent file vision_enhanced_dop_2025-07-24T04-47-39-485Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-40-01-600Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-40-01-600Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_producer_2025-07-24T04-47-15-967Z.json
+📊 [SERVER] Agent file vision_enhanced_producer_2025-07-24T04-47-15-967Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-41-56-336Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json
+📊 [SERVER] Agent file vision_enhanced_prompt_engineer_2025-07-24T04-47-44-537Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-39-32-307Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-39-32-307Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+📄 [SERVER] Processing agent file: vision_understanding_2025-07-24T04-46-53-682Z.json
+📊 [SERVER] Agent file vision_understanding_2025-07-24T04-46-53-682Z.json structure: {
+  hasVisualBeats: false,
+  hasNarrativeBeats: false,
+  hasStage2Director: false,
+  hasStage4Director: false,
+  hasResponse: true,
+  hasDirectorOutput: false,
+  topLevelKeys: [ 'metadata', 'input', 'response', 'rawResponse' ]
+}
+⚠️ No image prompts found, creating fallbacks
+🎬 [SERVER] Step 6: Preparing editing agent input...
+📋 [SERVER] Editing agent input prepared: {
+  s3VideoFilesCount: 7,
+  hasDirectorOutput: true,
+  imagePromptsCount: 7,
+  videoPromptsCount: 7,
+  subtitleStyle: 'simple_caption',
+  advancedMode: false,
+  projectId: 'script-1753331953615-0080ca8f',
+  totalDuration: 21
+}
+🎬 [SERVER] S3 video files: [
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_1.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_2.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_3.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_4.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_5.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_6.png',
+  's3://vinvideo/input/project-script-1753331953615-0080ca8f/beat_7.png'
+]
+📝 [SERVER] Director output preview: {
+  primaryConcept: 'Generated video content',
+  beatsCount: 0,
+  targetPlatform: 'tiktok'
+}
+🤖 [SERVER] Step 7: Calling editing agent...
+🌐 [SERVER] Calling editing agent at: http://localhost:3002/api/editing-agent
+ ✓ Compiled /api/editing-agent in 38ms (373 modules)
+🎬 Calling Editing Agent for video assembly...
+S3 Video Files: 7 beats
+Mode: Simple
+Platform: tiktok
+Subtitle Style: simple_caption
+Duration Target: 21s
+Sending request to Editing Agent via OpenRouter...
+ POST /api/submit-for-editing 200 in 8980ms
+✅ Editing Agent response received in 913ms
+Raw response preview: {
+  "composition": {
+    "format": "9:16",
+    "duration": 21.0,
+    "fps": 30,
+    "background_color": [0, 0, 0]
+  },
+  "layers": [
+    {
+      "type": "video",
+      "source": "s3://vinvideo/input/p...
+[editing-agent] JSON parsing status: valid
+✅ Editing plan validation passed
+📁 Saved editing-agent response to: /Users/naman/Downloads/Connected_vin_video/VinVideo_Connected/temp_files/test_results/Test_56
+🎬 Editing Agent completed successfully:
+- Mode: Simple
+- Layers: 7
+- Duration: 21s
+- Platform: tiktok
+- Transitions: 0
+- Cost: $0.0068
+ POST /api/editing-agent 200 in 5423ms
+⏱️ [SERVER] Editing agent request completed in 5424ms, status: 200
+📋 [SERVER] Editing agent response: {
+  success: true,
+  hasEditingPlan: true,
+  processingInfo: {
+    execution_time_ms: 913,
+    tokens_used: 3376,
+    mode_used: 'simple',
+    cost_estimate: 0.006751999999999999
+  },
+  errorCode: undefined
+}
+🚀 [SERVER] Step 8: Calling RunPod for video generation...
+ ✓ Compiled /api/process-with-runpod in 44ms (375 modules)
+
+🎬 [RUNPOD] ===== PROCESS WITH RUNPOD API STARTED =====
+🕐 [RUNPOD] Start time: 2025-07-24T11:02:39.659Z
+📋 [RUNPOD] Request body received: {
+  projectId: 'script-1753331953615-0080ca8f',
+  hasEditingPlan: true,
+  s3AssetsCount: 14,
+  processingMode: 'simple'
+}
+🔑 [RUNPOD] API key configured: rpa_49YTTC...
+🚀 [RUNPOD] Endpoint ID: 24rtmo4glx3bun
+📦 [RUNPOD] Payload prepared: {
+  projectId: 'script-1753331953615-0080ca8f',
+  s3FolderPath: 'input/project-script-1753331953615-0080ca8f',
+  outputPath: 'output/project-script-1753331953615-0080ca8f/final_video.mp4',
+  processingMode: 'simple',
+  hasEditingPlan: true,
+  s3AssetsCount: 14
+}
+🚀 [RUNPOD] Calling RunPod endpoint...
+⏱️ [RUNPOD] RunPod request completed in 1380ms, status: 200
+📋 [RUNPOD] RunPod response: { status: 'COMPLETED', hasOutput: false, executionTime: 32 }
+✅ [RUNPOD] RunPod job completed
+📊 [RUNPOD] Execution time: 32ms
+🎥 [RUNPOD] Video URL: Still processing...
+📊 [RUNPOD] Total request time: 1380ms
+⏳ [RUNPOD] Job completed but video still processing...
+
+ POST /api/process-with-runpod 200 in 1435ms
+⏱️ [SERVER] RunPod request completed in 1436ms, status: 200
+📋 [SERVER] RunPod response: {
+  success: true,
+  hasVideoUrl: false,
+  runpodJobId: 'sync-a1a204ba-812b-4c4a-b6db-4ee3453715c1-u1',
+  processingStatus: 'processing'
+}
+🎥 [SERVER] Final video generated: null
+✅ [SERVER] Submit-for-editing completed successfully in 10797ms
+📊 [SERVER] Final summary:
+   - Assets uploaded: 14
+   - Images processed: 7
+   - Audio file: true
+   - Transcription: true
+   - Agent files processed: 15
+   - Editing plan generated: true
+   - Final video generated: false
+   - RunPod job ID: sync-a1a204ba-812b-4c4a-b6db-4ee3453715c1-u1
+   - Total execution time: 10797ms
+🎉 [SERVER] ===== SUBMIT FOR EDITING COMPLETED =====
+
+ ✓ Compiled in 156ms
+[?25h

@@ -1,0 +1,450 @@
+/* Test Convert to Video Page Styles */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.sessionInfo {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  font-family: 'Courier New', monospace;
+  text-align: left;
+  display: inline-block;
+}
+
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Audio Section */
+.audioSection {
+  margin-bottom: 40px;
+}
+
+.audioCard {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 25px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.audioPlayer {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.transcriptionPreview {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.transcriptText {
+  font-style: italic;
+  margin: 10px 0;
+  line-height: 1.6;
+  color: #f0f0f0;
+}
+
+.transcriptMeta {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 10px;
+}
+
+/* Images Section */
+.imagesSection {
+  margin-bottom: 40px;
+}
+
+.imagesSection h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.imageItem {
+  text-align: center;
+}
+
+.imageWrapper {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.imageWrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.image {
+  border-radius: 8px;
+  width: 100%;
+  height: auto;
+  max-width: 160px;
+  object-fit: cover;
+}
+
+.imageLabel {
+  margin-top: 10px;
+  font-weight: bold;
+  opacity: 0.9;
+}
+
+.imageDescription {
+  margin-top: 5px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Conversion Section */
+.conversionSection {
+  margin-bottom: 40px;
+}
+
+.conversionSection h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.conversionCard {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.conversionReady {
+  text-align: center;
+}
+
+.conversionReady ul {
+  text-align: left;
+  display: inline-block;
+  margin: 20px 0;
+}
+
+.conversionReady li {
+  margin: 8px 0;
+  font-size: 1.1rem;
+}
+
+.agentPreview {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.agentPreview h4 {
+  margin-bottom: 10px;
+  color: #4ecdc4;
+}
+
+.agentPreview p {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.convertButton {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.convertButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.convertButton:disabled {
+  background: rgba(150, 150, 150, 0.5);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.convertButton:disabled:hover {
+  transform: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Progress */
+.conversionProgress {
+  text-align: center;
+}
+
+.progressBar {
+  width: 100%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  transition: width 0.5s ease;
+  border-radius: 10px;
+}
+
+.progressText {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+/* Error State */
+.error {
+  text-align: center;
+  background: rgba(255, 107, 107, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.retryButton {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  transform: translateY(-2px);
+}
+
+/* Success State */
+.success {
+  text-align: center;
+  background: rgba(76, 175, 80, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.editingPlanPreview {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.editingPlanDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.fullEditingPlan {
+  margin-top: 15px;
+}
+
+.fullEditingPlan summary {
+  cursor: pointer;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.jsonPreview {
+  background: #1a1a1a;
+  color: #f8f8f2;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.resetButton {
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.resetButton:hover {
+  transform: translateY(-2px);
+}
+
+/* Status Section */
+.statusSection {
+  margin-bottom: 40px;
+}
+
+.statusSection h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.statusItem {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.statusItem h3 {
+  margin-bottom: 15px;
+  color: #4ecdc4;
+}
+
+.statusItem ul {
+  list-style: none;
+  padding: 0;
+}
+
+.statusItem li {
+  padding: 5px 0;
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .conversionCard {
+    padding: 20px;
+  }
+
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .convertButton {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+}

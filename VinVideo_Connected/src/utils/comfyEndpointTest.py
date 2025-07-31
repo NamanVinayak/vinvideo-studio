@@ -214,8 +214,8 @@ def generate_image(prompt="cute anime girl with massive fluffy fennec ears and a
       },
       "27": {
         "inputs": {
-          "width": 1216,
-          "height": 832,
+          "width": 1344,
+          "height": 768,
           "batch_size": 1
         },
         "class_type": "EmptySD3LatentImage",
@@ -572,7 +572,7 @@ def main():
         print(f"Extracted prompt: {actual_prompt[:100]}...")
         
         # Generate image with this prompt
-        output_filename = f"prompt_engineer_image_{i}.png"
+        output_filename = f"beat_{i}.png"
         print(f"Generating image: {output_filename}")
         
         result = generate_image(

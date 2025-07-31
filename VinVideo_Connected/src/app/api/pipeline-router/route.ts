@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "deepseek/deepseek-r1",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",

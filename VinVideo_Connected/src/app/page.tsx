@@ -559,6 +559,9 @@ export default function Home() {
           <Link href="/universal-video-chat" className={styles.navButton}>
             🎬 Universal Video Chat
           </Link>
+          <Link href="/test-convert-to-video" className={styles.navButton}>
+            🎥 Test S3 Video Generation
+          </Link>
         </div>
       </nav>
 

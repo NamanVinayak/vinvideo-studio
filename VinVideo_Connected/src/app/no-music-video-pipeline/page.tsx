@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
@@ -28,9 +28,16 @@ interface NoMusicVideoState {
     elapsedTime: number;
     isRunning: boolean;
   };
+  videoConversion: {
+    isConverting: boolean;
+    editingPlan: any | null;
+    finalVideoUrl: string | null;
+    error: string | null;
+    message: string;
+  };
 }
 
-export default function NoMusicVideoPipelinePage() {
+function NoMusicVideoPipelinePageInner() {
   const searchParams = useSearchParams();
   const conversationMode = searchParams?.get('conversationMode') === 'true';
   const urlConcept = searchParams?.get('concept');
@@ -38,6 +45,9 @@ export default function NoMusicVideoPipelinePage() {
   const urlPacing = searchParams?.get('pacing');
   const urlDuration = searchParams?.get('duration');
   const urlContentType = searchParams?.get('contentType');
+  
+  // Session management
+  const [projectFolderId] = useState(() => `no-music-video-${Date.now()}`);
   
   // Execution flags to prevent infinite loops (4-stage pipeline)
   const [stageExecutionFlags, setStageExecutionFlags] = useState({
@@ -67,6 +77,13 @@ export default function NoMusicVideoPipelinePage() {
       startTime: null,
       elapsedTime: 0,
       isRunning: false
+    },
+    videoConversion: {
+      isConverting: false,
+      editingPlan: null,
+      finalVideoUrl: null,
+      error: null,
+      message: ''
     }
   });
 
@@ -149,7 +166,7 @@ export default function NoMusicVideoPipelinePage() {
           response: result,
           pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
-          projectFolder: `no_music_video_merged_${Date.now()}`,
+          projectFolder: projectFolderId,
           input: {
             userInput: formData.concept,
             noMusicUserContext
@@ -214,7 +231,7 @@ export default function NoMusicVideoPipelinePage() {
           response: result,
           pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
-          projectFolder: `no_music_video_merged_${Date.now()}`,
+          projectFolder: projectFolderId,
           input: {
             directorVisualBeats,
             visionDocument: visionDocument,
@@ -289,7 +306,7 @@ export default function NoMusicVideoPipelinePage() {
           response: result,
           pipelineType: 'NO_MUSIC_VIDEO',
           sessionId: `no_music_video_merged_${Date.now()}`,
-          projectFolder: `no_music_video_merged_${Date.now()}`,
+          projectFolder: projectFolderId,
           input: {
             userVisionDocument: visionDocument,
             directorBeats,
@@ -353,8 +370,8 @@ export default function NoMusicVideoPipelinePage() {
       console.log('🔍 CRITICAL DEBUG - Final Prompt Strings Being Sent to API:', promptStrings);
       console.log('🔍 CRITICAL DEBUG - First 2 final prompts preview:', promptStrings.slice(0, 2));
       
-      // Generate a folder ID for this run
-      const folderId = `music-video-${Date.now()}`;
+      // Use the consistent project folder ID
+      const folderId = projectFolderId;
       
       // Use streaming image generation with fallback to concurrent
       let response;
@@ -650,6 +667,79 @@ export default function NoMusicVideoPipelinePage() {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
+  };
+
+  // Video conversion handler
+  const handleConvertToVideo = async () => {
+    console.log('🎬 Starting video conversion...');
+    
+    setState(prev => ({
+      ...prev,
+      videoConversion: {
+        ...prev.videoConversion,
+        isConverting: true,
+        error: null,
+        message: 'Preparing assets for video conversion...'
+      }
+    }));
+
+    try {
+      // Call the submit-for-editing bridge API
+      const response = await fetch('/api/submit-for-editing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: projectFolderId,
+          subtitleStyle: 'simple_caption',
+          advancedMode: false, // Start with simple mode
+          platform: 'tiktok',
+          userContext: {
+            originalPrompt: urlConcept || 'No-music video content',
+            projectSettings: {
+              duration: parseInt(urlDuration || '30'),
+              style_preference: urlStyle || 'dynamic',
+              pacing_preference: urlPacing || 'medium',
+              target_audience: 'general'
+            }
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Video conversion failed');
+      }
+
+      const result = await response.json();
+      
+      setState(prev => ({
+        ...prev,
+        videoConversion: {
+          ...prev.videoConversion,
+          isConverting: false,
+          editingPlan: result.editingPlan,
+          message: 'Editing plan generated successfully! Video processing will begin shortly.',
+          error: null
+        }
+      }));
+
+      console.log('✅ Video conversion completed:', result);
+
+    } catch (error) {
+      console.error('❌ Video conversion failed:', error);
+      
+      setState(prev => ({
+        ...prev,
+        videoConversion: {
+          ...prev.videoConversion,
+          isConverting: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+          message: 'Video conversion failed'
+        }
+      }));
+    }
   };
 
   return (
@@ -1054,10 +1144,72 @@ export default function NoMusicVideoPipelinePage() {
                 </div>
               ))}
             </div>
+
+            {/* Convert to Video Section */}
+            {state.generatedImages.length > 0 && !state.imageGenerationProgress.isGenerating && (
+              <div className={styles.convertToVideoSection}>
+                <h3>🎬 Professional Video Editing</h3>
+                
+                {state.videoConversion.error && (
+                  <div className={styles.agentError}>
+                    <strong>Video Conversion Error:</strong> {state.videoConversion.error}
+                  </div>
+                )}
+                
+                <div className={styles.videoConversionStatus}>
+                  <div>
+                    <strong>Status:</strong> {state.videoConversion.isConverting ? '🔄 Converting...' : 
+                      state.videoConversion.editingPlan ? '✅ Ready for Processing' : '⏸️ Ready to Convert'}
+                  </div>
+                  {state.videoConversion.message && (
+                    <div>
+                      <strong>Message:</strong> {state.videoConversion.message}
+                    </div>
+                  )}
+                </div>
+
+                {!state.videoConversion.isConverting ? (
+                  <button 
+                    onClick={handleConvertToVideo}
+                    className={styles.convertToVideoButton}
+                    disabled={state.generatedImages.length === 0}
+                  >
+                    🎬 Convert to Professional Video
+                  </button>
+                ) : (
+                  <div className={styles.conversionProgress}>
+                    <div className={styles.loadingIcon}>⏳</div>
+                    <p>Converting images to professional video...</p>
+                  </div>
+                )}
+
+                {state.videoConversion.editingPlan && (
+                  <div className={styles.editingPlanPreview}>
+                    <h4>📋 Editing Plan Generated</h4>
+                    <div className={styles.planDetails}>
+                      <div><strong>Platform:</strong> {state.videoConversion.editingPlan.export?.platform || 'TikTok'}</div>
+                      <div><strong>Duration:</strong> {state.videoConversion.editingPlan.composition?.duration || 0}s</div>
+                      <div><strong>Layers:</strong> {state.videoConversion.editingPlan.layers?.length || 0}</div>
+                      <div><strong>Effects:</strong> {state.videoConversion.editingPlan.transitions?.length || 0} transitions</div>
+                    </div>
+                    <p><em>Video processing will begin automatically. Your final video will be ready shortly!</em></p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : null}
 
       </main>
     </div>
+  );
+}
+
+// Wrap the component in Suspense to handle useSearchParams()
+export default function NoMusicVideoPipelinePage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '20px' }}>Loading no-music video pipeline...</div>}>
+      <NoMusicVideoPipelinePageInner />
+    </Suspense>
   );
 }

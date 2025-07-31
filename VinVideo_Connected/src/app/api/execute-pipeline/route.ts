@@ -95,14 +95,50 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Pipeline completed successfully
-    return NextResponse.json({
-      success: true,
-      pipeline,
-      stages,
-      results,
-      sessionId
-    });
+    // Add automatic S3 upload stage after pipeline completion
+    try {
+      console.log('\n📤 Starting automatic S3 upload...');
+      
+      const { uploadVinVideoAssets } = await import('@/utils/s3Manager');
+      const sessionDir = `public/${parameters.folderId}`;
+      const projectId = parameters.folderId.replace(/[^a-zA-Z0-9-]/g, '-'); // Clean project ID for S3
+      
+      const uploadedAssets = await uploadVinVideoAssets(projectId, sessionDir, results);
+      
+      console.log(`✅ S3 upload completed: ${uploadedAssets.length} assets uploaded`);
+      
+      // Pipeline completed successfully with S3 upload
+      return NextResponse.json({
+        success: true,
+        pipeline,
+        stages,
+        results,
+        sessionId,
+        s3Upload: {
+          success: true,
+          projectId,
+          uploadedAssets,
+          s3Bucket: process.env.BUCKET_NAME
+        }
+      });
+      
+    } catch (s3Error) {
+      console.warn('⚠️ S3 upload failed, but pipeline completed successfully:', s3Error);
+      
+      // Pipeline completed successfully, but S3 upload failed
+      return NextResponse.json({
+        success: true,
+        pipeline,
+        stages,
+        results,
+        sessionId,
+        s3Upload: {
+          success: false,
+          error: s3Error instanceof Error ? s3Error.message : 'S3 upload failed',
+          note: 'Pipeline completed successfully despite S3 upload failure'
+        }
+      });
+    }
     
   } catch (error) {
     console.error('Pipeline execution error:', error);

@@ -720,7 +720,7 @@ class ConcurrentImageGenerator:
         
         try:
             output = job_info.result
-            filename = f"prompt_engineer_image_{job_info.prompt_index + 1}.png"
+            filename = f"beat_{job_info.prompt_index + 1}.png"
             
             # Try different output formats
             if isinstance(output, dict) and 'message' in output:

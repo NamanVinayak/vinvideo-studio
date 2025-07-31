@@ -112,8 +112,8 @@ export async function POST(request: Request) {
             const fileName = path.basename(imagePath);
             const imageUrl = `/${folderId}/${fileName}`;
             
-            // Extract the image index from the filename (prompt_engineer_image_X.png)
-            const indexMatch = fileName.match(/prompt_engineer_image_(\d+)\.png/);
+            // Extract the image index from the filename (beat_X.png)
+            const indexMatch = fileName.match(/beat_(\d+)\.png/);
             const imageIndex = indexMatch ? parseInt(indexMatch[1]) - 1 : currentImageIndex;
             
             // Ensure we don't add duplicates
@@ -177,8 +177,8 @@ export async function POST(request: Request) {
             const fileName = path.basename(imagePath);
             const imageUrl = `/${folderId}/${fileName}`;
             
-            // Extract the image index from the filename (prompt_engineer_image_X.png)
-            const indexMatch = fileName.match(/prompt_engineer_image_(\d+)\.png/);
+            // Extract the image index from the filename (beat_X.png)
+            const indexMatch = fileName.match(/beat_(\d+)\.png/);
             const imageIndex = indexMatch ? parseInt(indexMatch[1]) - 1 : currentImageIndex;
             
             // Ensure we don't add duplicates

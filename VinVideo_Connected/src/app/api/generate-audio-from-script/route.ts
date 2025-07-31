@@ -377,16 +377,16 @@ Process this script for TTS while maintaining complete content fidelity:
 
 ${script}`;
     
-    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-flash)...');
+    console.log('Sending prompt to OpenRouter Gemini (google/gemini-2.5-pro)...');
     console.log('🔧 OpenRouter request payload preview:');
-    console.log('- Model:', "google/gemini-2.5-flash");
+    console.log('- Model:', "google/gemini-2.5-pro");
     console.log('- Max tokens:', 2000);
     console.log('- Temperature:', 0.3);
     console.log('- Prompt contains original script:', prompt.includes(script));
     
     // OpenRouter API call
     const payload = {
-      model: "google/gemini-2.5-flash", // Remove :thinking to avoid meta-commentary
+      model: "google/gemini-2.5-pro", // Remove :thinking to avoid meta-commentary
       messages: [
         {
           role: "user",

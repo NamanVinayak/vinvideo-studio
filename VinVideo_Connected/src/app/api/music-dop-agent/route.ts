@@ -105,7 +105,7 @@ Generate cinematography specifications for all ${directorVisualBeats.length} bea
 
     // Create the request payload for OpenRouter
     const payload = {
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [
         {
           role: "system",

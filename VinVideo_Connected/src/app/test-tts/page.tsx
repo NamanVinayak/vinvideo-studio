@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
@@ -177,7 +177,7 @@ interface VisionFormData {
   contentType: 'general' | 'educational' | 'storytelling' | 'abstract';
 }
 
-export default function TestTTS() {
+function TestTTSInner() {
   const searchParams = useSearchParams();
   const conversationMode = searchParams?.get('conversationMode') === 'true';
   const conversationData = searchParams?.get('conversation');
@@ -226,6 +226,15 @@ export default function TestTTS() {
     style: 'cinematic' as 'cinematic' | 'documentary' | 'artistic' | 'minimal',
     pacing: 'medium' as 'slow' | 'medium' | 'fast',
     contentType: 'general' as string
+  });
+
+  // Video conversion state
+  const [videoConversion, setVideoConversion] = useState({
+    isConverting: false,
+    editingPlan: null as any | null,
+    finalVideoUrl: null as string | null,
+    error: null as string | null,
+    message: ''
   });
 
   // NEW: Voice preference state
@@ -1921,6 +1930,83 @@ export default function TestTTS() {
     }
   };
 
+  // Video conversion handler
+  const handleConvertToVideo = async () => {
+    console.log('🎬 Starting video conversion...');
+    
+    if (!folderId) {
+      console.error('No folder ID available for video conversion');
+      return;
+    }
+    
+    setVideoConversion(prev => ({
+      ...prev,
+      isConverting: true,
+      error: null,
+      message: 'Preparing assets for video conversion...'
+    }));
+
+    try {
+      // Get user requirements from form data
+      const userRequirements = useVisionMode ? visionFormData : {
+        concept: 'Script-based video content',
+        duration: 30, // Will be calculated from TTS duration
+        style: scriptFormData.style,
+        pacing: scriptFormData.pacing
+      };
+
+      // Call the submit-for-editing bridge API
+      const response = await fetch('/api/submit-for-editing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sessionId: folderId,
+          subtitleStyle: 'simple_caption',
+          advancedMode: false, // Start with simple mode
+          platform: 'tiktok',
+          userContext: {
+            originalPrompt: userRequirements.concept,
+            projectSettings: {
+              duration: userRequirements.duration,
+              style_preference: userRequirements.style,
+              pacing_preference: userRequirements.pacing,
+              target_audience: 'general'
+            }
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Video conversion failed');
+      }
+
+      const result = await response.json();
+      
+      setVideoConversion(prev => ({
+        ...prev,
+        isConverting: false,
+        editingPlan: result.editingPlan,
+        message: 'Editing plan generated successfully! Video processing will begin shortly.',
+        error: null
+      }));
+
+      console.log('✅ Video conversion completed:', result);
+
+    } catch (error) {
+      console.error('❌ Video conversion failed:', error);
+      
+      setVideoConversion(prev => ({
+        ...prev,
+        isConverting: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        message: 'Video conversion failed'
+      }));
+    }
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Complete Video Production Workflow</h1>
@@ -3099,6 +3185,59 @@ export default function TestTTS() {
                   </div>
                 ))}
               </div>
+
+              {/* Convert to Video Section */}
+              {generatedImages.length > 0 && !imageGenerationProgress.isGenerating && (
+                <div className={styles.convertToVideoSection}>
+                  <h3>🎬 Professional Video Editing</h3>
+                  
+                  {videoConversion.error && (
+                    <div className={styles.agentError}>
+                      <strong>Video Conversion Error:</strong> {videoConversion.error}
+                    </div>
+                  )}
+                  
+                  <div className={styles.videoConversionStatus}>
+                    <div>
+                      <strong>Status:</strong> {videoConversion.isConverting ? '🔄 Converting...' : 
+                        videoConversion.editingPlan ? '✅ Ready for Processing' : '⏸️ Ready to Convert'}
+                    </div>
+                    {videoConversion.message && (
+                      <div>
+                        <strong>Message:</strong> {videoConversion.message}
+                      </div>
+                    )}
+                  </div>
+
+                  {!videoConversion.isConverting ? (
+                    <button 
+                      onClick={handleConvertToVideo}
+                      className={styles.convertToVideoButton}
+                      disabled={generatedImages.length === 0}
+                    >
+                      🎬 Convert to Professional Video
+                    </button>
+                  ) : (
+                    <div className={styles.conversionProgress}>
+                      <div className={styles.loadingIcon}>⏳</div>
+                      <p>Converting images to professional video...</p>
+                    </div>
+                  )}
+
+                  {videoConversion.editingPlan && (
+                    <div className={styles.editingPlanPreview}>
+                      <h4>📋 Editing Plan Generated</h4>
+                      <div className={styles.planDetails}>
+                        <div><strong>Platform:</strong> {videoConversion.editingPlan.export?.platform || 'TikTok'}</div>
+                        <div><strong>Duration:</strong> {videoConversion.editingPlan.composition?.duration || 0}s</div>
+                        <div><strong>Layers:</strong> {videoConversion.editingPlan.layers?.length || 0}</div>
+                        <div><strong>Effects:</strong> {videoConversion.editingPlan.transitions?.length || 0} transitions</div>
+                      </div>
+                      <p><em>Video processing will begin automatically. Your final video will be ready shortly!</em></p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ) : null}
@@ -3314,5 +3453,14 @@ export default function TestTTS() {
         )}
       </div>
     </div>
+  );
+}
+
+// Wrap the component in Suspense to handle useSearchParams()
+export default function TestTTS() {
+  return (
+    <Suspense fallback={<div style={{ padding: '20px' }}>Loading TTS test...</div>}>
+      <TestTTSInner />
+    </Suspense>
   );
 }
