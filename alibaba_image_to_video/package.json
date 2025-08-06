@@ -1,0 +1,20 @@
+{
+  "name": "alibaba_image_to_video",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.858.0",
+    "@aws-sdk/lib-storage": "^3.858.0",
+    "@aws-sdk/s3-request-presigner": "^3.858.0",
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1"
+  }
+}
