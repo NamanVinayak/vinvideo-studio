@@ -1,6 +1,12 @@
 # VinVideo Studio
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+
 🎥 AI video production studio — full-stack automation from script to video assembly.
+
+**Part of the VinVideo suite:** [vinvideo-ui](https://github.com/NamanVinayak/vinvideo-ui) · [vinvideo-landing](https://github.com/NamanVinayak/vinvideo-landing)
 
 ## Overview
 This highly comprehensive Next.js application automates the process of transforming written scripts into fully edited video projects. It handles the complete workflow: script formatting, text-to-speech generation, pacing analysis, logic segmentation, contextual AI image generation, and assembly.
